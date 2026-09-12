@@ -1,0 +1,10 @@
+{
+  "description": "Facilitates collaborative plan review by enabling users to analyze, comment, and share feedback efficiently for informed decision-making.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
