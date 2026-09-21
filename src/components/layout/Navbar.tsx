@@ -11,16 +11,21 @@ const navLinks = [
   { label: 'Shows', to: '/shows' },
   { label: 'Movies', to: '/movies' },
   { label: 'Music', to: '/music' },
-  { label: 'Sports', to: '/sports' },
-  { label: 'News', to: '/news' },
   { label: 'Events', to: '/events' },
   { label: 'Shop', to: '/shop' },
+]
+
+const moreLinks = [
+  { label: 'Awards', to: '/awards', accent: true },
   { label: 'Lifestyle', to: '/lifestyle' },
+  { label: 'News', to: '/news' },
+  { label: 'Sports', to: '/sports' },
 ]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
   const [notifOpen, setNotifOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(3)
@@ -80,10 +85,34 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link to="/awards" className="px-3 py-1.5 text-sm text-[#C9A84C] hover:text-[#E2C36A] transition-colors rounded-md hover:bg-[#C9A84C]/5 flex items-center gap-1">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse" />
-              Awards
-            </Link>
+            {/* More dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setMoreOpen(v => !v)}
+                onBlur={() => setTimeout(() => setMoreOpen(false), 150)}
+                className="px-3 py-1.5 text-sm text-[#A3A3A3] hover:text-[#F5F5F5] transition-colors rounded-md hover:bg-white/5 flex items-center gap-1 cursor-pointer"
+              >
+                More
+                <svg className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {moreOpen && (
+                <div className="absolute top-full left-0 mt-1 w-44 bg-[#141414] border border-white/10 rounded-xl overflow-hidden shadow-xl z-50">
+                  {moreLinks.map(link => (
+                    <Link
+                      key={link.label}
+                      to={link.to}
+                      onClick={() => setMoreOpen(false)}
+                      className={`flex items-center gap-2 px-4 py-3 text-sm transition-colors hover:bg-white/5 border-b border-white/5 last:border-0 ${link.accent ? 'text-[#C9A84C] hover:text-[#E2C36A]' : 'text-[#A3A3A3] hover:text-[#F5F5F5]'}`}
+                    >
+                      {link.accent && <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse flex-shrink-0" />}
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
           </nav>
 
           {/* Right actions */}
@@ -204,10 +233,14 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            <Link to="/awards" onClick={closeMobile} className="py-2 text-[#C9A84C] text-sm border-b border-white/5 flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse" />
-              Awards
-            </Link>
+            {moreLinks.map(link => (
+              <Link key={link.label} to={link.to} onClick={closeMobile}
+                className={`py-2 text-sm border-b border-white/5 flex items-center gap-2 ${link.accent ? 'text-[#C9A84C]' : 'text-[#A3A3A3] hover:text-[#F5F5F5]'}`}
+              >
+                {link.accent && <div className="w-1.5 h-1.5 rounded-full bg-[#EF4444] animate-pulse" />}
+                {link.label}
+              </Link>
+            ))}
             <Link to="/my-list" onClick={closeMobile} className="py-2 text-[#A3A3A3] hover:text-[#F5F5F5] text-sm border-b border-white/5">
               My List
             </Link>
