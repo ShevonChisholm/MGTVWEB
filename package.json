@@ -7,7 +7,13 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "format": "oxfmt"
+    "format": "oxfmt",
+    "check:catalog": "node scripts/check-catalog.mjs",
+    "check:playback": "node scripts/check-playback.mjs",
+    "check:app-state": "node scripts/check-app-state.mjs",
+    "check:access": "node scripts/check-access.mjs",
+    "check:discovery": "node scripts/check-discovery.mjs",
+    "check:copy": "node scripts/check-copy.mjs"
   },
   "dependencies": {
     "react": "^19.0.0",

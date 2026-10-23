@@ -1,161 +1,124 @@
-import { useRef, useState } from 'react'
-import { SectionHeading } from './SectionHeading'
-import { ContentCard } from './ContentCard'
-import { VideoCard } from './VideoCard'
-import { ArtistCard } from './ArtistCard'
-import { NewsCard } from './NewsCard'
-import { EventCard } from './EventCard'
-import { MovieCard } from './MovieCard'
-import { MusicCard } from './MusicCard'
-import { ContinueWatchingCard } from './ContinueWatchingCard'
-import type { ContentItem } from '@/data/mockContent'
-
-type CardType = 'default' | 'video' | 'artist' | 'news' | 'event' | 'movie' | 'music' | 'continueWatching'
-
-const defaultLinkPrefix: Record<CardType, string> = {
-  default: '/shows',
-  video: '/sports',
-  artist: '/music/artist',
-  news: '/news',
-  event: '/events',
-  movie: '/movies',
-  music: '/music/video',
-  continueWatching: '/watch',
-}
+import { useId, useRef } from "react"
+import { Link } from "react-router"
+import { Button } from "@/components/ui/Button"
+import { Text } from "@/components/ui/Text"
+import { MediaCard } from "./MediaCard"
+import type { ContentItem } from "@/data/mockContent"
+import { useViewing } from "@/hooks/useViewing"
 
 interface ContentRailProps {
   title: string
   items: ContentItem[]
-  cardType?: CardType
+  cardType?: "default" | "video" | "artist" | "news" | "event" | "movie" | "music" | "continueWatching"
   seeAllHref?: string
+  seeAllLabel?: string
+  layout?: "page" | "contained"
   goldBorder?: boolean
   linkPrefix?: string
   context?: string
-  ranked?: boolean
 }
 
 export function ContentRail({
   title,
   items,
-  cardType = 'default',
+  cardType,
   seeAllHref,
-  goldBorder = false,
-  linkPrefix,
+  seeAllLabel,
+  layout = "page",
+  goldBorder,
   context,
-  ranked = false,
 }: ContentRailProps) {
   const railRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
-
-  const resolvedLinkPrefix = linkPrefix ?? defaultLinkPrefix[cardType]
-  const resolvedSeeAll = seeAllHref ?? defaultLinkPrefix[cardType]
-
-  const scroll = (dir: 'left' | 'right') => {
-    if (!railRef.current) return
-    railRef.current.scrollBy({ left: dir === 'right' ? 480 : -480, behavior: 'smooth' })
-  }
-
-  const onScroll = () => {
-    if (!railRef.current) return
-    setCanScrollLeft(railRef.current.scrollLeft > 0)
-    setCanScrollRight(railRef.current.scrollLeft + railRef.current.clientWidth < railRef.current.scrollWidth - 10)
-  }
-
-  const renderCard = (item: ContentItem, index: number) => {
-    const to = cardType === 'artist'
-      ? `/music/artist/${item.id}`
-      : `${resolvedLinkPrefix}/${item.id}`
-
-    const card = (() => {
-      switch (cardType) {
-        case 'movie': return <MovieCard key={item.id} item={item} to={to} />
-        case 'music': return <MusicCard key={item.id} item={item} to={to} />
-        case 'continueWatching': return <ContinueWatchingCard key={item.id} item={item} to={to} />
-        case 'video': return <VideoCard key={item.id} item={item} to={to} />
-        case 'artist': return <ArtistCard key={item.id} item={item} to={`/music/artist/${item.id}`} />
-        case 'news': return <NewsCard key={item.id} item={item} to={to} />
-        case 'event': return <EventCard key={item.id} item={item} to={to} />
-        default: return <ContentCard key={item.id} item={item} to={to} />
-      }
-    })()
-
-    if (ranked) {
-      return (
-        <div key={item.id} className="relative flex-shrink-0" style={{ scrollSnapAlign: 'start' }}>
-          <div
-            className="absolute -left-2 bottom-10 z-10 select-none pointer-events-none"
-            style={{
-              fontFamily: 'Bebas Neue, sans-serif',
-              fontSize: '4.5rem',
-              lineHeight: 1,
-              color: 'transparent',
-              WebkitTextStroke: '1px rgba(201,168,76,0.30)',
-              letterSpacing: '-0.02em',
-            }}
-          >
-            {index + 1}
-          </div>
-          <div className="pl-6">{card}</div>
-        </div>
-      )
-    }
-
-    return (
-      <div key={item.id} style={{ scrollSnapAlign: 'start' }}>
-        {card}
-      </div>
-    )
-  }
-
+  const headingId = useId()
+  const shell = layout === "page" ? "mx-auto max-w-7xl px-6 md:px-16" : ""
+  const { visibleItems } = useViewing()
+  items = visibleItems(items)
+  if (!items.length) return null
+  const scroll = (direction: number) =>
+    railRef.current?.scrollBy({
+      left: direction * railRef.current.clientWidth * 0.8,
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth",
+    })
   return (
-    <section className={`py-6 ${goldBorder ? 'border-t border-[#C9A84C]/20' : ''}`}>
-      <div className="px-8 md:px-16 mb-1">
-        {goldBorder && (
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-1 h-6 bg-[#C9A84C]" />
-            <span className="text-[#C9A84C] text-xs tracking-[0.3em] uppercase font-semibold">MGTV Originals</span>
-          </div>
-        )}
-        {context && (
-          <p className="text-[#4A4A4A] text-[11px] tracking-wide mb-1 italic">{context}</p>
-        )}
-      </div>
-      <SectionHeading title={title} seeAllHref={resolvedSeeAll} />
-
-      <div className="relative group/rail">
-        {canScrollLeft && (
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-[#0A0A0A]/90 border border-white/10 text-[#F5F5F5] hover:bg-[#C9A84C] hover:text-[#0A0A0A] hover:border-[#C9A84C] transition-all duration-200 flex items-center justify-center cursor-pointer opacity-0 group-hover/rail:opacity-100 shadow-lg"
+    <section
+      aria-labelledby={headingId}
+      className={`py-6 ${goldBorder ? "border-t border-gold/20" : ""}`}
+    >
+      <div
+        className={`mb-4 flex flex-wrap items-end justify-between gap-3 ${shell}`}
+      >
+        <div className="min-w-0">
+          {context && (
+            <Text className="mb-1 text-sm text-text-secondary">{context}</Text>
+          )}
+          <Text
+            as="h2"
+            id={headingId}
+            className="font-display text-2xl leading-tight tracking-wide text-text-primary md:text-3xl"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        )}
-
-        <div
-          ref={railRef}
-          onScroll={onScroll}
-          className="flex gap-3 overflow-x-auto scrollbar-hide px-8 md:px-16 pb-4 scroll-smooth"
-          style={{ scrollSnapType: 'x mandatory' }}
-        >
-          {items.map((item, i) => renderCard(item, i))}
+            {title}
+          </Text>
         </div>
-
-        {canScrollRight && (
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-9 h-9 bg-[#0A0A0A]/90 border border-white/10 text-[#F5F5F5] hover:bg-[#C9A84C] hover:text-[#0A0A0A] hover:border-[#C9A84C] transition-all duration-200 flex items-center justify-center cursor-pointer opacity-0 group-hover/rail:opacity-100 shadow-lg"
+        <div className="flex shrink-0 items-center gap-2">
+          {seeAllHref && seeAllLabel && (
+            <Link
+              to={seeAllHref}
+              className="mr-2 inline-flex min-h-11 items-center text-sm font-semibold text-gold"
+            >
+              {seeAllLabel}
+            </Link>
+          )}
+          {[-1, 1].map((direction) => (
+            <Button
+              key={direction}
+              variant="ghost"
+              size="sm"
+              className="min-h-11 min-w-11 px-2"
+              onClick={() => scroll(direction)}
+              aria-label={`Scroll ${title} ${direction < 0 ? "left" : "right"}`}
+            >
+              <svg
+                aria-hidden="true"
+                className="h-4 w-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeWidth={2}
+                  d={direction < 0 ? "m15 18-6-6 6-6" : "m9 18 6-6-6-6"}
+                />
+              </svg>
+            </Button>
+          ))}
+        </div>
+      </div>
+      <div
+        ref={railRef}
+        role="region"
+        aria-label={`${title} content`}
+        tabIndex={0}
+        className={`flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-3 pt-2 ${shell} ${
+          layout === "page" ? "scroll-px-6 md:scroll-px-16" : "pl-1"
+        }`}
+      >
+        {items.map((item) => (
+          <div
+            key={item.id}
+            className="relative flex shrink-0 snap-start flex-col"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        )}
-
-        <div className="absolute right-0 top-0 bottom-4 w-20 bg-gradient-to-l from-[#0A0A0A] to-transparent pointer-events-none" />
+            <MediaCard
+              item={item}
+              mode={cardType === "continueWatching" ? "continue" : "standard"}
+              trackIds={items
+                .filter((entry) => entry.type === "track")
+                .map((entry) => entry.id)}
+              trackOrigin={title}
+            />
+          </div>
+        ))}
       </div>
     </section>
   )

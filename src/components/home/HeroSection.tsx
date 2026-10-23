@@ -1,119 +1,88 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router'
-import { Button } from '@/components/ui/Button'
-import { Badge } from '@/components/ui/Badge'
-
-const heroSlides = [
-  {
-    id: 1,
-    title: 'ISLAND CHRONICLES',
-    subtitle: 'MGTV Original Series',
-    description: 'A sweeping saga of love, power, and identity across the Caribbean islands — five generations, one unforgettable story.',
-    image: 'https://images.unsplash.com/photo-1700720711254-602cb6b8468d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaW5lbWF0aWMlMjBjYXJpYmJlYW4lMjBuaWdodCUyMGVudGVydGFpbm1lbnQlMjBzdGFnZSUyMGNvbmNlcnQlMjBkcmFtYXRpY3xlbnwxfHx8fDE3ODg4Mjg0MjV8MA&ixlib=rb-4.1.0&q=80&w=1920',
-    badge: 'exclusive' as const,
-    genre: 'Drama · Series',
-    rating: 'TV-14',
-    watchTo: '/shows/t1',
-    infoTo: '/shows/t1',
-  },
-  {
-    id: 2,
-    title: 'RIDDIM NATION',
-    subtitle: 'Live Concert Experience',
-    description: 'The biggest names in reggae and dancehall unite for one historic night. Stream the full concert exclusively on MGTV+.',
-    image: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNpYyUyMGNvbmNlcnQlMjBmZXN0aXZhbCUyMGNyb3dkJTIwc3RhZ2UlMjBsaWdodHN8ZW58MXx8fHwxNzg4ODI4NDMzfDA&ixlib=rb-4.1.0&q=80&w=1920',
-    badge: 'premium' as const,
-    genre: 'Music · Live Event',
-    rating: 'TV-PG',
-    watchTo: '/music',
-    infoTo: '/music',
-  },
-  {
-    id: 3,
-    title: 'GOLDEN MILE',
-    subtitle: 'MGTV Sports Documentary',
-    description: 'The untold story of Jamaica\'s greatest sprinters — a documentary about sacrifice, glory, and the pursuit of gold.',
-    image: 'https://images.unsplash.com/photo-1763639700615-225fe7fdffff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cmFjayUyMGZpZWxkJTIwYXRobGV0ZSUyMHNwcmludCUyMHN0YWRpdW18ZW58MXx8fHwxNzg4ODI4NDMyfDA&ixlib=rb-4.1.0&q=80&w=1920',
-    badge: 'new' as const,
-    genre: 'Sports · Documentary',
-    rating: 'TV-G',
-    watchTo: '/movies/m2',
-    infoTo: '/sports',
-  },
-]
+import { useState } from "react"
+import { Button, ButtonLink } from "@/components/ui/Button"
+import { Badge } from "@/components/ui/Badge"
+import { Text } from "@/components/ui/Text"
+import { catalogById, contentPath } from "@/data/mockContent"
+import { useAppState } from "@/context/AppStateContext"
+import { useViewing } from "@/hooks/useViewing"
+import { EmptyFeature } from "@/components/shared/EmptyFeature"
 
 export function HeroSection() {
   const [active, setActive] = useState(0)
-  const navigate = useNavigate()
-  const slide = heroSlides[active]
-
+  const app = useAppState()
+  const { playableItem, watchPath } = useViewing()
+  const slides = app.visible(["t1", "m11", "m12"].map((id) => catalogById[id]))
+  const item = slides[active] ?? slides[0]
+  const displayedIndex = slides[active] ? active : 0
+  if (!item) return <EmptyFeature />
+  const playable = playableItem(item)
   return (
-    <section className="relative w-full h-screen min-h-[600px] max-h-[900px] overflow-hidden">
-      {heroSlides.map((s, i) => (
-        <div
-          key={s.id}
-          className={`absolute inset-0 transition-opacity duration-700 ${i === active ? 'opacity-100' : 'opacity-0'}`}
-        >
-          <img src={s.image} alt={s.title} className="w-full h-full object-cover object-center" />
-        </div>
+    <section className="relative flex min-h-144 w-full items-end overflow-hidden md:min-h-160">
+      {slides.map((slide, i) => (
+        <img
+          key={slide.id}
+          src={slide.thumbnail}
+          alt=""
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${
+            i === displayedIndex ? "opacity-100" : "opacity-0"
+          }`}
+        />
       ))}
-
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/30 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/80 via-[#0A0A0A]/20 to-transparent" />
-
-      <div className="relative h-full flex flex-col justify-end pb-20 px-8 md:px-16 max-w-[1400px] mx-auto">
+      <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/40 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-bg-base/95 via-bg-base/80 to-bg-base/70 md:via-bg-base/50 md:to-transparent" />
+      <div className="relative mx-auto w-full max-w-7xl px-6 pb-12 pt-32 md:px-16 md:pb-20">
         <div className="max-w-2xl">
-          <div className="flex items-center gap-3 mb-4">
-            <Badge variant={slide.badge} />
-            <span className="text-[#A3A3A3] text-xs tracking-widest uppercase">{slide.genre}</span>
-            <span className="text-[#6B6B6B] text-xs">{slide.rating}</span>
+          <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
+            {item.badge && <Badge variant={item.badge} />}
+            <Text as="span">
+              {item.genre} · {item.classification}
+            </Text>
+            <Text as="span">{item.duration}</Text>
           </div>
-
-          <p className="text-[#C9A84C] text-sm font-semibold tracking-[0.2em] uppercase mb-2">
-            {slide.subtitle}
-          </p>
-
-          <h1
-            className="text-6xl md:text-8xl lg:text-9xl text-[#F5F5F5] leading-none mb-5 tracking-wider"
-            style={{ fontFamily: 'Bebas Neue, sans-serif' }}
+          <Text className="mb-2 text-sm font-semibold uppercase tracking-widest text-gold">
+            {item.type === "show" ? "Series in the spotlight" : "Featured film"}
+          </Text>
+          <Text
+            as="h1"
+            className="mb-5 font-display text-5xl leading-none tracking-wide text-text-primary md:text-7xl"
           >
-            {slide.title}
-          </h1>
-
-          <p className="text-[#A3A3A3] text-base md:text-lg leading-relaxed mb-8 max-w-lg">
-            {slide.description}
-          </p>
-
-          <div className="flex items-center gap-4 flex-wrap">
-            <Button variant="primary" size="lg" onClick={() => navigate(slide.watchTo)}>
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M8 5v14l11-7z" />
-              </svg>
-              Watch Now
-            </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate(slide.infoTo)}>
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              More Info
-            </Button>
+            {item.title}
+          </Text>
+          <Text className="mb-8 max-w-lg text-base leading-relaxed text-text-secondary">
+            {item.description}
+          </Text>
+          <div className="flex flex-wrap gap-3">
+            <ButtonLink size="lg" to={watchPath(item)!}>
+              {playable?.type === "episode"
+                ? `${
+                    (playable.progress ?? 0) > 0 &&
+                    (playable.progress ?? 0) < 100
+                      ? "Resume"
+                      : "Watch"
+                  } S${playable.seasonNumber} · E${playable.episodeNumber}`
+                : "Watch movie"}
+            </ButtonLink>
+            <ButtonLink size="lg" variant="outline" to={contentPath(item)}>
+              {item.type === "show" ? "View series" : "About this film"}
+            </ButtonLink>
           </div>
         </div>
-
-        <div className="absolute right-8 md:right-16 bottom-20 flex flex-col gap-2">
-          {heroSlides.map((s, i) => (
-            <button
-              key={s.id}
+        <div className="mt-8 flex gap-2" aria-label="Featured content">
+          {slides.map((slide, i) => (
+            <Button
+              key={slide.id}
+              variant="ghost"
+              size="sm"
+              className={`min-h-11 ${active === i ? "text-gold" : ""}`}
               onClick={() => setActive(i)}
-              className={`w-1 rounded-full transition-all duration-300 cursor-pointer ${
-                i === active ? 'h-8 bg-[#C9A84C]' : 'h-4 bg-white/30 hover:bg-white/50'
-              }`}
-            />
+              aria-label={`Feature ${slide.title}`}
+              aria-pressed={active === i}
+            >
+              {String(i + 1).padStart(2, "0")}
+            </Button>
           ))}
         </div>
       </div>
-
-      <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[#0A0A0A] to-transparent" />
     </section>
   )
 }

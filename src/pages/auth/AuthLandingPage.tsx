@@ -1,55 +1,65 @@
-import { Link } from 'react-router'
-import { Button } from '@/components/ui/Button'
-
+import { ButtonLink } from "@/components/ui/Button"
+import { Text } from "@/components/ui/Text"
+import { useAppState } from "@/context/AppStateContext"
 export function AuthLandingPage() {
+  const { execute } = useAppState()
   return (
     <div className="text-center">
-      {/* Icon */}
-      <div className="flex justify-center mb-8">
-        <div className="w-16 h-16 rounded-2xl bg-[#C9A84C] flex items-center justify-center shadow-[0_0_40px_rgba(201,168,76,0.3)]">
-          <span className="text-[#0A0A0A] font-bold text-3xl" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>M</span>
-        </div>
-      </div>
-
-      <h1 className="text-5xl text-[#F5F5F5] mb-3 leading-none" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
+      <Text className="mb-5 font-display text-3xl tracking-widest text-gold">
+        MGTV
+      </Text>
+      <Text as="h1" className="mb-4 font-display text-5xl">
         Welcome to MGTV
-      </h1>
-      <p className="text-[#6B6B6B] text-sm leading-relaxed mb-10 max-w-xs mx-auto">
-        The home of Caribbean entertainment. Stream exclusive originals, music, sports, and more.
-      </p>
-
+      </Text>
+      <Text className="mx-auto mb-10 max-w-sm text-sm leading-relaxed text-text-secondary">
+        Explore Jamaican and Caribbean series, music and cultural stories.
+        Choose a demo account or browse the sample collection as a guest.
+      </Text>
       <div className="space-y-3">
-        <Link to="/auth/register" className="block">
-          <Button variant="primary" size="lg" className="w-full justify-center">
-            Create Free Account
-          </Button>
-        </Link>
-        <Link to="/auth/sign-in" className="block">
-          <Button variant="outline" size="lg" className="w-full justify-center">
-            Sign In
-          </Button>
-        </Link>
+        <ButtonLink to="/auth/register" size="lg" className="w-full">
+          Create demo account
+        </ButtonLink>
+        <ButtonLink
+          to="/auth/sign-in"
+          size="lg"
+          variant="outline"
+          className="w-full"
+        >
+          Demo sign in
+        </ButtonLink>
       </div>
-
-      <div className="mt-8 pt-8 border-t border-white/8">
-        <Link to="/" className="text-[#6B6B6B] text-sm hover:text-[#A3A3A3] transition-colors">
-          Continue browsing without an account →
-        </Link>
+      <ButtonLink
+        to="/"
+        variant="ghost"
+        className="mt-6 w-full"
+        onClick={() => execute({ type: "scenario", session: "guest" })}
+      >
+        Continue browsing as guest
+      </ButtonLink>
+      <div className="mt-8 grid grid-cols-3 gap-3">
+        {["Series & films", "Caribbean music", "Sport & culture"].map(
+          (label) => (
+            <div
+              key={label}
+              className="rounded-lg border border-text-muted/20 bg-bg-surface p-3"
+            >
+              <svg
+                aria-hidden="true"
+                className="mx-auto mb-3 h-5 w-5 text-gold"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeWidth={1.5} d="M5 4h14v16H5V4Zm4 4 6 4-6 4V8Z" />
+              </svg>
+              <Text className="text-xs text-text-secondary">{label}</Text>
+            </div>
+          ),
+        )}
       </div>
-
-      {/* Feature highlights */}
-      <div className="mt-10 grid grid-cols-3 gap-4 text-center">
-        {[
-          { icon: '🎬', label: 'Exclusive Originals' },
-          { icon: '🎵', label: 'Caribbean Music' },
-          { icon: '🏆', label: 'Live Sports' },
-        ].map(f => (
-          <div key={f.label} className="p-3 bg-[#141414] border border-white/5 rounded-xl">
-            <div className="text-xl mb-1">{f.icon}</div>
-            <p className="text-[#6B6B6B] text-[10px] leading-tight">{f.label}</p>
-          </div>
-        ))}
-      </div>
+      <Text className="mt-8 text-xs text-text-secondary">
+        Local prototype only. No real accounts, authentication or emails.
+      </Text>
     </div>
   )
 }

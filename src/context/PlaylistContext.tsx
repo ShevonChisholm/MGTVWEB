@@ -1,69 +1,129 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { playlists as mockPlaylists, type Playlist } from '@/data/mockContent'
+import {
+  createContext,
+  useContext,
+  type ReactNode,
+  type SetStateAction,
+} from "react"
+import { useAppState } from "./AppStateContext"
+import {
+  playlists as fixtures,
+  catalogById,
+  type Playlist,
+} from "@/data/mockContent"
 
+type Kind = Playlist["kind"]
+const compatible = (id: string, kind: Kind) =>
+  catalogById[id]?.type === (kind === "audio" ? "track" : "musicVideo")
 interface PlaylistContextValue {
   playlists: Playlist[]
-  createPlaylist: (name: string, firstTrackId?: string) => string
-  addTrack: (playlistId: string, trackId: string) => void
-  removeTrack: (playlistId: string, trackId: string) => void
+  createPlaylist: (name: string, kind: Kind, firstId?: string) => string
+  addTrack: (playlistId: string, itemId: string) => void
+  removeTrack: (playlistId: string, itemId: string) => void
+  moveItem: (playlistId: string, itemId: string, direction: -1 | 1) => void
   deletePlaylist: (id: string) => void
-  hasTrack: (playlistId: string, trackId: string) => boolean
+  hasTrack: (playlistId: string, itemId: string) => boolean
 }
-
-const PlaylistContext = createContext<PlaylistContextValue | null>(null)
-
+const Context = createContext<PlaylistContextValue | null>(null)
 export function PlaylistProvider({ children }: { children: ReactNode }) {
-  const [playlists, setPlaylists] = useState<Playlist[]>(mockPlaylists)
-
-  const createPlaylist = useCallback((name: string, firstTrackId?: string) => {
-    const id = `pl-${Date.now()}`
-    const newPlaylist: Playlist = {
-      id,
-      name,
-      description: 'My playlist',
-      coverImage: 'https://images.unsplash.com/photo-1459749411175-04bf5292ceea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&w=400&q=80',
-      tracks: firstTrackId ? [firstTrackId] : [],
-      createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
-      isOwn: true,
+  const { data, updateData, requirePersonal, allowed } = useAppState()
+  const rawPlaylists = [...data.playlists, ...fixtures.filter((p) => !p.isOwn)]
+  const playlists = rawPlaylists.map((p) => {
+    const itemIds = p.itemIds.filter((id) => allowed(catalogById[id]))
+    return {
+      ...p,
+      itemIds,
+      coverImage: itemIds.length ? catalogById[itemIds[0]].thumbnail : "",
     }
-    setPlaylists(prev => [newPlaylist, ...prev])
+  })
+  const setPlaylists = (value: SetStateAction<Playlist[]>) => {
+    if (!requirePersonal()) return
+    const next = typeof value === "function" ? value(rawPlaylists) : value
+    updateData({ playlists: next.filter((p) => p.isOwn) })
+  }
+  const createPlaylist = (name: string, kind: Kind, firstId?: string) => {
+    if (
+      !requirePersonal(firstId) ||
+      !name.trim() ||
+      (firstId && !compatible(firstId, kind))
+    )
+      return ""
+    const id = `pl-user-${crypto.randomUUID()}`
+    setPlaylists((previous) => [
+      {
+        id,
+        name: name.trim(),
+        kind,
+        itemIds: firstId ? [firstId] : [],
+        isOwn: true,
+        description: "Your session playlist",
+        coverImage: catalogById[firstId ?? "tr1"].thumbnail,
+        createdAt: "This session",
+      },
+      ...previous,
+    ])
     return id
-  }, [])
-
-  const addTrack = useCallback((playlistId: string, trackId: string) => {
-    setPlaylists(prev => prev.map(pl =>
-      pl.id === playlistId && !pl.tracks.includes(trackId)
-        ? { ...pl, tracks: [...pl.tracks, trackId] }
-        : pl
-    ))
-  }, [])
-
-  const removeTrack = useCallback((playlistId: string, trackId: string) => {
-    setPlaylists(prev => prev.map(pl =>
-      pl.id === playlistId
-        ? { ...pl, tracks: pl.tracks.filter(t => t !== trackId) }
-        : pl
-    ))
-  }, [])
-
-  const deletePlaylist = useCallback((id: string) => {
-    setPlaylists(prev => prev.filter(pl => pl.id !== id))
-  }, [])
-
-  const hasTrack = useCallback((playlistId: string, trackId: string) => {
-    const pl = playlists.find(p => p.id === playlistId)
-    return pl ? pl.tracks.includes(trackId) : false
-  }, [playlists])
-
+  }
+  const addTrack = (id: string, itemId: string) =>
+    requirePersonal(itemId) &&
+    setPlaylists((previous) =>
+      previous.map((playlist) =>
+        playlist.id === id &&
+        playlist.isOwn &&
+        compatible(itemId, playlist.kind) &&
+        !playlist.itemIds.includes(itemId)
+          ? { ...playlist, itemIds: [...playlist.itemIds, itemId] }
+          : playlist,
+      ),
+    )
+  const removeTrack = (id: string, itemId: string) =>
+    setPlaylists((previous) =>
+      previous.map((playlist) =>
+        playlist.id === id && playlist.isOwn
+          ? {
+              ...playlist,
+              itemIds: playlist.itemIds.filter((value) => value !== itemId),
+            }
+          : playlist,
+      ),
+    )
+  const deletePlaylist = (id: string) =>
+    setPlaylists((previous) =>
+      previous.filter((playlist) => playlist.id !== id || !playlist.isOwn),
+    )
+  const moveItem = (id: string, itemId: string, direction: -1 | 1) =>
+    setPlaylists((previous) =>
+      previous.map((playlist) => {
+        if (playlist.id !== id || !playlist.isOwn) return playlist
+        const index = playlist.itemIds.indexOf(itemId)
+        const target = index + direction
+        if (index < 0 || target < 0 || target >= playlist.itemIds.length)
+          return playlist
+        const itemIds = [...playlist.itemIds]
+        ;[itemIds[index], itemIds[target]] = [itemIds[target], itemIds[index]]
+        return { ...playlist, itemIds }
+      }),
+    )
   return (
-    <PlaylistContext.Provider value={{ playlists, createPlaylist, addTrack, removeTrack, deletePlaylist, hasTrack }}>
+    <Context.Provider
+      value={{
+        playlists,
+        createPlaylist,
+        addTrack,
+        removeTrack,
+        moveItem,
+        deletePlaylist,
+        hasTrack: (id, itemId) =>
+          !!playlists
+            .find((playlist) => playlist.id === id)
+            ?.itemIds.includes(itemId),
+      }}
+    >
       {children}
-    </PlaylistContext.Provider>
+    </Context.Provider>
   )
 }
-
 export function usePlaylists() {
-  const ctx = useContext(PlaylistContext)
-  if (!ctx) throw new Error('usePlaylists must be used within PlaylistProvider')
-  return ctx
+  const context = useContext(Context)
+  if (!context) throw new Error("usePlaylists requires PlaylistProvider")
+  return context
 }

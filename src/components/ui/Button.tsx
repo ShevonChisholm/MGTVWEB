@@ -1,15 +1,13 @@
-import { type ReactNode } from 'react'
+import { type ButtonHTMLAttributes, type Ref } from 'react'
+import { Link, type LinkProps } from 'react-router'
 
 type Variant = 'primary' | 'outline' | 'ghost'
 type Size = 'sm' | 'md' | 'lg'
 
-interface ButtonProps {
-  children: ReactNode
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  ref?: Ref<HTMLButtonElement>
   variant?: Variant
   size?: Size
-  onClick?: () => void
-  className?: string
-  type?: 'button' | 'submit'
 }
 
 const variants: Record<Variant, string> = {
@@ -24,14 +22,20 @@ const sizes: Record<Size, string> = {
   lg: 'px-8 py-3.5 text-base',
 }
 
-export function Button({ children, variant = 'primary', size = 'md', onClick, className = '', type = 'button' }: ButtonProps) {
+const base = 'inline-flex items-center justify-center gap-2 rounded-md font-medium transition-colors duration-300 ease-out cursor-pointer focus-visible:outline-2 focus-visible:outline-gold focus-visible:outline-offset-4 disabled:opacity-50 disabled:cursor-not-allowed'
+
+export function Button({ children, variant = 'primary', size = 'md', className = '', type = 'button', ...props }: ButtonProps) {
   return (
     <button
       type={type}
-      onClick={onClick}
-      className={`inline-flex items-center gap-2 rounded-md font-medium transition-all duration-150 cursor-pointer ${variants[variant]} ${sizes[size]} ${className}`}
+      {...props}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>
   )
+}
+
+export function ButtonLink({ variant = 'primary', size = 'md', className = '', ...props }: LinkProps & { variant?: Variant; size?: Size }) {
+  return <Link {...props} className={`${base} ${variants[variant]} ${sizes[size]} ${className}`} />
 }

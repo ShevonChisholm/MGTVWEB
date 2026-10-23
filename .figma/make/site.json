@@ -1,5 +1,7 @@
 {
-  "description": "Facilitates collaborative plan review by enabling users to analyze, comment, and share feedback efficiently for informed decision-making.",
+  "title": "MGTV — Jamaican and Caribbean entertainment",
+  "description": "Explore Jamaican and Caribbean series, films, music, sport, news and sample events in the MGTV customer web prototype.",
+  "language": "en",
   "robots": {
     "index": false
   },
