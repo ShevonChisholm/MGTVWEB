@@ -1,3 +1,4 @@
+import { ConnectedEventWatch } from "./ConnectedEvents";
 import { useParams } from "react-router"
 import { allEventDetails, broadcasts, demoReference } from "@/data/mockContent"
 import { getEventPresentation } from "@/lib/eventPresentation"
@@ -7,7 +8,8 @@ import { EventSummary } from "@/components/events/EventSummary"
 import { ButtonLink } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
 
-export function EventWatchPage() {
+export function EventWatchPage() { return import.meta.env.VITE_API_MODE === "connected" ? <ConnectedEventWatch/> : <PrototypeEventWatchPage/>; }
+function PrototypeEventWatchPage() {
   const { id } = useParams()
   const event = id ? allEventDetails[id] : undefined
   if (!event)

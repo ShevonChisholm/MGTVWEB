@@ -1,60 +1,72 @@
-import { useState } from "react"
-import { Link, useSearchParams } from "react-router"
-import { contentPath } from "@/data/mockContent"
-import { usePlaylists } from "@/context/PlaylistContext"
-import { useAppState } from "@/context/AppStateContext"
-import { useCatalog } from "@/hooks/useCatalog"
-import { useDiscoveryFilters } from "@/hooks/useDiscoveryFilters"
-import { Button, ButtonLink } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { Input } from "@/components/ui/Input"
-import { TrackPlay, TrackCard, TrackRow } from "@/components/music/TrackCard"
-import { PlaylistCard, PlaylistPlay } from "@/components/music/PlaylistCard"
+import LifecycleRails from "@/components/home/LifecycleRails";
+import {useHomepage,homepageItem} from "@/lib/homepage";
+import {FeaturedStatus} from "@/components/home/FeaturedStatus";
+import {ConnectedLibraryCollection} from "./ConnectedMusicLibrary";
+import { HeroBackdrop } from "@/components/shared/HeroBackdrop";
+import { MovieDiscovery } from "@/components/movies/MovieDiscovery";
+import { useMusic } from "@/context/MusicContext";
+import { useState } from "react";
+import { Link, useSearchParams } from "react-router";
+import { contentPath } from "@/data/mockContent";
+import { usePlaylists } from "@/context/PlaylistContext";
+import { useAppState } from "@/context/AppStateContext";
+import { useCatalog } from "@/hooks/useCatalog";
+import { useDiscoveryFilters } from "@/hooks/useDiscoveryFilters";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { Input } from "@/components/ui/Input";
+import { TrackPlay, TrackCard, TrackRow } from "@/components/music/TrackCard";
+import { PlaylistCard, PlaylistPlay } from "@/components/music/PlaylistCard";
 import {
   DiscoveryResults,
   ActiveFilters,
   DiscoveryEmpty,
-} from "@/components/shared/DiscoveryResults"
-import { FilterSidebar } from "@/components/shared/FilterSidebar"
-import { EmptyFeature } from "@/components/shared/EmptyFeature"
+} from "@/components/shared/DiscoveryResults";
+import { FilterSidebar } from "@/components/shared/FilterSidebar";
+import { EmptyFeature } from "@/components/shared/EmptyFeature";
 const views = [
   { id: "videos", label: "Music Videos" },
   { id: "tracks", label: "Tracks" },
   { id: "artists", label: "Artists" },
+  { id: "albums", label: "Albums" },
   { id: "playlists", label: "Playlists" },
-]
+];
 export function MusicPage() {
-  const [params] = useSearchParams()
+  const libraryAudience=useMusic().audience;
+  const [params] = useSearchParams();
   const view = views.some((item) => item.id === params.get("view"))
     ? params.get("view")!
-    : "videos"
-  const { musicVideos, tracks, featuredArtists } = useCatalog()
-  const { playlists } = usePlaylists()
+    : "videos";
+  const { musicVideos, tracks, featuredArtists } = useCatalog();
+  const { playlists } = usePlaylists();
+  const connected = import.meta.env.VITE_API_MODE === "connected";
   const collection =
     view === "tracks"
       ? tracks
       : view === "artists"
         ? featuredArtists
-        : musicVideos
-  const feature = collection[0]
+        : musicVideos;
+  const featuredPage=useHomepage("music");
+  const pick=featuredPage.hero.find(r=>view==="artists"?r.kind==="artist":r.kind==="music"&&r.content.kind===(view==="tracks"?"track":"music-video"));
+  const feature = connected ? (pick?homepageItem(pick):undefined) : collection[0];
   const featuredPlaylist =
-    playlists.find((p) => p.kind === "audio") ?? playlists[0]
-  const playlistView = view === "playlists"
-  const title = playlistView ? featuredPlaylist?.name : feature?.title
-  const image = playlistView ? featuredPlaylist?.coverImage : feature?.thumbnail
+    playlists.find((p) => p.kind === "audio") ?? playlists[0];
+  const playlistView = view === "playlists";
+  const title =
+    connected && ["albums", "playlists"].includes(view)
+      ? undefined
+      : playlistView
+        ? featuredPlaylist?.name
+        : feature?.title;
+  const image = playlistView
+    ? featuredPlaylist?.coverImage
+    : feature?.thumbnail;
   return (
-    <main className="min-h-screen bg-bg-base">
+    <main className="min-h-screen bg-bg-base"><FeaturedStatus page={featuredPage}/>
       {title ? (
         <section className="relative isolate overflow-hidden">
-          {image && (
-            <img
-              src={image}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-25"
-            />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/70 to-bg-base/30" />
-          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 py-16 md:grid-cols-[3fr_2fr] md:px-16 md:py-20">
+          <HeroBackdrop poster={feature?.landscapeThumbnail??image??""} featureUrl={playlistView?null:feature?.featureUrl}/>
+          <div className="relative mx-auto grid max-w-[1760px] items-center gap-10 px-6 py-16 md:grid-cols-[3fr_2fr] md:px-8 md:py-20">
             <div>
               <Text className="mb-5 text-xs font-semibold uppercase tracking-widest text-gold">
                 The Riddim / {views.find((v) => v.id === view)?.label}
@@ -73,9 +85,8 @@ export function MusicPage() {
                     }`}
               </Text>
               <Text className="mb-8 mt-5 max-w-md text-sm leading-relaxed text-text-secondary">
-                Explore the rhythms, voices and collaborations in this sample
-                collection. Keep tracks and videos in separate playlists for
-                your profile.
+                Explore the rhythms, voices and collaborations shaping the sound
+                of MGTV. Find your next repeat listen.
               </Text>
               <div className="flex flex-wrap items-center gap-3">
                 {playlistView && featuredPlaylist ? (
@@ -101,10 +112,12 @@ export function MusicPage() {
                 ) : null}
               </div>
               <Text className="mt-5 text-xs text-text-secondary">
-                Local prototype · All playback is simulated · No sound
+                {import.meta.env.VITE_API_MODE !== "connected"
+                  ? "Local prototype · All playback is simulated · No sound"
+                  : "Music videos and audio tracks"}
               </Text>
             </div>
-            {image && (
+            {image && !feature?.featureUrl && (
               <img
                 src={image}
                 alt={title}
@@ -119,16 +132,29 @@ export function MusicPage() {
             )}
           </div>
         </section>
+      ) : connected ? (
+        <section className="mx-auto max-w-[1760px] px-6 py-16 md:px-8">
+          <Text className="mb-5 text-xs font-semibold uppercase tracking-widest text-gold">
+            The Riddim
+          </Text>
+          <Text as="h1" className="font-display text-5xl md:text-7xl">
+            Music, in your rhythm.
+          </Text>
+          <Text className="mt-5 max-w-lg text-sm text-text-secondary">
+            Discover music videos and tracks as they arrive on MGTV.
+          </Text>
+        </section>
       ) : (
         <EmptyFeature />
       )}
+      <LifecycleRails surface="music"/>
       <nav
         aria-label="Music formats"
-        className="mx-auto mb-4 flex max-w-7xl overflow-x-auto border-b border-text-muted/30 px-6 md:px-16"
+        className="mx-auto mb-4 flex max-w-[1760px] overflow-x-auto border-b border-text-muted/30 px-6 md:px-8"
       >
         {views.map((item) => {
-          const next = new URLSearchParams(params)
-          next.set("view", item.id)
+          const next = new URLSearchParams(params);
+          next.set("view", item.id);
           return (
             <Link
               key={item.id}
@@ -142,10 +168,12 @@ export function MusicPage() {
             >
               {item.label}
             </Link>
-          )
+          );
         })}
       </nav>
-      {playlistView ? (
+      {import.meta.env.VITE_API_MODE === "connected" ? (
+        <ConnectedMusicCollection key={view+libraryAudience} view={view} />
+      ) : playlistView ? (
         <PlaylistDiscovery />
       ) : (
         <DiscoveryResults
@@ -187,13 +215,13 @@ export function MusicPage() {
         </DiscoveryResults>
       )}
     </main>
-  )
+  );
 }
 function PlaylistDiscovery() {
-  const app = useAppState()
-  const { playlists, createPlaylist } = usePlaylists()
-  const [name, setName] = useState("")
-  const [kind, setKind] = useState<"audio" | "video">("audio")
+  const app = useAppState();
+  const { playlists, createPlaylist } = usePlaylists();
+  const [name, setName] = useState("");
+  const [kind, setKind] = useState<"audio" | "video">("audio");
   const discovery = useDiscoveryFilters([], "playlists", [
     {
       id: "format",
@@ -211,15 +239,15 @@ function PlaylistDiscovery() {
         { value: "editorial", label: "Editorial" },
       ],
     },
-  ])
+  ]);
   const filtered = playlists.filter(
     (p) =>
       (!discovery.selection.format || p.kind === discovery.selection.format) &&
       (!discovery.selection.owner ||
         p.isOwn === (discovery.selection.owner === "own")),
-  )
+  );
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10 md:px-16">
+    <section className="mx-auto max-w-[1760px] px-6 py-10 md:px-8">
       <div className="mb-10 rounded-xl bg-bg-surface p-6">
         <Text as="h2" className="mb-3 font-display text-3xl">
           Make it yours
@@ -232,8 +260,8 @@ function PlaylistDiscovery() {
           <form
             className="flex flex-wrap gap-3"
             onSubmit={(event) => {
-              event.preventDefault()
-              if (createPlaylist(name, kind)) setName("")
+              event.preventDefault();
+              if (createPlaylist(name, kind)) setName("");
             }}
           >
             {(["audio", "video"] as const).map((value) => (
@@ -284,5 +312,16 @@ function PlaylistDiscovery() {
         </div>
       </div>
     </section>
-  )
+  );
+}
+
+function ConnectedMusicCollection({ view }: { view: string }) {
+  if (["artists","albums","playlists"].includes(view)) return <ConnectedLibraryCollection key={view} kind={view}/>;
+  return (
+    <MovieDiscovery
+      collection="music"
+      musicKind={view === "tracks" ? "track" : "music-video"}
+      title={view === "tracks" ? "Tracks" : "Music Videos"}
+    />
+  );
 }

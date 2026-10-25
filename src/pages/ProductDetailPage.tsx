@@ -1,3 +1,5 @@
+import {connectedAuth} from "@/lib/customerAuth";
+import {ConnectedProduct} from "./ConnectedCommerce";
 import { useState } from "react"
 import { useParams, Link } from "react-router"
 import { products } from "@/data/mockContent"
@@ -14,7 +16,7 @@ const BADGE_COLORS: Record<string, string> = {
   limited: "bg-bg-base/90 text-text-secondary",
 }
 
-export function ProductDetailPage() {
+export function PrototypeProductDetailPage() {
   const { id } = useParams<{ id: string }>()
   const product = products.find((p) => p.id === id)
   const [qty, setQty] = useState(1)
@@ -49,7 +51,7 @@ export function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] pt-16">
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 pt-10 pb-0">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 pt-10 pb-0">
         <div className="flex items-center gap-2 text-xs text-text-secondary font-semibold tracking-widest uppercase">
           <Link to="/shop" className="hover:text-[#C9A84C] transition-colors">
             Shop
@@ -62,7 +64,7 @@ export function ProductDetailPage() {
       </div>
 
       {/* Product */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 py-12">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 py-12">
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20">
           {/* Image */}
           <div className="relative">
@@ -196,7 +198,7 @@ export function ProductDetailPage() {
 
       {/* Related products */}
       {related.length > 0 && (
-        <section className="max-w-7xl mx-auto px-6 md:px-16 pb-16">
+        <section className="max-w-[1760px] mx-auto px-6 md:px-8 pb-16">
           <div className="border-t border-white/6 pt-12">
             <h2
               className="text-[#F5F5F5] mb-8"
@@ -242,3 +244,5 @@ export function ProductDetailPage() {
     </div>
   )
 }
+
+export function ProductDetailPage(){return connectedAuth?<ConnectedProduct/>:<PrototypeProductDetailPage/>}

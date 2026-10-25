@@ -1,3 +1,4 @@
+import {ConnectedNewsArticle} from "./ConnectedNews";
 import { useParams, Link } from "react-router"
 import { allNewsArticles } from "@/data/mockContent"
 import { useCatalog } from "@/hooks/useCatalog"
@@ -5,6 +6,10 @@ import { ShareBar } from "@/components/shared/ShareBar"
 import { Text } from "@/components/ui/Text"
 
 export function NewsArticlePage() {
+  if(import.meta.env.VITE_API_MODE === "connected") return <ConnectedNewsArticle/>;
+  return <PrototypeNewsArticlePage/>;
+}
+function PrototypeNewsArticlePage() {
   const { latestNews } = useCatalog()
   const { id } = useParams()
   const article = id ? allNewsArticles[id] : null
@@ -78,7 +83,7 @@ export function NewsArticlePage() {
       </div>
 
       {/* Related */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 pb-16">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 pb-16">
         <h2
           className="text-3xl text-[#F5F5F5] mb-6"
           style={{ fontFamily: "Bebas Neue, sans-serif" }}

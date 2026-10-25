@@ -1,29 +1,37 @@
-import { useState } from "react"
-import { useParams, Link, useNavigate, Navigate } from "react-router"
-import { VideoPlayer } from "@/components/player/VideoPlayer"
-import { ContentRail } from "@/components/home/ContentRail"
-import { ContentUnavailable } from "@/components/shared/ContentUnavailable"
-import { Text } from "@/components/ui/Text"
-import { Button, ButtonLink } from "@/components/ui/Button"
+import { useState } from "react";
+import { useParams, Link, useNavigate, Navigate } from "react-router";
+import { VideoPlayer } from "@/components/player/VideoPlayer";
+import { ContentRail } from "@/components/home/ContentRail";
+import { ContentUnavailable } from "@/components/shared/ContentUnavailable";
+import { Text } from "@/components/ui/Text";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import {
   catalogById,
   allShowDetails,
   episodes,
   contentPath,
-} from "@/data/mockContent"
-import { usePlayback, mediaFor } from "@/context/MediaPlaybackContext"
-import { useAppState } from "@/context/AppStateContext"
-import { useCatalog } from "@/hooks/useCatalog"
-import { useViewing } from "@/hooks/useViewing"
+} from "@/data/mockContent";
+import { usePlayback, mediaFor } from "@/context/MediaPlaybackContext";
+import { useAppState } from "@/context/AppStateContext";
+import { useCatalog } from "@/hooks/useCatalog";
+import { useViewing } from "@/hooks/useViewing";
+import { MovieWatchPage } from "./MovieWatchPage";
 
 export function WatchPage() {
-  const app = useAppState()
-  const { watchPath } = useViewing()
-  const { popularMovies, sportsHighlights } = useCatalog()
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [guestAutoplay, setGuestAutoplay] = useState(true)
-  const autoplay = app.profile?.preferences.autoplay ?? guestAutoplay
+  return import.meta.env.VITE_API_MODE === "connected" ? (
+    <MovieWatchPage />
+  ) : (
+    <PrototypeWatchPage />
+  );
+}
+function PrototypeWatchPage() {
+  const app = useAppState();
+  const { watchPath } = useViewing();
+  const { popularMovies, sportsHighlights } = useCatalog();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [guestAutoplay, setGuestAutoplay] = useState(true);
+  const autoplay = app.profile?.preferences.autoplay ?? guestAutoplay;
   const setAutoplay = (change: (value: boolean) => boolean) =>
     app.profile
       ? app.execute({
@@ -33,16 +41,16 @@ export function WatchPage() {
             autoplay: change(autoplay),
           },
         })
-      : setGuestAutoplay(change)
-  const { dispatch } = usePlayback()
-  const item = id ? catalogById[id] : undefined
-  if (!item) return <ContentUnavailable kind="Video" />
-  if (item.type === "show") return <Navigate to={watchPath(item)!} replace />
+      : setGuestAutoplay(change);
+  const { dispatch } = usePlayback();
+  const item = id ? catalogById[id] : undefined;
+  if (!item) return <ContentUnavailable kind="Video" />;
+  if (item.type === "show") return <Navigate to={watchPath(item)!} replace />;
   if (item.type === "musicVideo")
-    return <Navigate to={contentPath(item)} replace />
+    return <Navigate to={contentPath(item)} replace />;
   if (!["episode", "movie", "sports"].includes(item.type))
-    return <ContentUnavailable kind="Video" />
-  const show = item.showId ? allShowDetails[item.showId] : undefined
+    return <ContentUnavailable kind="Video" />;
+  const show = item.showId ? allShowDetails[item.showId] : undefined;
   const allEpisodes = episodes
     .filter(
       (ep) => ep.showId === item.showId && !!item.showId && app.allowed(ep),
@@ -51,16 +59,16 @@ export function WatchPage() {
       (a, b) =>
         a.seasonNumber! - b.seasonNumber! ||
         a.episodeNumber! - b.episodeNumber!,
-    )
-  const index = allEpisodes.findIndex((ep) => ep.id === item.id)
-  const next = index >= 0 ? allEpisodes[index + 1] : undefined
+    );
+  const index = allEpisodes.findIndex((ep) => ep.id === item.id);
+  const next = index >= 0 ? allEpisodes[index + 1] : undefined;
   const title = show
     ? `${show.title} — S${item.seasonNumber} E${item.episodeNumber}: ${item.title}`
-    : item.title
-  const related = item.type === "sports" ? sportsHighlights : popularMovies
+    : item.title;
+  const related = item.type === "sports" ? sportsHighlights : popularMovies;
   return (
     <main className="min-h-screen bg-bg-base pt-24">
-      <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
+      <div className="mx-auto max-w-[1760px] px-4 py-6 md:px-8">
         <ButtonLink
           to={show ? `/shows/${show.id}` : contentPath(item)}
           variant="ghost"
@@ -77,9 +85,9 @@ export function WatchPage() {
               thumbnail={item.thumbnail}
               onEnded={() => {
                 if (autoplay && next) {
-                  dispatch({ type: "prepareVideo", media: mediaFor(next.id) })
-                  dispatch({ type: "play", owner: "video" })
-                  navigate(watchPath(next)!)
+                  dispatch({ type: "prepareVideo", media: mediaFor(next.id) });
+                  dispatch({ type: "play", owner: "video" });
+                  navigate(watchPath(next)!);
                 }
               }}
             />
@@ -159,5 +167,5 @@ export function WatchPage() {
         />
       </div>
     </main>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 import { Text } from "@/components/ui/Text"
 export function EmptyFeature() {
   return (
-    <section className="bg-bg-surface px-6 py-16 md:px-16">
+    <section className="bg-bg-surface px-6 py-16 md:px-8">
       <Text className="mb-3 text-xs uppercase tracking-widest text-gold">
         MGTV
       </Text>

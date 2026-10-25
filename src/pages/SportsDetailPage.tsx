@@ -1,3 +1,4 @@
+import {ConnectedSportsDetail} from "./ConnectedSportsDetail";
 import { useParams } from "react-router"
 import {
   catalogById,
@@ -11,7 +12,8 @@ import { Button, ButtonLink } from "@/components/ui/Button"
 import { ContentRail } from "@/components/home/ContentRail"
 import { useSaved } from "@/context/SavedContext"
 
-export function SportsDetailPage() {
+export function SportsDetailPage() { return import.meta.env.VITE_API_MODE==="connected"?<ConnectedSportsDetail/>:<PrototypeSportsDetail/>; }
+function PrototypeSportsDetail() {
   const { id } = useParams()
   const item = id ? catalogById[id] : undefined
   const { toggle, isSaved } = useSaved()
@@ -32,7 +34,7 @@ export function SportsDetailPage() {
           className="absolute inset-0 h-full w-full object-cover opacity-50"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/60 to-transparent" />
-        <div className="relative max-w-4xl px-6 py-24 md:px-16">
+        <div className="relative max-w-4xl px-6 py-24 md:px-8">
           <Text className="mb-4 text-xs font-semibold uppercase tracking-widest text-gold">
             Sports archive · Replay
           </Text>

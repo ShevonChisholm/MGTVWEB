@@ -1,3 +1,4 @@
+import {ConnectedNewsPage} from "./ConnectedNews";
 import { Link } from "react-router"
 import { MediaCard } from "@/components/home/MediaCard"
 import { Text } from "@/components/ui/Text"
@@ -6,6 +7,10 @@ import { DiscoveryResults } from "@/components/shared/DiscoveryResults"
 import { EmptyFeature } from "@/components/shared/EmptyFeature"
 
 export function NewsPage() {
+  if(import.meta.env.VITE_API_MODE === "connected") return <ConnectedNewsPage/>;
+  return <PrototypeNewsPage/>;
+}
+function PrototypeNewsPage() {
   const { latestNews } = useCatalog()
   const [featured, ...rest] = latestNews
   if (!featured) return <EmptyFeature />
@@ -13,7 +18,7 @@ export function NewsPage() {
   return (
     <main className="min-h-screen bg-bg-base pt-16">
       <section className="border-b border-gold/20 bg-bg-surface">
-        <div className="mx-auto max-w-7xl px-6 md:px-16">
+        <div className="mx-auto max-w-[1760px] px-6 md:px-8">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-text-muted/20 py-5">
             <Text className="font-display text-2xl tracking-widest text-text-primary">
               The Current

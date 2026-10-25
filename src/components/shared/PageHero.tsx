@@ -17,7 +17,7 @@ export function PageHero({ category, title, description, image, cta, secondaryCt
       <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/60 to-[#0A0A0A]/10" />
       <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/80 via-[#0A0A0A]/30 to-transparent" />
 
-      <div className="relative h-full flex flex-col justify-end px-8 md:px-16 pb-10 max-w-[1400px] mx-auto">
+      <div className="relative h-full flex flex-col justify-end px-8 md:px-8 pb-10 max-w-[1400px] mx-auto">
         <p className="text-[#C9A84C] text-[10px] font-bold tracking-[0.3em] uppercase mb-3">{category}</p>
         <h1
           className="text-6xl md:text-8xl text-[#F5F5F5] leading-none tracking-wide mb-4"

@@ -1,8 +1,9 @@
-import { Button } from "@/components/ui/Button"
-import { originals } from "@/data/mockContent"
-import { ContentRail } from "@/components/home/ContentRail"
-import { PurchaseDemo } from "@/components/shared/PurchaseDemo"
-import { Text } from "@/components/ui/Text"
+import { SubscriptionTiersPage } from "./SubscriptionTiersPage";
+import { Button } from "@/components/ui/Button";
+import { originals } from "@/data/mockContent";
+import { ContentRail } from "@/components/home/ContentRail";
+import { PurchaseDemo } from "@/components/shared/PurchaseDemo";
+import { Text } from "@/components/ui/Text";
 
 const plans = [
   {
@@ -38,7 +39,7 @@ const plans = [
       "Priority support",
     ],
   },
-]
+];
 
 const freeVsPremium = [
   { feature: "Free content", free: true, premium: true },
@@ -49,13 +50,20 @@ const freeVsPremium = [
   { feature: "Live events", free: false, premium: true },
   { feature: "Offline downloads", free: false, premium: true },
   { feature: "Multiple profiles", free: false, premium: true },
-]
+];
 
 export function MGTVPlusPage() {
+  return import.meta.env.VITE_API_MODE === "connected" ? (
+    <SubscriptionTiersPage />
+  ) : (
+    <PrototypeMGTVPlusPage />
+  );
+}
+function PrototypeMGTVPlusPage() {
   return (
     <div className="min-h-screen bg-[#0A0A0A] pt-16">
       {/* Hero */}
-      <section className="relative px-6 md:px-16 py-20 md:py-28 text-center overflow-hidden">
+      <section className="relative px-6 md:px-8 py-20 md:py-28 text-center overflow-hidden">
         <div
           className="absolute inset-0 opacity-10"
           style={{
@@ -96,7 +104,7 @@ export function MGTVPlusPage() {
       </section>
 
       {/* Plans */}
-      <section className="px-6 md:px-16 pb-20 max-w-[900px] mx-auto">
+      <section className="px-6 md:px-8 pb-20 max-w-[900px] mx-auto">
         <h2
           className="text-3xl text-[#F5F5F5] text-center mb-10"
           style={{ fontFamily: "Bebas Neue, sans-serif" }}
@@ -168,7 +176,7 @@ export function MGTVPlusPage() {
       </section>
 
       {/* Free vs Premium comparison */}
-      <section className="px-6 md:px-16 pb-20 max-w-[700px] mx-auto">
+      <section className="px-6 md:px-8 pb-20 max-w-[700px] mx-auto">
         <h2
           className="text-3xl text-[#F5F5F5] text-center mb-8"
           style={{ fontFamily: "Bebas Neue, sans-serif" }}
@@ -237,5 +245,5 @@ export function MGTVPlusPage() {
         />
       </div>
     </div>
-  )
+  );
 }

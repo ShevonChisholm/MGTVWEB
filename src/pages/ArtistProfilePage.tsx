@@ -1,3 +1,5 @@
+import {ConnectedLibraryDetail} from "./ConnectedMusicLibrary";
+import {ContentUnavailable} from "@/components/shared/ContentUnavailable";
 import { useParams, Link } from "react-router"
 import { allArtistDetails } from "@/data/mockContent"
 import { TrackRow } from "@/components/music/TrackCard"
@@ -11,6 +13,10 @@ import { useCatalog } from "@/hooks/useCatalog"
 import { useAppState } from "@/context/AppStateContext"
 
 export function ArtistProfilePage() {
+ if(import.meta.env.VITE_API_MODE === "connected") return <ConnectedLibraryDetail kind="artists"/>;
+ return <PrototypeArtistProfilePage/>;
+}
+function PrototypeArtistProfilePage() {
   const { tracks, featuredArtists } = useCatalog()
   const app = useAppState()
   const { id } = useParams()
@@ -55,7 +61,7 @@ export function ArtistProfilePage() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/60 to-transparent" />
         </div>
 
-        <div className="max-w-7xl mx-auto px-6 md:px-16">
+        <div className="max-w-[1760px] mx-auto px-6 md:px-8">
           <div className="relative -mt-24 md:-mt-32 flex flex-col md:flex-row items-start md:items-end gap-6 pb-8">
             <div className="w-36 h-36 md:w-48 md:h-48 rounded-full overflow-hidden border-4 border-[#0A0A0A] ring-2 ring-[#C9A84C]/40 flex-shrink-0">
               <img
@@ -117,7 +123,7 @@ export function ArtistProfilePage() {
       </div>
 
       {/* Bio + videos */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 pb-4">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 pb-4">
         <div className="max-w-2xl">
           <h2
             className="text-2xl text-[#F5F5F5] mb-4"
@@ -136,7 +142,7 @@ export function ArtistProfilePage() {
       </div>
 
       <div className="pb-12">
-        <section className="mx-auto max-w-7xl px-8 py-8 md:px-16">
+        <section className="mx-auto max-w-[1760px] px-8 py-8 md:px-8">
           <Text as="h2" className="mb-4 font-display text-3xl">
             Tracks
           </Text>

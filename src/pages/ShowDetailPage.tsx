@@ -1,29 +1,37 @@
-import { useState } from "react"
-import { useParams, Link } from "react-router"
-import { Button } from "@/components/ui/Button"
-import { Badge } from "@/components/ui/Badge"
+import ConnectedShowDetail from "./ConnectedShowDetail";
+import { useState } from "react";
+import { useParams, Link } from "react-router";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
 import {
   allShowDetails,
   featuredShows,
   episodes,
   catalogById,
-} from "@/data/mockContent"
-import { MediaCard } from "@/components/home/MediaCard"
-import { ButtonLink } from "@/components/ui/Button"
-import { ContentRail } from "@/components/home/ContentRail"
-import { ShareBar } from "@/components/shared/ShareBar"
-import { useSaved } from "@/context/SavedContext"
-import { LikeButton } from "@/components/shared/LikeButton"
-import { RatingWidget } from "@/components/shared/RatingWidget"
-import { useViewing } from "@/hooks/useViewing"
-import { Text } from "@/components/ui/Text"
+} from "@/data/mockContent";
+import { MediaCard } from "@/components/home/MediaCard";
+import { ButtonLink } from "@/components/ui/Button";
+import { ContentRail } from "@/components/home/ContentRail";
+import { ShareBar } from "@/components/shared/ShareBar";
+import { useSaved } from "@/context/SavedContext";
+import { LikeButton } from "@/components/shared/LikeButton";
+import { RatingWidget } from "@/components/shared/RatingWidget";
+import { useViewing } from "@/hooks/useViewing";
+import { Text } from "@/components/ui/Text";
 
 export function ShowDetailPage() {
-  const { playableItem, watchPath } = useViewing()
-  const { id } = useParams()
-  const { isSaved, toggle } = useSaved()
-  const show = id ? allShowDetails[id] : null
-  const [activeSeason, setActiveSeason] = useState(0)
+  return import.meta.env.VITE_API_MODE === "connected" ? (
+    <ConnectedShowDetail />
+  ) : (
+    <PrototypeShowDetailPage />
+  );
+}
+function PrototypeShowDetailPage() {
+  const { playableItem, watchPath } = useViewing();
+  const { id } = useParams();
+  const { isSaved, toggle } = useSaved();
+  const show = id ? allShowDetails[id] : null;
+  const [activeSeason, setActiveSeason] = useState(0);
 
   if (!show) {
     return (
@@ -33,10 +41,10 @@ export function ShowDetailPage() {
           ← Back to Shows
         </Link>
       </div>
-    )
+    );
   }
 
-  const season = show.seasons[activeSeason]
+  const season = show.seasons[activeSeason];
 
   return (
     <div className="min-h-screen bg-[#0A0A0A]">
@@ -49,7 +57,7 @@ export function ShowDetailPage() {
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/80 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-16 pb-10 max-w-7xl mx-auto">
+        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-8 pb-10 max-w-[1760px] mx-auto">
           <div className="flex items-center gap-3 mb-3">
             <Badge variant={show.badge} />
             <span className="text-[#A3A3A3] text-xs tracking-widest uppercase">
@@ -84,7 +92,7 @@ export function ShowDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16 py-10">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 py-10">
         <div className="grid md:grid-cols-3 gap-12">
           {/* Main */}
           <div className="md:col-span-2">
@@ -177,5 +185,5 @@ export function ShowDetailPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -7,7 +7,7 @@ interface SectionHeadingProps {
 
 export function SectionHeading({ title, seeAllHref = '/' }: SectionHeadingProps) {
   return (
-    <div className="flex items-center justify-between mb-4 px-8 md:px-16">
+    <div className="flex items-center justify-between mb-4 px-8 md:px-8">
       <h2
         className="text-2xl md:text-3xl text-[#F5F5F5] tracking-wide"
         style={{ fontFamily: 'Bebas Neue, sans-serif' }}

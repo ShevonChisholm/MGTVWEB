@@ -1,16 +1,26 @@
-import { Link } from "react-router"
-import { catalogById, contentPath, type CatalogItem } from "@/data/mockContent"
-import { usePlayback } from "@/context/MediaPlaybackContext"
-import { useSaved } from "@/context/SavedContext"
-import { Button } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { isRunning, statusLabel } from "@/lib/playback"
-import { AddToPlaylistMenu } from "./AddToPlaylistMenu"
-import { useAppState } from "@/context/AppStateContext"
+import { ApiMusicCard } from "@/components/home/ApiMusicCard";
+import { Link } from "react-router";
+import { catalogById, contentPath, type CatalogItem } from "@/data/mockContent";
+import { usePlayback } from "@/context/MediaPlaybackContext";
+import { useSaved } from "@/context/SavedContext";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { isRunning, statusLabel } from "@/lib/playback";
+import { AddToPlaylistMenu } from "./AddToPlaylistMenu";
+import { useAppState } from "@/context/AppStateContext";
 
 export function TrackActions({ track }: { track: CatalogItem }) {
-  const { enqueue } = usePlayback()
-  const { isSaved, toggle } = useSaved()
+  if (track.source === "api")
+    return (
+      <Link className="text-gold text-sm" to={contentPath(track)}>
+        View track
+      </Link>
+    );
+  return <PrototypeTrackActions track={track} />;
+}
+function PrototypeTrackActions({ track }: { track: CatalogItem }) {
+  const { enqueue } = usePlayback();
+  const { isSaved, toggle } = useSaved();
   return (
     <details className="relative shrink-0 text-xs">
       <summary
@@ -51,25 +61,45 @@ export function TrackActions({ track }: { track: CatalogItem }) {
         </Button>
       </div>
     </details>
-  )
+  );
 }
 export function TrackPlay({
   track,
   ids = [track.id],
   origin,
 }: {
-  track: CatalogItem
-  ids?: string[]
-  origin?: string
+  track: CatalogItem;
+  ids?: string[];
+  origin?: string;
 }) {
-  const { state, toggleTrack } = usePlayback()
-  const selected = state.audio?.media.id === track.id
-  const running = selected && isRunning(state.audio)
+  if (track.source === "api")
+    return (
+      <Link
+        className="inline-flex min-h-11 items-center rounded-lg bg-gold px-4 text-black"
+        to={contentPath(track)}
+      >
+        Play track
+      </Link>
+    );
+  return <PrototypeTrackPlay track={track} ids={ids} origin={origin} />;
+}
+function PrototypeTrackPlay({
+  track,
+  ids,
+  origin,
+}: {
+  track: CatalogItem;
+  ids: string[];
+  origin?: string;
+}) {
+  const { state, toggleTrack } = usePlayback();
+  const selected = state.audio?.media.id === track.id;
+  const running = selected && isRunning(state.audio);
   const action = running
     ? "Pause track"
     : selected && state.audio?.status === "paused" && state.audio.elapsed > 0
       ? "Resume track"
-      : "Play track"
+      : "Play track";
   return (
     <Button
       size="sm"
@@ -79,21 +109,21 @@ export function TrackPlay({
     >
       {action}
     </Button>
-  )
+  );
 }
 export function TrackRow({
   track,
   ids,
   origin,
 }: {
-  track: CatalogItem
-  ids?: string[]
-  origin?: string
+  track: CatalogItem;
+  ids?: string[];
+  origin?: string;
 }) {
-  const { state } = usePlayback()
-  const app = useAppState()
-  if (!app.allowed(track)) return null
-  const current = state.audio?.media.id === track.id
+  const { state } = usePlayback();
+  const app = useAppState();
+  if (track.source !== "api" && !app.allowed(track)) return null;
+  const current = state.audio?.media.id === track.id;
   return (
     <article
       data-content-id={track.id}
@@ -117,7 +147,11 @@ export function TrackRow({
           {track.title}
         </Link>
         <Link
-          to={`/music/artist/${track.artistId}`}
+          to={
+            track.source === "api"
+              ? "/music?view=tracks"
+              : `/music/artist/${track.artistId}`
+          }
           className="block truncate text-xs text-text-secondary hover:text-gold"
         >
           {track.artist}
@@ -134,7 +168,7 @@ export function TrackRow({
       <TrackPlay track={track} ids={ids} origin={origin} />
       <TrackActions track={track} />
     </article>
-  )
+  );
 }
 export function TrackCard({
   track: supplied,
@@ -142,16 +176,38 @@ export function TrackCard({
   ids,
   origin,
 }: {
-  track: CatalogItem
-  fluid?: boolean
-  ids?: string[]
-  origin?: string
+  track: CatalogItem;
+  fluid?: boolean;
+  ids?: string[];
+  origin?: string;
 }) {
-  const track = catalogById[supplied.id]
-  const { state } = usePlayback()
-  const app = useAppState()
-  if (!track || !app.allowed(track)) return null
-  const current = state.audio?.media.id === track.id
+  if (supplied.source === "api")
+    return <ApiMusicCard item={supplied} fluid={fluid} />;
+  return (
+    <PrototypeTrackCard
+      track={supplied}
+      fluid={fluid}
+      ids={ids}
+      origin={origin}
+    />
+  );
+}
+function PrototypeTrackCard({
+  track: supplied,
+  fluid,
+  ids,
+  origin,
+}: {
+  track: CatalogItem;
+  fluid?: boolean;
+  ids?: string[];
+  origin?: string;
+}) {
+  const track = catalogById[supplied.id];
+  const { state } = usePlayback();
+  const app = useAppState();
+  if (!track || !app.allowed(track)) return null;
+  const current = state.audio?.media.id === track.id;
   return (
     <article
       data-content-id={track.id}
@@ -179,7 +235,11 @@ export function TrackCard({
         {track.title}
       </Link>
       <Link
-        to={`/music/artist/${track.artistId}`}
+        to={
+          track.source === "api"
+            ? "/music?view=tracks"
+            : `/music/artist/${track.artistId}`
+        }
         className="mt-1 block truncate text-xs text-text-secondary hover:text-gold"
       >
         {track.artist}
@@ -192,5 +252,5 @@ export function TrackCard({
         <TrackActions track={track} />
       </div>
     </article>
-  )
+  );
 }

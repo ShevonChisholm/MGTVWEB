@@ -101,7 +101,7 @@ export function DiscoveryResults({
   return (
     <section
       className={`py-10 ${
-        layout === "page" ? "mx-auto max-w-7xl px-6 md:px-16" : ""
+        layout === "page" ? "mx-auto max-w-[1760px] px-6 md:px-8" : ""
       }`}
     >
       <Text as="h2" className="mb-8 font-display text-3xl">

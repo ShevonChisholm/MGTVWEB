@@ -12,6 +12,11 @@ export interface Playlist {
 }
 
 export interface ContentItem {
+  featureUrl?: string | null
+  source?: "api"
+  landscapeThumbnail?:string
+  moviePreference?: { saved:boolean;liked:boolean;rating:number|null;version:number }
+  sportsPreference?: { saved:boolean;liked:boolean;rating:number|null;version:number }
   id: string
   title: string
   thumbnail: string
@@ -2107,6 +2112,7 @@ export function playableItem(item: CatalogItem): CatalogItem | undefined {
     : undefined
 }
 export function watchPath(item: CatalogItem): string | undefined {
+  if(item.source==="api" && item.type==="sports") return `/sports/${item.id}/watch`;
   const playable = playableItem(item)
   return playable
     ? playable.type === "musicVideo"

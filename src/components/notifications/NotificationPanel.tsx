@@ -1,3 +1,5 @@
+import {connectedAuth} from "@/lib/customerAuth"
+import {ConnectedNotificationFeed} from "./ConnectedNotifications"
 import { useEffect, useRef } from "react"
 import { useAppState } from "@/context/AppStateContext"
 import { Button, ButtonLink } from "@/components/ui/Button"
@@ -29,10 +31,10 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
       tabIndex={-1}
       role="region"
       aria-label="Notification preview"
-      className="absolute right-0 top-full z-50 mt-3 max-h-[70dvh] w-80 max-w-sm overflow-y-auto rounded-xl border border-text-muted/30 bg-bg-surface shadow-xl"
+      className="absolute right-0 top-full z-50 mt-3 max-h-[70dvh] w-80 max-w-[calc(100vw-2rem)] overflow-y-auto rounded-xl border border-text-muted/30 bg-bg-surface shadow-xl"
     >
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-text-muted/20 p-4">
-        <Text className="font-semibold">Notifications · {app.unread}</Text>
+        <Text className="font-semibold">Notifications{!connectedAuth&&` · ${app.unread}`}</Text>
         <Button
           variant="ghost"
           size="sm"
@@ -42,6 +44,7 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
           Close
         </Button>
       </div>
+      {connectedAuth?<div className="p-2"><ConnectedNotificationFeed panel onClose={onClose}/></div>:<>
       <Text className="px-5 py-3 text-xs text-text-secondary">
         Shared local feed · No real-time delivery
       </Text>
@@ -71,7 +74,7 @@ export function NotificationPanel({ onClose }: { onClose: () => void }) {
         className="w-full"
       >
         View all notifications
-      </ButtonLink>
+      </ButtonLink></>}
     </div>
   )
 }

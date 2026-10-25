@@ -1,3 +1,5 @@
+import {connectedAuth} from "@/lib/customerAuth";
+import {ConnectedShop} from "./ConnectedCommerce";
 import { useState, type MouseEvent } from "react"
 import { Link } from "react-router"
 import {
@@ -120,7 +122,7 @@ function ProductCard({ product }: { product: Product }) {
   )
 }
 
-export function ShopPage() {
+export function PrototypeShopPage() {
   const [activeCategory, setActiveCategory] = useState<ProductCategory | "all">(
     "all",
   )
@@ -150,7 +152,7 @@ export function ShopPage() {
       >
         <div className="absolute inset-0 flex">
           {/* Left: Dark editorial panel */}
-          <div className="relative w-full md:w-[48%] bg-[#080808] flex flex-col justify-end px-12 md:px-16 pb-14 z-10">
+          <div className="relative w-full md:w-[48%] bg-[#080808] flex flex-col justify-end px-12 md:px-8 pb-14 z-10">
             {/* Gold accent line */}
             <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#C9A84C] to-transparent" />
             {/* Giant watermark */}
@@ -245,7 +247,7 @@ export function ShopPage() {
       <section className="border-y border-white/5">
         <Link
           to="/lifestyle"
-          className="group flex items-center justify-between px-6 md:px-16 py-5 hover:bg-white/2 transition-colors"
+          className="group flex items-center justify-between px-6 md:px-8 py-5 hover:bg-white/2 transition-colors"
         >
           <div className="flex items-center gap-6">
             <div className="w-12 h-12 overflow-hidden flex-shrink-0">
@@ -284,7 +286,7 @@ export function ShopPage() {
       </section>
 
       {/* FILTERS + PRODUCT GRID */}
-      <section className="max-w-7xl mx-auto px-6 md:px-16 py-14">
+      <section className="max-w-[1760px] mx-auto px-6 md:px-8 py-14">
         {/* Header row */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
           <div>
@@ -354,7 +356,7 @@ export function ShopPage() {
       </section>
 
       {/* FEATURED EXPERIENCE BANNER */}
-      <section className="max-w-7xl mx-auto px-6 md:px-16 pb-16">
+      <section className="max-w-[1760px] mx-auto px-6 md:px-8 pb-16">
         <div className="relative overflow-hidden" style={{ minHeight: 260 }}>
           <img
             src={featuredProduct.image}
@@ -391,3 +393,5 @@ export function ShopPage() {
     </div>
   )
 }
+
+export function ShopPage(){return connectedAuth?<ConnectedShop/>:<PrototypeShopPage/>}

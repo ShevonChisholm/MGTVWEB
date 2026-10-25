@@ -6,7 +6,7 @@ interface FilterBarProps {
 
 export function FilterBar({ filters, active, onChange }: FilterBarProps) {
   return (
-    <div className="flex gap-2 overflow-x-auto scrollbar-hide px-8 md:px-16 py-5">
+    <div className="flex gap-2 overflow-x-auto scrollbar-hide px-8 md:px-8 py-5">
       {filters.map(f => (
         <button
           key={f}

@@ -1,3 +1,5 @@
+import ConnectedHome from "./ConnectedHome";
+import {SponsoredCards} from "@/components/shared/SponsoredCards";
 import { Link } from "react-router"
 import { HeroSection } from "@/components/home/HeroSection"
 import { ContentRail } from "@/components/home/ContentRail"
@@ -6,7 +8,8 @@ import { useCatalog } from "@/hooks/useCatalog"
 import { useAppState } from "@/context/AppStateContext"
 import type { ContentItem } from "@/data/mockContent"
 
-export function HomePage() {
+export function HomePage(){return import.meta.env.VITE_API_MODE==="connected"?<ConnectedHome/>:<PrototypeHomePage/>;}
+function PrototypeHomePage() {
   const {
     trending,
     featuredShows,
@@ -37,8 +40,9 @@ export function HomePage() {
   const [featuredNews, ...moreNews] = latestNews
 
   return (
-    <main>
+    <main className="pt-16">
       <HeroSection />
+      <SponsoredCards kind="home" targetId="00000000-0000-4000-8000-000000000000"/>
       <div className="mt-2 space-y-2">
         {/* Continue Watching — ContinueWatchingCard with progress bars */}
         <ContentRail
@@ -115,7 +119,7 @@ export function HomePage() {
           seeAllHref="/sports"
           seeAllLabel="All sports"
           linkPrefix="/sports"
-          context="From the sample sports archive"
+          context="Highlights and replays from the MGTV sports archive"
         />
 
         {/* MGTV+ banner */}
@@ -133,7 +137,7 @@ export function HomePage() {
 
         {/* Editorial news split — magazine layout */}
         {featuredNews && (
-          <section className="mx-auto max-w-7xl py-8 px-6 md:px-16">
+          <section className="mx-auto max-w-[1760px] py-8 px-6 md:px-8">
             <div className="flex items-center justify-between mb-5">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-5 bg-[#C9A84C]" />
@@ -245,7 +249,7 @@ export function HomePage() {
         {/* Upcoming Events */}
         <ContentRail
           title="Events & Experiences"
-          context="Sample schedule · September 2026"
+          context={import.meta.env.VITE_API_MODE === "connected" ? "On the calendar · In person and online" : "Sample schedule · September 2026"}
           items={upcomingEvents}
           cardType="event"
           seeAllHref="/events"

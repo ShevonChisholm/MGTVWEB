@@ -1,37 +1,68 @@
-import { Link } from "react-router"
-import { Badge } from "@/components/ui/Badge"
-import { Button } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { useSaved } from "@/context/SavedContext"
-import { catalogById, contentPath, type ContentItem } from "@/data/mockContent"
-import { TrackCard } from "@/components/music/TrackCard"
-import { EventSummary } from "@/components/events/EventSummary"
-import { allEventDetails, broadcasts } from "@/data/mockContent"
-import { getEventPresentation } from "@/lib/eventPresentation"
-import { useAppState } from "@/context/AppStateContext"
-import { useViewing } from "@/hooks/useViewing"
+import {ApiSportsCard} from "./ApiSportsCard";
+import {LibraryCard} from "@/components/music/LibraryCard";
+import { ApiEventCard } from "./ApiEventCard";
+import { ApiMusicCard } from "./ApiMusicCard";
+import { ApiShowCard } from "./ApiShowCard";
+import { Link } from "react-router";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { useSaved } from "@/context/SavedContext";
+import { catalogById, contentPath, type ContentItem } from "@/data/mockContent";
+import { TrackCard } from "@/components/music/TrackCard";
+import { EventSummary } from "@/components/events/EventSummary";
+import { allEventDetails, broadcasts } from "@/data/mockContent";
+import { getEventPresentation } from "@/lib/eventPresentation";
+import { useAppState } from "@/context/AppStateContext";
+import { useViewing } from "@/hooks/useViewing";
+import { ApiMovieCard } from "./ApiMovieCard";
 
 export interface MediaCardProps {
-  item: ContentItem
-  mode?: "standard" | "continue"
-  fluid?: boolean
-  trackIds?: string[]
-  trackOrigin?: string
+  item: ContentItem;
+  mode?: "standard" | "continue";
+  fluid?: boolean;
+  trackIds?: string[];
+  trackOrigin?: string;
 }
 
-export function MediaCard({
+export function MediaCard(props: MediaCardProps) {
+  if(props.item.source==="api" && props.item.type==="sports") return <ApiSportsCard item={props.item} fluid={props.fluid} continuing={props.mode==="continue"}/>;
+  return props.item.source === "api" && ["news","lifestyle"].includes(props.item.type??"") ? <Link to={"/"+props.item.type+"/"+props.item.id} className={(props.fluid?"w-full":"w-72 shrink-0 md:w-80")+" group overflow-hidden rounded-xl border border-white/5 bg-bg-surface"}><img src={props.item.thumbnail} alt="" className="aspect-video w-full object-cover" loading="lazy"/><div className="p-5"><p className="text-xs uppercase tracking-widest text-gold">{props.item.genre}</p><h3 className="mt-2 font-display text-2xl text-text-primary group-hover:text-gold">{props.item.title}</h3><p className="mt-3 text-sm text-text-secondary">{props.item.description}</p><p className="mt-4 text-xs text-text-secondary">{props.item.date} · {props.item.readTime}</p></div></Link> : props.item.source === "api" && props.item.type === "artist" ? <div className="w-44 shrink-0 md:w-52"><LibraryCard kind="artists" item={{...props.item,coverUrl:props.item.thumbnail}}/></div> : props.item.source === "api" && props.item.type === "event" ? <ApiEventCard item={props.item} fluid={props.fluid}/> : props.item.source === "api" &&
+    ["track", "musicVideo"].includes(props.item.type ?? "") ? (
+    <ApiMusicCard
+      item={props.item}
+      fluid={props.fluid}
+      continuing={props.mode === "continue"}
+    />
+  ) : props.item.source === "api" && props.item.type !== "movie" ? (
+    <ApiShowCard
+      item={props.item}
+      fluid={props.fluid}
+      continuing={props.mode === "continue"}
+    />
+  ) : props.item.source === "api" ? (
+    <ApiMovieCard
+      item={props.item}
+      fluid={props.fluid}
+      continuing={props.mode === "continue"}
+    />
+  ) : (
+    <PrototypeMediaCard {...props} />
+  );
+}
+function PrototypeMediaCard({
   item: supplied,
   mode = "standard",
   fluid = false,
   trackIds,
   trackOrigin,
 }: MediaCardProps) {
-  const { isSaved, toggle } = useSaved()
-  const app = useAppState()
-  const { itemWithProgress, playableItem, watchPath } = useViewing()
-  const canonical = catalogById[supplied.id]
-  if (!canonical || !app.allowed(canonical)) return null
-  const item = itemWithProgress(canonical)
+  const { isSaved, toggle } = useSaved();
+  const app = useAppState();
+  const { itemWithProgress, playableItem, watchPath } = useViewing();
+  const canonical = catalogById[supplied.id];
+  if (!canonical || !app.allowed(canonical)) return null;
+  const item = itemWithProgress(canonical);
   if (item.type === "track")
     return (
       <TrackCard
@@ -40,36 +71,36 @@ export function MediaCard({
         ids={trackIds}
         origin={trackOrigin}
       />
-    )
-  const continuing = mode === "continue"
-  const playable = playableItem(item)
-  const media = continuing && playable ? playable : item
+    );
+  const continuing = mode === "continue";
+  const playable = playableItem(item);
+  const media = continuing && playable ? playable : item;
   const portrait =
-    !continuing && (item.type === "show" || item.type === "movie")
-  const artist = item.type === "artist"
-  const editorial = item.type === "news" || item.type === "lifestyle"
-  const event = item.type === "event"
+    !continuing && (item.type === "show" || item.type === "movie");
+  const artist = item.type === "artist";
+  const editorial = item.type === "news" || item.type === "lifestyle";
+  const event = item.type === "event";
   const href = continuing
     ? (watchPath(item) ?? contentPath(item))
-    : contentPath(item)
-  const actionHref = watchPath(item) ?? contentPath(item)
-  const progress = Math.max(0, Math.min(100, media.progress ?? 0))
+    : contentPath(item);
+  const actionHref = watchPath(item) ?? contentPath(item);
+  const progress = Math.max(0, Math.min(100, media.progress ?? 0));
   const remaining = Math.ceil(
     ((media.durationSeconds ?? 0) * (1 - progress / 100)) / 60,
-  )
+  );
   const episodeContext =
     media.type === "episode"
       ? `S${media.seasonNumber} · E${media.episodeNumber}: ${media.title}`
-      : null
-  const saved = isSaved(item.id)
+      : null;
+  const saved = isSaved(item.id);
   const eventDetail =
-    item.type === "event" ? allEventDetails[item.id] : undefined
+    item.type === "event" ? allEventDetails[item.id] : undefined;
   const eventPresentation = eventDetail
     ? getEventPresentation(
         eventDetail,
         broadcasts[eventDetail.broadcastId ?? ""],
       )
-    : undefined
+    : undefined;
   const action = continuing
     ? "Resume"
     : item.type === "musicVideo"
@@ -88,19 +119,20 @@ export function MediaCard({
                 ? "Resume"
                 : item.type === "episode" && progress > 0 && progress < 100
                   ? "Resume"
-                  : "Watch"
-  const label = continuing && media.seriesTitle ? media.seriesTitle : item.title
+                  : "Watch";
+  const label =
+    continuing && media.seriesTitle ? media.seriesTitle : item.title;
   const actionLabel =
     playable?.type === "episode"
       ? `${action} ${playable.seriesTitle}, season ${playable.seasonNumber}, episode ${playable.episodeNumber}: ${playable.title}`
-      : `${action}: ${item.title}`
+      : `${action}: ${item.title}`;
   const width = fluid
     ? "w-full"
     : portrait
-      ? "w-40 md:w-44"
+      ? "w-44 md:w-52"
       : artist
-        ? "w-40 md:w-44"
-        : "w-64 md:w-72"
+        ? "w-44 md:w-52"
+        : "w-64 md:w-72";
 
   return (
     <article
@@ -300,5 +332,5 @@ export function MediaCard({
         </div>
       </div>
     </article>
-  )
+  );
 }

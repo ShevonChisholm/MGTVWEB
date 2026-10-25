@@ -5,7 +5,7 @@ import { Text } from "@/components/ui/Text"
 export function PersonalActionNotice() {
   const app = useAppState()
   const location = useLocation()
-  if (!app.signInRequested || app.profile) return null
+  if (import.meta.env.VITE_API_MODE === "connected" || !app.signInRequested || app.profile) return null
   return (
     <aside
       role="alert"

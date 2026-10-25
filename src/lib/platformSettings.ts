@@ -1,0 +1,3 @@
+import {useEffect,useState} from 'react';
+type PublicSettings={orgName:string;supportEmail:string|null;defaultLanguage:string;defaultTimezone:string};
+export function usePlatformSettings(){const [settings,setSettings]=useState<PublicSettings|null>(null);useEffect(()=>{if(import.meta.env.VITE_API_MODE!=='connected')return;let live=true;const controller=new AbortController();void fetch('/api/v1/catalog/platform-settings',{credentials:'omit',cache:'no-store',signal:controller.signal}).then(async r=>{if(!r.ok)throw Error('Settings unavailable');return r.json();}).then(r=>{if(live)setSettings(r);}).catch(()=>{});return()=>{live=false;controller.abort();};},[]);return settings;}

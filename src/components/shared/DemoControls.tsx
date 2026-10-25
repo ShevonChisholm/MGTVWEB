@@ -11,14 +11,15 @@ export function DemoControls() {
   const app = useAppState()
   const [open, setOpen] = useState(false)
   const [resetting, setResetting] = useState(false)
+  if(import.meta.env.VITE_API_MODE === 'connected') return null
   return (
     <>
       <div
-        className={`border-b border-text-muted/20 bg-bg-surface px-6 py-2 md:px-16 ${
+        className={`border-b border-text-muted/20 bg-bg-surface px-6 py-2 md:px-8 ${
           standalone ? "" : "pt-20"
         }`}
       >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3">
+        <div className="mx-auto flex max-w-[1760px] flex-wrap items-center justify-between gap-3">
           <Text className="text-xs text-text-secondary">
             Local demo ·{" "}
             {app.state.session === "signedIn"

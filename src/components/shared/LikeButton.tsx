@@ -4,11 +4,12 @@ import { Button } from "@/components/ui/Button"
 interface LikeButtonProps {
   id: string
   label?: string
+  remote?: { value:boolean; busy:boolean; onToggle:()=>void }
 }
 
-export function LikeButton({ id, label }: LikeButtonProps) {
+export function LikeButton({ id, label, remote }: LikeButtonProps) {
   const { toggleLike, isLiked } = useInteraction()
-  const liked = isLiked(id)
+  const liked = remote ? remote.value : isLiked(id)
 
   return (
     <Button
@@ -22,7 +23,8 @@ export function LikeButton({ id, label }: LikeButtonProps) {
             ? "Unlike this item"
             : "Like this item"
       }
-      onClick={() => toggleLike(id)}
+      disabled={remote?.busy}
+      onClick={() => remote ? remote.onToggle() : toggleLike(id)}
       className={`flex items-center gap-1.5 px-3 py-2 border transition-all duration-200 cursor-pointer ${
         liked
           ? "bg-[#C9A84C]/10 border-[#C9A84C]/40 text-[#C9A84C]"

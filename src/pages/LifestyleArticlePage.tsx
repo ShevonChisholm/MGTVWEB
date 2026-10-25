@@ -1,3 +1,4 @@
+import {ConnectedLifestyleArticle} from "./ConnectedLifestyle";
 import { useParams } from "react-router"
 import { lifestyleArticles, lifestyleContent } from "@/data/mockContent"
 import { ContentUnavailable } from "@/components/shared/ContentUnavailable"
@@ -8,6 +9,9 @@ import { ShareBar } from "@/components/shared/ShareBar"
 import { ContentRail } from "@/components/home/ContentRail"
 
 export function LifestyleArticlePage() {
+  return import.meta.env.VITE_API_MODE === "connected" ? <ConnectedLifestyleArticle/> : <PrototypeLifestyleArticlePage/>;
+}
+function PrototypeLifestyleArticlePage() {
   const { id } = useParams()
   const article = lifestyleArticles.find((item) => item.id === id)
   const { toggle, isSaved } = useSaved()

@@ -1,3 +1,4 @@
+import {ConnectedLifestyleEditorial} from "./ConnectedLifestyle";
 import { Link } from "react-router"
 import {
   lifestyleArticles,
@@ -127,13 +128,15 @@ export function LifestylePage() {
   const shopPicks = products
     .filter((p) => ["clothing", "accessories"].includes(p.category))
     .slice(0, 4)
-  if (!featured) return <EmptyFeature />
+  const connected=import.meta.env.VITE_API_MODE === "connected";
+  if (!connected && !featured) return <EmptyFeature />
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] pt-16">
+      {connected ? <ConnectedLifestyleEditorial/> : <>
       {/* PAGE HEADER — Editorial masthead */}
-      <div className="border-b border-white/6 px-6 md:px-16 py-8">
-        <div className="max-w-7xl mx-auto flex items-end justify-between">
+      <div className="border-b border-white/6 px-6 md:px-8 py-8">
+        <div className="max-w-[1760px] mx-auto flex items-end justify-between">
           <div>
             <p className="text-[#C9A84C] text-xs font-black tracking-[0.4em] uppercase mb-2">
               MGTV · Caribbean Lifestyle
@@ -172,7 +175,7 @@ export function LifestylePage() {
       </div>
 
       {/* FEATURED ARTICLE */}
-      <div className="max-w-7xl mx-auto px-6 md:px-16">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8">
         <ArticleCard article={featured} large />
       </div>
 
@@ -182,9 +185,10 @@ export function LifestylePage() {
         title="Explore lifestyle"
       />
 
+      </>}
       {/* SHOP TIE-IN — "Style the Lifestyle" */}
-      <section className="border-t border-white/6 px-6 md:px-16 py-16">
-        <div className="max-w-7xl mx-auto">
+      <section className="border-t border-white/6 px-6 md:px-8 py-16">
+        <div className="max-w-[1760px] mx-auto">
           <div className="flex items-end justify-between mb-8">
             <div>
               <p className="text-[#C9A84C] text-xs font-black tracking-[0.3em] uppercase mb-2">
@@ -256,8 +260,8 @@ export function LifestylePage() {
       </section>
 
       {/* CARIBBEAN EXPERIENCES */}
-      <section className="px-6 md:px-16 pb-16">
-        <div className="max-w-7xl mx-auto border-t border-white/6 pt-16">
+      <section className="px-6 md:px-8 pb-16">
+        <div className="max-w-[1760px] mx-auto border-t border-white/6 pt-16">
           <div className="flex items-end justify-between mb-10">
             <div>
               <p className="text-[#C9A84C] text-xs font-black tracking-[0.3em] uppercase mb-2">

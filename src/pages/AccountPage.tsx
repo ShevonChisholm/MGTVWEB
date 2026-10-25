@@ -21,7 +21,7 @@ export function AccountPage() {
   const profile = app.profile
   const adult = profile.type === "adult"
   return (
-    <main className="min-h-screen px-6 py-16 md:px-16">
+    <main className="min-h-screen px-6 py-16 md:px-8">
       <div className="mx-auto max-w-6xl">
         <div className="mb-10 flex flex-wrap items-center gap-5">
           <div

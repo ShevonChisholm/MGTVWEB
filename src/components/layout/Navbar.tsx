@@ -1,12 +1,21 @@
-import { useState, useEffect, useRef } from "react"
-import { Link, NavLink, useLocation } from "react-router"
-import { Button, ButtonLink } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { SearchModal } from "@/components/search/SearchModal"
-import { NotificationPanel } from "@/components/notifications/NotificationPanel"
-import { useInteraction } from "@/context/InteractionContext"
-import { CartDrawer } from "@/components/shared/CartDrawer"
-import { useAppState } from "@/context/AppStateContext"
+import {ConnectedCommerceCart} from "@/components/shared/ConnectedCommerceCart";
+import {openCart} from "@/lib/commerce";
+import {useNotifications} from "@/components/notifications/ConnectedNotifications";
+import {
+  connectedAuth,
+  customerApi,
+  authChanged,
+  useCustomerSession,
+} from "@/lib/customerAuth";
+import { useState, useEffect, useRef } from "react";
+import { Link, NavLink, useLocation } from "react-router";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { SearchModal } from "@/components/search/SearchModal";
+import { NotificationPanel } from "@/components/notifications/NotificationPanel";
+import { useInteraction } from "@/context/InteractionContext";
+import { CartDrawer } from "@/components/shared/CartDrawer";
+import { useAppState } from "@/context/AppStateContext";
 
 const navLinks = [
   { label: "Home", to: "/" },
@@ -15,21 +24,21 @@ const navLinks = [
   { label: "Music", to: "/music" },
   { label: "Events", to: "/events" },
   { label: "Shop", to: "/shop" },
-]
+];
 const moreLinks = [
   { label: "Awards", to: "/awards" },
   { label: "Lifestyle", to: "/lifestyle" },
   { label: "News", to: "/news" },
   { label: "Sports", to: "/sports" },
-]
+];
 const accountLinks = [
   { label: "My Account", to: "/account" },
   { label: "My List", to: "/my-list" },
   { label: "Switch Profile", to: "/profiles" },
   { label: "Sign In", to: "/auth/sign-in" },
-]
+];
 const linkClass =
-  "block rounded-md px-3 py-3 text-sm text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary"
+  "block rounded-md px-3 py-3 text-sm text-text-secondary transition-colors hover:bg-bg-elevated hover:text-text-primary";
 
 function SearchIcon() {
   return (
@@ -46,74 +55,97 @@ function SearchIcon() {
         d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"
       />
     </svg>
-  )
+  );
 }
 
 export function Navbar() {
-  const app = useAppState()
-  const unreadCount = app.unread
+  const app = useAppState();
+  const notices = useNotifications();
+  const { session: customerSession } = useCustomerSession();
+  const sessionStatus = connectedAuth
+    ? customerSession
+      ? "signedIn"
+      : "guest"
+    : app.state.session;
+  const profileName = connectedAuth
+    ? customerSession?.account.displayName
+    : app.profile?.name;
+  const signOut = () => {
+    if (connectedAuth)
+      void customerApi("/auth/logout", "POST")
+        .then(authChanged)
+        .catch(() => authChanged());
+    else app.execute({ type: "scenario", session: "guest" });
+  };
+  const unreadCount = connectedAuth ? notices.unread : app.unread;
   const accountLinks =
-    app.state.session === "signedIn"
-      ? [
-          { label: "My Account", to: "/account" },
-          { label: "My List", to: "/my-list" },
-          { label: "Switch Profile", to: "/profiles" },
-          { label: `Notifications (${unreadCount})`, to: "/notifications" },
-        ]
+    sessionStatus === "signedIn"
+      ? connectedAuth
+        ? [
+            { label: "Account & security", to: "/account" },
+            { label: "Profiles", to: "/profiles" },
+            { label: `Notifications (${unreadCount})`, to: "/notifications" },
+          ]
+        : [
+            { label: "My Account", to: "/account" },
+            { label: "My List", to: "/my-list" },
+            { label: "Switch Profile", to: "/profiles" },
+            { label: `Notifications (${unreadCount})`, to: "/notifications" },
+          ]
       : [
           {
             label:
-              app.state.session === "expired"
+              sessionStatus === "expired"
                 ? "Session expired · Sign In"
                 : "Sign In",
             to: "/auth/sign-in",
           },
-        ]
-  const [scrolled, setScrolled] = useState(false)
-  const [mobileOpen, setMobileOpen] = useState(false)
-  const [moreOpen, setMoreOpen] = useState(false)
-  const [accountOpen, setAccountOpen] = useState(false)
-  const [searchOpen, setSearchOpen] = useState(false)
-  const [notifOpen, setNotifOpen] = useState(false)
-  const more = useRef<HTMLDivElement>(null)
-  const account = useRef<HTMLDivElement>(null)
-  const location = useLocation()
-  const { cartCount, setCartOpen } = useInteraction()
+        ];
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const more = useRef<HTMLDivElement>(null);
+  const account = useRef<HTMLDivElement>(null);
+  const location = useLocation();
+  const { cartCount, setCartOpen } = useInteraction();
 
   useEffect(() => {
-    setMobileOpen(false)
-    setMoreOpen(false)
-    setAccountOpen(false)
-    setNotifOpen(false)
-    window.scrollTo(0, 0)
-  }, [location.pathname])
+    setMobileOpen(false);
+    setMoreOpen(false);
+    setAccountOpen(false);
+    setNotifOpen(false);
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
   useEffect(() => {
-    const scroll = () => setScrolled(window.scrollY > 20)
+    const scroll = () => setScrolled(window.scrollY > 20);
     const key = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
-        e.preventDefault()
-        setSearchOpen(true)
+        e.preventDefault();
+        setSearchOpen(true);
       }
       if (e.key === "Escape") {
-        setMoreOpen(false)
-        setAccountOpen(false)
-        setNotifOpen(false)
-        setMobileOpen(false)
+        setMoreOpen(false);
+        setAccountOpen(false);
+        setNotifOpen(false);
+        setMobileOpen(false);
       }
-    }
+    };
     const outside = (e: PointerEvent) => {
-      if (!more.current?.contains(e.target as Node)) setMoreOpen(false)
-      if (!account.current?.contains(e.target as Node)) setAccountOpen(false)
-    }
-    window.addEventListener("scroll", scroll)
-    window.addEventListener("keydown", key)
-    window.addEventListener("pointerdown", outside)
+      if (!more.current?.contains(e.target as Node)) setMoreOpen(false);
+      if (!account.current?.contains(e.target as Node)) setAccountOpen(false);
+    };
+    window.addEventListener("scroll", scroll);
+    window.addEventListener("keydown", key);
+    window.addEventListener("pointerdown", outside);
     return () => {
-      window.removeEventListener("scroll", scroll)
-      window.removeEventListener("keydown", key)
-      window.removeEventListener("pointerdown", outside)
-    }
-  }, [])
+      window.removeEventListener("scroll", scroll);
+      window.removeEventListener("keydown", key);
+      window.removeEventListener("pointerdown", outside);
+    };
+  }, []);
 
   return (
     <>
@@ -124,7 +156,7 @@ export function Navbar() {
             : "bg-gradient-to-b from-bg-base to-transparent"
         }`}
       >
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 md:px-6">
+        <div className="mx-auto flex h-16 max-w-[1760px] items-center justify-between gap-3 px-4 md:px-6">
           <Link
             to="/"
             aria-label="MGTV Home"
@@ -156,7 +188,7 @@ export function Navbar() {
               className="relative"
               onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget))
-                  setMoreOpen(false)
+                  setMoreOpen(false);
               }}
             >
               <Button
@@ -208,7 +240,10 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="sm"
-                aria-label={`Notifications, ${unreadCount} unread`}
+                aria-label={
+                  `Notifications, ${unreadCount} unread`
+                }
+                disabled={connectedAuth && !customerSession}
                 aria-expanded={notifOpen}
                 onClick={() => setNotifOpen((value) => !value)}
               >
@@ -238,8 +273,13 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="sm"
-                aria-label={`Open cart, ${cartCount} items`}
-                onClick={() => setCartOpen(true)}
+                aria-label={
+                  connectedAuth
+                    ? "Open your shop cart"
+                    : `Open cart, ${cartCount} items`
+                }
+
+                onClick={() => connectedAuth?openCart():setCartOpen(true)}
               >
                 <svg
                   aria-hidden="true"
@@ -253,7 +293,7 @@ export function Navbar() {
                     d="M8 8V6a4 4 0 0 1 8 0v2M5 8h14l1 13H4L5 8Z"
                   />
                 </svg>
-                {cartCount > 0 && (
+                {!connectedAuth && cartCount > 0 && (
                   <Text as="span" className="text-xs text-gold">
                     {cartCount}
                   </Text>
@@ -265,7 +305,7 @@ export function Navbar() {
               className="relative hidden xl:block"
               onBlur={(e) => {
                 if (!e.currentTarget.contains(e.relatedTarget))
-                  setAccountOpen(false)
+                  setAccountOpen(false);
               }}
             >
               <Button
@@ -275,8 +315,8 @@ export function Navbar() {
                 aria-controls="account-links"
                 onClick={() => setAccountOpen((value) => !value)}
               >
-                {app.profile?.name ??
-                  (app.state.session === "expired" ? "Expired" : "Account")}
+                {profileName ??
+                  (sessionStatus === "expired" ? "Expired" : "Account")}
               </Button>
               {accountOpen && (
                 <div
@@ -288,15 +328,9 @@ export function Navbar() {
                       {link.label}
                     </Link>
                   ))}
-                  {app.state.session === "signedIn" && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        app.execute({ type: "scenario", session: "guest" })
-                      }
-                    >
-                      Sign out of demo
+                  {sessionStatus === "signedIn" && (
+                    <Button variant="ghost" size="sm" onClick={() => signOut()}>
+                      {connectedAuth ? "Sign out" : "Sign out of demo"}
                     </Button>
                   )}
                 </div>
@@ -308,13 +342,13 @@ export function Navbar() {
               </ButtonLink>
             </div>
             <Link
-              to={
-                app.state.session === "signedIn" ? "/profiles" : "/auth/sign-in"
-              }
+              to={sessionStatus === "signedIn" ? "/profiles" : "/auth/sign-in"}
               aria-label={
-                app.profile
-                  ? `Switch profile, current ${app.profile.name}`
-                  : "Demo sign in"
+                profileName
+                  ? `Switch profile, current ${profileName}`
+                  : connectedAuth
+                    ? "Customer sign in"
+                    : "Demo sign in"
               }
               className="p-3 text-text-secondary xl:hidden"
             >
@@ -387,31 +421,27 @@ export function Navbar() {
                 {link.label}
               </Link>
             ))}
-            {app.state.session === "signedIn" && (
-              <Button
-                variant="ghost"
-                onClick={() =>
-                  app.execute({ type: "scenario", session: "guest" })
-                }
-              >
-                Sign out of demo
+            {sessionStatus === "signedIn" && (
+              <Button variant="ghost" onClick={() => signOut()}>
+                {connectedAuth ? "Sign out" : "Sign out of demo"}
               </Button>
             )}
             <Button
               variant="ghost"
+
               onClick={() => {
-                setCartOpen(true)
-                setMobileOpen(false)
+                connectedAuth?openCart():setCartOpen(true);
+                setMobileOpen(false);
               }}
             >
-              Cart ({cartCount})
+              {connectedAuth ? "Your cart" : `Cart (${cartCount})`}
             </Button>
             <ButtonLink to="/mgtv-plus">MGTV+</ButtonLink>
           </nav>
         )}
       </header>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
-      <CartDrawer />
+      {connectedAuth ? <ConnectedCommerceCart/> : <CartDrawer />}
     </>
-  )
+  );
 }

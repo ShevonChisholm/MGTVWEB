@@ -1,3 +1,5 @@
+import {NewsletterSignup} from "@/components/shared/NewsletterSignup";
+import {usePlatformSettings} from "@/lib/platformSettings";
 import { Link } from "react-router"
 import { Button } from "@/components/ui/Button"
 import { Input } from "@/components/ui/Input"
@@ -28,7 +30,7 @@ const footerLinks: Record<string, {
   Company: [
     { label: "About MGTV", to: "/about" },
     { label: "Contact", to: "/contact" },
-    { label: "Careers", to: "#" },
+    { label: "Careers", to: "/careers" },
     { label: "Press", to: "#" },
   ],
   Legal: [
@@ -64,9 +66,10 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const platformSettings=usePlatformSettings();
   return (
-    <footer className="bg-[#0A0A0A] border-t border-white/8 mt-12">
-      <div className="max-w-7xl mx-auto px-6 md:px-16 py-16">
+    <footer aria-label={platformSettings?.orgName??"MGTV"} className="bg-[#0A0A0A] border-t border-white/8 mt-12">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-8 py-16">
         {/* Logo + tagline */}
         <div className="mb-12">
           <Link to="/" className="flex items-center gap-2 mb-3 w-fit">
@@ -89,6 +92,7 @@ export function Footer() {
             Jamaican roots, Caribbean perspectives. Explore the sample
             collection of music, sport, films and cultural stories.
           </p>
+          {platformSettings?.supportEmail&&<p className="text-text-secondary text-sm mt-3"><span>{platformSettings.orgName} support: </span><a className="hover:text-gold transition-colors break-all" href={"mailto:"+encodeURIComponent(platformSettings.supportEmail).replace(/%40/g,"@")}>{platformSettings.supportEmail}</a></p>}
           {/* Social links */}
           <div className="flex gap-4 mt-5">
             {socialLinks.map((s) => (
@@ -145,6 +149,7 @@ export function Footer() {
 
         {/* Newsletter */}
         <div className="border-t border-white/8 pt-10 mb-10">
+          {import.meta.env.VITE_API_MODE === "connected" ? <NewsletterSignup/> : <>
           <div className="flex flex-col xl:flex-row gap-4 items-start xl:items-center justify-between">
             <div>
               <Text
@@ -182,6 +187,7 @@ export function Footer() {
               </div>
             </div>
           </div>
+          </>}
         </div>
 
         {/* Bottom bar */}

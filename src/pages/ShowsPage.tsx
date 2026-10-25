@@ -1,41 +1,61 @@
-import { ContentRail } from "@/components/home/ContentRail"
-import { ButtonLink } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { contentPath } from "@/data/mockContent"
-import { useCatalog } from "@/hooks/useCatalog"
-import { useViewing } from "@/hooks/useViewing"
-import { DiscoveryResults } from "@/components/shared/DiscoveryResults"
-import { EmptyFeature } from "@/components/shared/EmptyFeature"
+import {SponsorStrip} from "@/components/shared/SponsorStrip";
+import LifecycleRails from "@/components/home/LifecycleRails";
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useHomepage, homepageItem } from "@/lib/homepage";
+import { FeaturedStatus } from "@/components/home/FeaturedStatus";
+import { HeroBackdrop } from "@/components/shared/HeroBackdrop";
+import { MovieDiscovery } from "@/components/movies/MovieDiscovery";
+import { ContentRail } from "@/components/home/ContentRail";
+import { ButtonLink } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { contentPath } from "@/data/mockContent";
+import { useCatalog } from "@/hooks/useCatalog";
+import { useViewing } from "@/hooks/useViewing";
+import { DiscoveryResults } from "@/components/shared/DiscoveryResults";
+import { EmptyFeature } from "@/components/shared/EmptyFeature";
 
 export function ShowsPage() {
-  const { featuredShows, originals, continueWatching } = useCatalog()
-  const { watchPath, playableItem } = useViewing()
-  const filtered = featuredShows
-  const originalShows = originals.filter((item) => item.type === "show")
-  const featured = featuredShows[0]
-  if (!featured) return <EmptyFeature />
+  const { featuredShows, originals, continueWatching } = useCatalog();
+  const { watchPath, playableItem } = useViewing();
+  const filtered = featuredShows;
+  const originalShows = originals.filter((item) => item.type === "show");
+  const featuredPage = useHomepage("shows");
+  const featured =
+    import.meta.env.VITE_API_MODE === "connected"
+      ? featuredPage.hero[0]
+        ? homepageItem(featuredPage.hero[0])
+        : undefined
+      : featuredShows[0];
+  const connected = import.meta.env.VITE_API_MODE === "connected";
+  if (connected && featuredPage.loading && !featured)
+    return (
+      <main className="min-h-screen bg-bg-base pt-16">
+        <FeaturedStatus page={featuredPage} />
+        <div className="mx-auto max-w-[1760px] px-6 md:px-8">
+          <LoadingSkeleton label="Loading the collection…" columns={3} />
+        </div>
+      </main>
+    );
+  if (!featured)
+    return connected ? (
+      <main className="min-h-screen pt-24">
+        <h1 className="px-6 font-display text-5xl md:px-8">Shows</h1>
+        <FeaturedStatus page={featuredPage} />
+        <LifecycleRails surface="shows"/>
+        <MovieDiscovery collection="shows" title="Discover series" />
+      </main>
+    ) : (
+      <EmptyFeature />
+    );
   return (
     <main className="min-h-screen bg-bg-base pt-16">
-      <section className="relative isolate overflow-hidden bg-bg-base">
-        <div className="absolute inset-y-0 right-0 grid w-full grid-cols-3 gap-1 opacity-40 md:w-3/5">
-          {featuredShows.slice(0, 6).map((show, i) => (
-            <div
-              key={show.id}
-              className={`overflow-hidden rounded-lg ${
-                i === 1 ? "row-span-2" : ""
-              }`}
-            >
-              <img
-                src={show.thumbnail}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            </div>
-          ))}
-        </div>
-        <div className="absolute inset-0 bg-gradient-to-r from-bg-base via-bg-base/90 to-bg-base/70 md:to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent" />
-        <div className="relative mx-auto max-w-7xl px-6 py-14 md:px-16 md:py-20">
+      <FeaturedStatus page={featuredPage} />
+      <section className="hero-card">
+        <HeroBackdrop
+          poster={featured.landscapeThumbnail ?? featured.thumbnail}
+          featureUrl={featured.featureUrl}
+        />
+        <div className="hero-card__content">
           <Text className="mb-4 text-xs font-semibold uppercase tracking-widest text-gold">
             Shows · Find your next great series.
           </Text>
@@ -52,19 +72,26 @@ export function ShowsPage() {
             {featured.description}
           </Text>
           <div className="flex flex-wrap gap-3">
-            <ButtonLink to={watchPath(featured)!}>
+            <ButtonLink
+              to={connected ? contentPath(featured) : watchPath(featured)!}
+            >
               {(playableItem(featured)?.progress ?? 0) > 0 &&
               (playableItem(featured)?.progress ?? 0) < 100
                 ? "Resume episode"
-                : "Watch episode"}
+                : connected
+                  ? "Explore episodes"
+                  : "Watch episode"}
             </ButtonLink>
             <ButtonLink to={contentPath(featured)} variant="outline">
               View series
             </ButtonLink>
           </div>
+          {connected&&<SponsorStrip key={featured.id} kind="shows" id={featured.id} compact context={featured.title}/>}
         </div>
       </section>
-      <DiscoveryResults
+      <LifecycleRails surface="shows"/>
+      <ShowsDiscovery
+        connected={connected}
         items={featuredShows}
         scope="shows"
         title="Discover series"
@@ -75,18 +102,22 @@ export function ShowsPage() {
             title="Continue Watching"
             items={continueWatching.filter((item) => item.type === "episode")}
             cardType="continueWatching"
-            context="Demo progress for this profile"
+            context={connected ? undefined : "Demo progress for this profile"}
           />
           <ContentRail
             layout="contained"
             title="Discover Series"
             items={filtered}
           />
-          <ContentRail
-            layout="contained"
-            title="Selected Caribbean series"
-            items={originalShows}
-          />
+          {!connected && (
+            <>
+              <ContentRail
+                layout="contained"
+                title="Selected Caribbean series"
+                items={originalShows}
+              />
+            </>
+          )}
           <ContentRail
             layout="contained"
             title="Drama"
@@ -100,12 +131,23 @@ export function ShowsPage() {
             )}
           />
           {!filtered.length && (
-            <Text className="px-6 py-10 text-text-secondary md:px-16">
+            <Text className="px-6 py-10 text-text-secondary md:px-8">
               No series in this genre yet.
             </Text>
           )}
         </div>
-      </DiscoveryResults>
+      </ShowsDiscovery>
     </main>
-  )
+  );
+}
+
+// Keep this component identity stable so parent refreshes do not close the filter drawer.
+function ShowsDiscovery({ connected, children, ...props }: any) {
+  return connected ? (
+    <MovieDiscovery collection="shows" title="Discover series" {...props}>
+      {() => children}
+    </MovieDiscovery>
+  ) : (
+    <DiscoveryResults {...props}>{children}</DiscoveryResults>
+  );
 }

@@ -1,45 +1,56 @@
-import { useEffect, useRef, useState } from "react"
-import { Link, Outlet } from "react-router"
-import { catalogById, contentPath } from "@/data/mockContent"
-import { usePlayback } from "@/context/MediaPlaybackContext"
-import { Button } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { PlaybackControls, PreviewStates } from "./PlaybackControls"
-import { SessionDialog } from "@/components/shared/SessionDialog"
-import { DemoControls } from "@/components/shared/DemoControls"
+import { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useLocation } from "react-router";
+import { catalogById, contentPath } from "@/data/mockContent";
+import { usePlayback } from "@/context/MediaPlaybackContext";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { PlaybackControls, PreviewStates } from "./PlaybackControls";
+import { SessionDialog } from "@/components/shared/SessionDialog";
+import { DemoControls } from "@/components/shared/DemoControls";
 
 export function PlaybackLayout() {
+  const { pathname } = useLocation();
+  const movieRoute =
+    import.meta.env.VITE_API_MODE === "connected" &&
+    (pathname.startsWith("/music") ||
+      pathname.startsWith("/movies") ||
+      pathname.startsWith("/shows") ||
+      pathname.startsWith("/watch") ||
+      pathname.startsWith("/auth") ||
+      pathname.startsWith("/profiles") ||
+      pathname === "/account" ||
+      pathname === "/my-list");
   return (
     <div className="playback-shell">
       <DemoControls />
       <Outlet />
-      <AudioMiniPlayer />
+      {!movieRoute && <AudioMiniPlayer />}
     </div>
-  )
+  );
 }
 function AudioMiniPlayer() {
-  const { state, dispatch } = usePlayback()
-  const [queueOpen, setQueueOpen] = useState(false)
-  const bar = useRef<HTMLDivElement>(null)
-  const audio = state.audio
+  const { state, dispatch } = usePlayback();
+  const [queueOpen, setQueueOpen] = useState(false);
+  const bar = useRef<HTMLDivElement>(null);
+  const audio = state.audio;
   useEffect(() => {
-    const element = bar.current
+    const element = bar.current;
     const update = () =>
       document.documentElement.style.setProperty(
         "--player-height",
         `${element?.getBoundingClientRect().height ?? 0}px`,
-      )
-    update()
-    const observer = new ResizeObserver(update)
-    if (element) observer.observe(element)
+      );
+    update();
+    const observer = new ResizeObserver(update);
+    if (element) observer.observe(element);
     return () => {
-      observer.disconnect()
-      document.documentElement.style.removeProperty("--player-height")
-    }
-  }, [!!audio])
-  if (!audio) return null
-  const track = catalogById[audio.media.id]
-  if (!track) return null
+      observer.disconnect();
+      document.documentElement.style.removeProperty("--player-height");
+    };
+  }, [!!audio]);
+  if (!audio) return null;
+  const track = catalogById[audio.media.id];
+  if (!track) return null;
   return (
     <>
       <div
@@ -48,7 +59,7 @@ function AudioMiniPlayer() {
         aria-label="Audio mini-player"
         className="audio-mini-player fixed inset-x-0 bottom-0 z-40 border-t border-gold/40 bg-bg-surface"
       >
-        <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 md:grid-cols-[1fr_2fr_auto] md:gap-6 md:px-8">
+        <div className="mx-auto grid max-w-[1760px] grid-cols-[1fr_auto] items-center gap-3 px-4 py-3 md:grid-cols-[1fr_2fr_auto] md:gap-6 md:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Link to={contentPath(track)}>
               <img
@@ -128,8 +139,8 @@ function AudioMiniPlayer() {
               variant="ghost"
               className="mt-2"
               onClick={() => {
-                dispatch({ type: "remove", key: state.queue[state.index].key })
-                if (state.index + 1 >= state.queue.length) setQueueOpen(false)
+                dispatch({ type: "remove", key: state.queue[state.index].key });
+                if (state.index + 1 >= state.queue.length) setQueueOpen(false);
               }}
             >
               Remove current track
@@ -145,8 +156,8 @@ function AudioMiniPlayer() {
           )}
           <div className="space-y-3">
             {state.queue.slice(state.index + 1).map((entry, pendingIndex) => {
-              const item = catalogById[entry.media.id]
-              const index = state.index + 1 + pendingIndex
+              const item = catalogById[entry.media.id];
+              const index = state.index + 1 + pendingIndex;
               return (
                 <div
                   key={entry.key}
@@ -210,7 +221,7 @@ function AudioMiniPlayer() {
                     </Button>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
           <div className="mt-6 flex flex-wrap gap-3">
@@ -223,8 +234,8 @@ function AudioMiniPlayer() {
             <Button
               variant="ghost"
               onClick={() => {
-                dispatch({ type: "clear" })
-                setQueueOpen(false)
+                dispatch({ type: "clear" });
+                setQueueOpen(false);
               }}
             >
               Clear queue & stop audio
@@ -234,5 +245,5 @@ function AudioMiniPlayer() {
         </SessionDialog>
       )}
     </>
-  )
+  );
 }

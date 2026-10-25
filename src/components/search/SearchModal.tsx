@@ -1,26 +1,28 @@
-import { useState, useRef } from "react"
-import { Link, useNavigate } from "react-router"
-import { contentPath, contentLabels } from "@/data/mockContent"
-import { Input } from "@/components/ui/Input"
-import { Button, ButtonLink } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { TrackPlay } from "@/components/music/TrackCard"
-import { usePlayback } from "@/context/MediaPlaybackContext"
-import { statusLabel } from "@/lib/playback"
-import { useCatalog } from "@/hooks/useCatalog"
-import { SessionDialog } from "@/components/shared/SessionDialog"
+import ConnectedSearchModal from "./ConnectedSearchModal";
+import { useState, useRef } from "react";
+import { Link, useNavigate } from "react-router";
+import { contentPath, contentLabels } from "@/data/mockContent";
+import { Input } from "@/components/ui/Input";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { TrackPlay } from "@/components/music/TrackCard";
+import { usePlayback } from "@/context/MediaPlaybackContext";
+import { statusLabel } from "@/lib/playback";
+import { useCatalog } from "@/hooks/useCatalog";
+import { SessionDialog } from "@/components/shared/SessionDialog";
 
-export function SearchModal({ onClose }: { onClose: () => void }) {
-  const { catalog } = useCatalog()
+export function SearchModal({onClose}:{onClose:()=>void}){return import.meta.env.VITE_API_MODE==="connected"?<ConnectedSearchModal onClose={onClose}/>:<PrototypeSearchModal onClose={onClose}/>;}
+function PrototypeSearchModal({ onClose }: { onClose: () => void }) {
+  const { catalog } = useCatalog();
   const suggestions = catalog
     .filter((item) => ["show", "artist", "news"].includes(item.type))
     .slice(0, 5)
-    .map((item) => item.title)
-  const [query, setQuery] = useState("")
-  const input = useRef<HTMLInputElement>(null)
-  const navigate = useNavigate()
-  const { state } = usePlayback()
-  const term = query.trim().toLowerCase()
+    .map((item) => item.title);
+  const [query, setQuery] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
+  const { state } = usePlayback();
+  const term = query.trim().toLowerCase();
   const results = term
     ? catalog
         .filter((item) =>
@@ -29,14 +31,14 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
           ),
         )
         .slice(0, 8)
-    : []
+    : [];
   return (
     <SessionDialog title="Search MGTV" onClose={onClose} initialFocus={input}>
       <form
         onSubmit={(e) => {
-          e.preventDefault()
-          navigate(`/search?q=${encodeURIComponent(query.trim())}`)
-          onClose()
+          e.preventDefault();
+          navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+          onClose();
         }}
         className="mb-4 flex gap-2"
       >
@@ -128,6 +130,26 @@ export function SearchModal({ onClose }: { onClose: () => void }) {
           ))}
         </div>
       )}
+      {term && import.meta.env.VITE_API_MODE === "connected" && (
+        <ButtonLink
+          to={`/movies?q=${encodeURIComponent(query.trim())}`}
+          onClick={onClose}
+          variant="outline"
+          className="mt-5"
+        >
+          Search all films
+        </ButtonLink>
+      )}
+      {term && import.meta.env.VITE_API_MODE === "connected" && (
+        <ButtonLink
+          to={`/shows?q=${encodeURIComponent(query.trim())}`}
+          onClick={onClose}
+          variant="outline"
+          className="mt-5"
+        >
+          Search all series
+        </ButtonLink>
+      )}
     </SessionDialog>
-  )
+  );
 }

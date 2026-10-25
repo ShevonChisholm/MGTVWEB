@@ -1,27 +1,33 @@
-import { useEffect, useState } from "react"
-import { useParams, Link, useNavigate, useSearchParams } from "react-router"
-import { VideoPlayer } from "@/components/player/VideoPlayer"
-import { ContentRail } from "@/components/home/ContentRail"
-import { ShareBar } from "@/components/shared/ShareBar"
-import { LikeButton } from "@/components/shared/LikeButton"
-import { RatingWidget } from "@/components/shared/RatingWidget"
-import { AddToPlaylistMenu } from "@/components/music/AddToPlaylistMenu"
-import { mediaFor, usePlayback } from "@/context/MediaPlaybackContext"
-import { usePlaylists } from "@/context/PlaylistContext"
-import { Button, ButtonLink } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { Badge } from "@/components/ui/Badge"
-import { useAppState } from "@/context/AppStateContext"
-import { useCatalog } from "@/hooks/useCatalog"
+import { ConnectedMusicDetail } from "./ConnectedMusicDetail";
+import { useEffect, useState } from "react";
+import { useParams, Link, useNavigate, useSearchParams } from "react-router";
+import { VideoPlayer } from "@/components/player/VideoPlayer";
+import { ContentRail } from "@/components/home/ContentRail";
+import { ShareBar } from "@/components/shared/ShareBar";
+import { LikeButton } from "@/components/shared/LikeButton";
+import { RatingWidget } from "@/components/shared/RatingWidget";
+import { AddToPlaylistMenu } from "@/components/music/AddToPlaylistMenu";
+import { mediaFor, usePlayback } from "@/context/MediaPlaybackContext";
+import { usePlaylists } from "@/context/PlaylistContext";
+import { Button, ButtonLink } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { Badge } from "@/components/ui/Badge";
+import { useAppState } from "@/context/AppStateContext";
+import { useCatalog } from "@/hooks/useCatalog";
 
 export function MusicVideoPage() {
-  const app = useAppState()
-  const { musicVideos, featuredArtists } = useCatalog()
-  const { id } = useParams()
-  const [params] = useSearchParams()
-  const navigate = useNavigate()
-  const [guestAutoplay, setGuestAutoplay] = useState(true)
-  const autoplay = app.profile?.preferences.autoplay ?? guestAutoplay
+  if (import.meta.env.VITE_API_MODE === "connected")
+    return <ConnectedMusicDetail />;
+  return <PrototypeMusicVideoPage />;
+}
+function PrototypeMusicVideoPage() {
+  const app = useAppState();
+  const { musicVideos, featuredArtists } = useCatalog();
+  const { id } = useParams();
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const [guestAutoplay, setGuestAutoplay] = useState(true);
+  const autoplay = app.profile?.preferences.autoplay ?? guestAutoplay;
   const setAutoplay = (change: (value: boolean) => boolean) =>
     app.profile
       ? app.execute({
@@ -31,38 +37,38 @@ export function MusicVideoPage() {
             autoplay: change(autoplay),
           },
         })
-      : setGuestAutoplay(change)
-  const { videoSequence, setVideoSequence, dispatch } = usePlayback()
-  const { playlists } = usePlaylists()
-  const playlistId = params.get("playlist")
+      : setGuestAutoplay(change);
+  const { videoSequence, setVideoSequence, dispatch } = usePlayback();
+  const { playlists } = usePlaylists();
+  const playlistId = params.get("playlist");
   const requested = playlists.find(
     (playlist) =>
       playlist.id === playlistId &&
       playlist.kind === "video" &&
       playlist.itemIds.includes(id ?? ""),
-  )
+  );
   const sequence =
     playlistId && videoSequence?.playlistId === playlistId
       ? videoSequence
       : requested
         ? { playlistId: requested.id, ids: [...requested.itemIds] }
-        : null
-  const validSequence = sequence?.ids.includes(id ?? "") ? sequence : null
+        : null;
+  const validSequence = sequence?.ids.includes(id ?? "") ? sequence : null;
   const nextId = validSequence
     ? validSequence.ids[validSequence.ids.indexOf(id!) + 1]
-    : undefined
+    : undefined;
   useEffect(() => {
     if (requested && videoSequence?.playlistId !== playlistId)
       setVideoSequence({
         playlistId: requested.id,
         ids: [...requested.itemIds],
-      })
-  }, [playlistId, requested, videoSequence?.playlistId])
-  const video = musicVideos.find((v) => v.id === id)
-  const related = musicVideos.filter((v) => v.id !== id)
+      });
+  }, [playlistId, requested, videoSequence?.playlistId]);
+  const video = musicVideos.find((v) => v.id === id);
+  const related = musicVideos.filter((v) => v.id !== id);
   const artist = video
     ? featuredArtists.find((a) => a.title === video.artist)
-    : null
+    : null;
 
   if (!video) {
     return (
@@ -72,12 +78,12 @@ export function MusicVideoPage() {
           ← Back to Music
         </Link>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] pt-16">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-8">
+      <div className="max-w-[1760px] mx-auto px-6 md:px-12 py-8">
         <Link
           to="/music"
           className="flex items-center gap-2 text-[#A3A3A3] hover:text-[#C9A84C] transition-colors mb-6 text-sm"
@@ -107,11 +113,11 @@ export function MusicVideoPage() {
               thumbnail={video.thumbnail}
               onEnded={() => {
                 if (autoplay && nextId && validSequence) {
-                  dispatch({ type: "prepareVideo", media: mediaFor(nextId) })
-                  dispatch({ type: "play", owner: "video" })
+                  dispatch({ type: "prepareVideo", media: mediaFor(nextId) });
+                  dispatch({ type: "play", owner: "video" });
                   navigate(
                     `/music/video/${nextId}?playlist=${validSequence.playlistId}`,
-                  )
+                  );
                 }
               }}
             />
@@ -143,11 +149,11 @@ export function MusicVideoPage() {
                       dispatch({
                         type: "prepareVideo",
                         media: mediaFor(nextId),
-                      })
-                      dispatch({ type: "play", owner: "video" })
+                      });
+                      dispatch({ type: "play", owner: "video" });
                       navigate(
                         `/music/video/${nextId}?playlist=${validSequence.playlistId}`,
-                      )
+                      );
                     }}
                   >
                     Next video
@@ -272,5 +278,5 @@ export function MusicVideoPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

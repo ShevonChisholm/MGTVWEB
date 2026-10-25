@@ -1,3 +1,4 @@
+import {ConnectedLibraryDetail} from "./ConnectedMusicLibrary";
 import { useState } from "react"
 import { useParams, Link, useNavigate } from "react-router"
 import { catalogById } from "@/data/mockContent"
@@ -11,6 +12,10 @@ import { ContentUnavailable } from "@/components/shared/ContentUnavailable"
 import { SessionDialog } from "@/components/shared/SessionDialog"
 
 export function PlaylistPage() {
+ if(import.meta.env.VITE_API_MODE === "connected") return <ConnectedLibraryDetail kind="playlists"/>;
+ return <PrototypePlaylistPage/>;
+}
+function PrototypePlaylistPage() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { playlists, removeTrack, deletePlaylist, moveItem } = usePlaylists()
@@ -32,7 +37,7 @@ export function PlaylistPage() {
   )
   return (
     <main className="min-h-screen bg-bg-base pt-24">
-      <div className="mx-auto max-w-7xl px-6 py-8 md:px-16">
+      <div className="mx-auto max-w-[1760px] px-6 py-8 md:px-8">
         <ButtonLink to="/music?view=playlists" variant="ghost" className="mb-8">
           Back to playlists
         </ButtonLink>

@@ -8,16 +8,18 @@ import { Text } from "@/components/ui/Text"
 export function RatingWidget({
   id,
   label = "Rate this",
+  remote,
 }: {
   id: string
   label?: string
+  remote?: { value:number|null; busy:boolean; onRate:(value:number)=>void }
 }) {
   const app = useAppState()
   const { getRating, rateItem } = useInteraction()
   const { addToast } = useToast()
   const [hovered, setHovered] = useState<number | null>(null)
   const [editing, setEditing] = useState(false)
-  const current = getRating(id)
+  const current = remote ? remote.value : getRating(id)
   const display = hovered ?? current
   if (current !== null && !editing)
     return (
@@ -51,6 +53,7 @@ export function RatingWidget({
         {Array.from({ length: 10 }, (_, index) => index + 1).map((value) => (
           <Button
             key={value}
+            disabled={remote?.busy}
             variant="ghost"
             size="sm"
             className={`min-h-11 min-w-11 px-2 ${
@@ -64,6 +67,7 @@ export function RatingWidget({
             onFocus={() => setHovered(value)}
             onBlur={() => setHovered(null)}
             onClick={() => {
+              if(remote){remote.onRate(value);setEditing(false);return}
               if (!app.requirePersonal(id)) return
               rateItem(id, value)
               setEditing(false)

@@ -1,3 +1,4 @@
+import { HeroBackdrop } from "./HeroBackdrop";
 import { useNavigate } from 'react-router'
 import { Badge } from '@/components/ui/Badge'
 import type { ContentItem } from '@/data/mockContent'
@@ -16,21 +17,10 @@ export function PageFeaturedHero({ item, subtitle, primaryCta, secondaryCta, bad
 
   return (
     <section className="relative w-full overflow-hidden" style={{ height: 'clamp(480px, 68vh, 760px)' }}>
-      {/* Cinematic background image */}
-      <img
-        src={item.thumbnail}
-        alt={item.title}
-        className="absolute inset-0 w-full h-full object-cover object-center"
-      />
-
-      {/* Multi-layer gradient vignette — matches homepage HeroSection */}
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/35 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/85 via-[#0A0A0A]/25 to-transparent" />
-      {/* Subtle left edge burn */}
-      <div className="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#0A0A0A]/60 to-transparent" />
+      <HeroBackdrop poster={item.landscapeThumbnail??item.thumbnail} featureUrl={item.featureUrl}/>
 
       {/* Content — bottom-anchored like HeroSection */}
-      <div className="relative h-full flex flex-col justify-end pb-14 md:pb-20 px-8 md:px-16 max-w-[1400px] mx-auto">
+      <div className="relative h-full flex flex-col justify-end pb-14 md:pb-20 px-8 md:px-8 max-w-[1400px] mx-auto">
         <div className="max-w-2xl">
           {/* Metadata row */}
           <div className="flex items-center gap-3 mb-3 flex-wrap">

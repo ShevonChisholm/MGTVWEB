@@ -30,7 +30,7 @@ export function ContentRail({
 }: ContentRailProps) {
   const railRef = useRef<HTMLDivElement>(null)
   const headingId = useId()
-  const shell = layout === "page" ? "mx-auto max-w-7xl px-6 md:px-16" : ""
+  const shell = layout === "page" ? "mx-auto max-w-[1760px] px-6 md:px-8" : ""
   const { visibleItems } = useViewing()
   items = visibleItems(items)
   if (!items.length) return null
@@ -101,7 +101,7 @@ export function ContentRail({
         aria-label={`${title} content`}
         tabIndex={0}
         className={`flex snap-x snap-mandatory gap-4 overflow-x-auto scrollbar-hide pb-3 pt-2 ${shell} ${
-          layout === "page" ? "scroll-px-6 md:scroll-px-16" : "pl-1"
+          layout === "page" ? "scroll-px-6 md:scroll-px-8" : "pl-1"
         }`}
       >
         {items.map((item) => (

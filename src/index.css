@@ -51,7 +51,7 @@ html, body, #root {
 .media-progress::-webkit-progress-value { background: var(--color-gold); }
 .media-progress::-moz-progress-bar { background: var(--color-gold); }
 
-.playback-shell { padding-bottom: var(--player-height, 0px); }
+.playback-shell { padding-bottom: max(var(--player-height, 0px), var(--music-player-height, 0px)); }
 html {
   scroll-padding-top: 8rem;
   scroll-padding-bottom: calc(var(--player-height, 0px) + 1rem);
@@ -65,3 +65,55 @@ html {
     animation-duration: 0.01ms !important;
   }
 }
+
+.hero-side-gradient { background: linear-gradient(90deg, rgba(10,10,10,.97) 0%, rgba(10,10,10,.88) 28%, rgba(10,10,10,.38) 58%, rgba(10,10,10,.06) 100%); }
+@media(max-width:767px) { .hero-side-gradient { background: linear-gradient(90deg, rgba(10,10,10,.93),rgba(10,10,10,.55)); } }
+
+/* Inset editorial heroes: top-left / bottom-right softened, opposite corners square. */
+.hero-card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  width: min(1760px, calc(100% - 48px));
+  min-height: clamp(520px, 72svh, 800px);
+  margin: 20px auto 40px;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 36px 0 36px 0;
+  background: var(--color-bg-surface, #141414);
+  box-shadow: 0 24px 56px -12px rgb(0 0 0 / 70%), 0 2px 8px rgb(0 0 0 / 30%);
+}
+.hero-card__content {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(24px, 3.2vw, 56px);
+  padding-top: 88px;
+  overflow-wrap: anywhere;
+}
+.hero-card .hero-backdrop > button { bottom: 20px; right: 20px; }
+@media (min-width: 768px) {
+  .hero-card { width: min(1760px, calc(100% - 64px)); }
+}
+@media (max-width: 767px) {
+  .hero-card {
+    width: calc(100% - 32px);
+    min-height: 540px;
+    margin-top: 16px;
+    margin-bottom: 28px;
+    border-radius: 24px 0 24px 0;
+  }
+  .hero-card__content { padding-bottom: 76px; }
+}
+
+/* Skeleton geometry mirrors the existing MGTV content shapes. */
+.mgtv-loading{min-width:0;width:100%}.mgtv-skeleton{display:block;background:var(--color-bg-surface,#191919);border:1px solid rgb(255 255 255 / .04);border-radius:10px;animation:mgtv-skeleton-pulse 1.8s ease-in-out infinite}.mgtv-loading-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 20px}.mgtv-loading-grid--account{grid-template-columns:minmax(0,1fr)}.mgtv-loading--hero .mgtv-skeleton{background:rgb(255 255 255 / .07)}.mgtv-loading-hero{background:linear-gradient(110deg,#151515,#202020);isolation:isolate}.mgtv-loading--inline{padding:12px 0}.mgtv-loading--detail,.mgtv-loading--article{min-height:70vh}.mgtv-loading--cards,.mgtv-loading--landscape,.mgtv-loading--account{padding:24px 0}
+@media(min-width:640px){.mgtv-loading-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.mgtv-loading-grid--account{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1280px){.mgtv-loading-grid{grid-template-columns:repeat(5,minmax(0,1fr))}.mgtv-loading-grid--account{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@keyframes mgtv-skeleton-pulse{50%{opacity:.45}}
+@media(prefers-reduced-motion:reduce){.mgtv-skeleton{animation:none}}
+
+@media(min-width:1280px){.mgtv-loading-grid--3{grid-template-columns:repeat(3,minmax(0,1fr))}.mgtv-loading-grid--4{grid-template-columns:repeat(4,minmax(0,1fr))}}
+
+.mgtv-loading--feature .mgtv-loading-hero{width:100%;margin:0;border-radius:0;min-height:clamp(480px,68vh,760px);box-shadow:none}.mgtv-loading--feature .mgtv-skeleton{background:rgb(255 255 255 / .07)}

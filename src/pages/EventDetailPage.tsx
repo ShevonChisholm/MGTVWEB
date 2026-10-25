@@ -1,3 +1,4 @@
+import { ConnectedEventDetail } from "./ConnectedEvents";
 import { useParams } from "react-router"
 import {
   allEventDetails,
@@ -13,7 +14,8 @@ import { RatingWidget } from "@/components/shared/RatingWidget"
 import { ContentUnavailable } from "@/components/shared/ContentUnavailable"
 import { EventSummary, EventActions } from "@/components/events/EventSummary"
 
-export function EventDetailPage() {
+export function EventDetailPage() { return import.meta.env.VITE_API_MODE === "connected" ? <ConnectedEventDetail/> : <PrototypeEventDetailPage/>; }
+function PrototypeEventDetailPage() {
   const { id } = useParams()
   const event = id ? allEventDetails[id] : undefined
   if (!event)
@@ -33,7 +35,7 @@ export function EventDetailPage() {
           className="absolute inset-0 h-full w-full object-cover opacity-25"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/70 to-bg-base/20" />
-        <div className="relative mx-auto max-w-7xl px-6 py-14 md:px-16 md:py-20">
+        <div className="relative mx-auto max-w-[1760px] px-6 py-14 md:px-8 md:py-20">
           <ButtonLink to="/events" variant="ghost" className="mb-6">
             Back to events
           </ButtonLink>
@@ -54,7 +56,7 @@ export function EventDetailPage() {
           </div>
         </div>
       </section>
-      <div className="mx-auto max-w-7xl px-6 py-8 md:px-16">
+      <div className="mx-auto max-w-[1760px] px-6 py-8 md:px-8">
         <Text className="mb-8 text-xs text-text-secondary">
           Fixed sample schedule as of {demoReference}. States do not follow the
           current clock.

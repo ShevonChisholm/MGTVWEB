@@ -1,9 +1,15 @@
+import {connectedAuth} from "@/lib/customerAuth"
+import {ConnectedNotificationFeed} from "@/components/notifications/ConnectedNotifications"
 import { useState } from "react"
 import { useAppState } from "@/context/AppStateContext"
 import { Button, ButtonLink } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
 import { NotificationList } from "@/components/notifications/NotificationList"
 export function NotificationsPage() {
+ if(connectedAuth)return <main className="mx-auto min-h-screen max-w-4xl px-6 py-24"><ConnectedNotificationFeed/></main>;
+ return <PrototypeNotificationsPage/>
+}
+function PrototypeNotificationsPage() {
   const app = useAppState()
   const [category, setCategory] = useState("All")
   const [unreadOnly, setUnreadOnly] = useState(false)

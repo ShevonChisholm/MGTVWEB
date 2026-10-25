@@ -1,25 +1,31 @@
-import { useParams, Link } from "react-router"
-import { catalogById } from "@/data/mockContent"
-import { ContentUnavailable } from "@/components/shared/ContentUnavailable"
+import { ConnectedMusicDetail } from "./ConnectedMusicDetail";
+import { useParams, Link } from "react-router";
+import { catalogById } from "@/data/mockContent";
+import { ContentUnavailable } from "@/components/shared/ContentUnavailable";
 import {
   TrackCard,
   TrackPlay,
   TrackActions,
-} from "@/components/music/TrackCard"
-import { Text } from "@/components/ui/Text"
-import { ButtonLink } from "@/components/ui/Button"
-import { ShareBar } from "@/components/shared/ShareBar"
-import { LikeButton } from "@/components/shared/LikeButton"
-import { RatingWidget } from "@/components/shared/RatingWidget"
-import { usePlayback } from "@/context/MediaPlaybackContext"
-import { statusLabel } from "@/lib/playback"
-import { useCatalog } from "@/hooks/useCatalog"
+} from "@/components/music/TrackCard";
+import { Text } from "@/components/ui/Text";
+import { ButtonLink } from "@/components/ui/Button";
+import { ShareBar } from "@/components/shared/ShareBar";
+import { LikeButton } from "@/components/shared/LikeButton";
+import { RatingWidget } from "@/components/shared/RatingWidget";
+import { usePlayback } from "@/context/MediaPlaybackContext";
+import { statusLabel } from "@/lib/playback";
+import { useCatalog } from "@/hooks/useCatalog";
 
 export function TrackDetailPage() {
-  const { tracks } = useCatalog()
-  const { id } = useParams()
-  const track = id ? catalogById[id] : undefined
-  const { state } = usePlayback()
+  if (import.meta.env.VITE_API_MODE === "connected")
+    return <ConnectedMusicDetail />;
+  return <PrototypeTrackDetailPage />;
+}
+function PrototypeTrackDetailPage() {
+  const { tracks } = useCatalog();
+  const { id } = useParams();
+  const track = id ? catalogById[id] : undefined;
+  const { state } = usePlayback();
   if (!track || track.type !== "track")
     return (
       <ContentUnavailable
@@ -27,10 +33,10 @@ export function TrackDetailPage() {
         backTo="/music?view=tracks"
         backLabel="Browse tracks"
       />
-    )
+    );
   return (
     <main className="min-h-screen bg-bg-base pt-24">
-      <div className="mx-auto max-w-7xl px-6 py-8 md:px-16">
+      <div className="mx-auto max-w-[1760px] px-6 py-8 md:px-8">
         <ButtonLink to="/music?view=tracks" variant="ghost" className="mb-8">
           Back to tracks
         </ButtonLink>
@@ -99,5 +105,5 @@ export function TrackDetailPage() {
         </div>
       </div>
     </main>
-  )
+  );
 }

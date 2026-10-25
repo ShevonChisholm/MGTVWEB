@@ -1,10 +1,13 @@
+import {connectedAuth} from "@/lib/customerAuth"
+import {ConnectedAwards} from "./ConnectedAwards"
 import { useEffect, useState } from "react"
 import { useAppState } from "@/context/AppStateContext"
 import { awardCategories } from "@/data/mockAwards"
 import { Button, ButtonLink } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
 import { SessionDialog } from "@/components/shared/SessionDialog"
-export function AwardsPage() {
+export function AwardsPage() { return connectedAuth ? <ConnectedAwards/> : <PrototypeAwards/> }
+function PrototypeAwards() {
   const app = useAppState()
   const [section, setSection] = useState("Music")
   const [pending, setPending] = useState<{
