@@ -48,7 +48,10 @@ export function SubscriptionAccess() {
             where a matching video is available
           </p>
           {state.items
-            .filter((item: any) => item.accessActive === true)
+            .filter(
+              (item: any) =>
+                item.accessActive === true || item.status === "scheduled",
+            )
             .map((item: any) => (
               <div
                 key={item.id}
@@ -56,22 +59,29 @@ export function SubscriptionAccess() {
               >
                 <strong className="text-gold">{item.tierName}</strong>
                 <p className="mt-1 text-sm text-text-secondary">
-                  Active until {new Date(item.endsAt).toLocaleDateString()}
+                  {item.status === "scheduled"
+                    ? "Starts " +
+                      new Date(item.startsAt).toLocaleDateString() +
+                      " · ends "
+                    : "Active until "}
+                  {new Date(item.endsAt).toLocaleDateString()}
                 </p>
               </div>
             ))}
           {!state.items.some((item: any) => item.accessActive === true) && (
             <p className="mb-4 text-sm text-text-secondary">
-              Free titles and guest previews are available. Premium full-length content
-              need an eligible active subscription.
+              Free titles and guest previews are available. Premium full-length
+              content need an eligible active subscription.
             </p>
           )}
           <ButtonLink to="/mgtv-plus" variant="outline">
             Explore MGTV tiers
           </ButtonLink>
           <p className="mt-4 text-xs leading-relaxed text-text-secondary">
-            Subscription activation is not connected yet. Staff cannot grant
-            subscriptions. Ad delivery follows your tier. Eligible early event updates appear in your notification feed when MGTV sends them.
+            Renew when you choose. There are no automatic subscription charges.
+            Staff cannot grant subscriptions. Ad delivery follows your tier.
+            Eligible early event updates appear in your notification feed when
+            MGTV sends them.
           </p>
         </>
       )}
