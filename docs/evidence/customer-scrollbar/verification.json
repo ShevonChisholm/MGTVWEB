@@ -1,0 +1,74 @@
+{
+  "checkedAt": "2026-10-26T19:38:23.864Z",
+  "checks": [
+    {
+      "overflow": false,
+      "path": "/shop",
+      "scrollY": 0,
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/",
+      "railScrollbarWidths": [],
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/shows",
+      "railScrollbarWidths": [],
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/movies",
+      "railScrollbarWidths": [],
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/music",
+      "railScrollbarWidths": [],
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/events",
+      "railScrollbarWidths": [],
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 1280
+    },
+    {
+      "overflow": false,
+      "path": "/shop",
+      "scrollbarColor": "rgb(122, 100, 48) rgb(20, 20, 20)",
+      "scrollbarWidth": "thin",
+      "width": 390
+    }
+  ],
+  "nativePageDownWorked": true,
+  "consoleErrors": 0,
+  "highContrastFallback": "source verified; OS setting not changed",
+  "commit": "e8d6829a28529adb12910373a8d1945cd7f48f76",
+  "deployment": "dpl_CEM5BPgmWET6VQaU7yhFNocgK1t6",
+  "url": "https://mgtv-web.vercel.app",
+  "buildPassed": true,
+  "typecheckPassed": true,
+  "apiDeployed": false,
+  "adminChanged": false,
+  "productionEmail": "pending",
+  "drm": "required for production; pending",
+  "sponsorsStarted": false,
+  "loadedRailsVerifiedHidden": 11
+}
