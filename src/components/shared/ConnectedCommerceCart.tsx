@@ -145,7 +145,7 @@ export function ConnectedCommerceCart() {
                 {new Date(order.expires_at).toLocaleString()}.
               </p>
               <p>
-                Continue from your order to WiPay’s sandbox. No real money
+                Continue from your order to Stripe’s sandbox. No real money
                 moves.
               </p>
               <ButtonLink
