@@ -75,8 +75,10 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
     [speed, setSpeed] = useState(1),
     [visible, setVisible] = useState(true),
     [message, setMessage] = useState(""),
-    [captions, setCaptions] = useState(false),
-    [captionCount, setCaptionCount] = useState(0),
+    [captionOptions, setCaptionOptions] = useState<
+      { id: string; label: string }[]
+    >([]),
+    [captionChoice, setCaptionChoice] = useState("off"),
     [fullscreen, setFullscreen] = useState(false);
   const preview = /\/preview(?:\?|$)/.test(props.src ?? ""),
     title = String(props["aria-label"] ?? "MGTV video"),
@@ -109,6 +111,26 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
     setPosition(0);
     setMessage("");
     setPaused(element.paused);
+    setCaptionChoice("off");
+    const captionSync = () => {
+      const tracks = Array.from(
+        element.querySelectorAll<HTMLTrackElement>(
+          "track[data-mgtv-caption-id]",
+        ),
+      );
+      setCaptionOptions(
+        tracks.map((t) => ({
+          id: t.dataset.mgtvCaptionId!,
+          label: t.label || t.srclang,
+        })),
+      );
+      setCaptionChoice(
+        tracks.find((t) => t.track.mode === "showing")?.dataset.mgtvCaptionId ??
+          "off",
+      );
+    };
+    element.addEventListener("mgtv:captions", captionSync);
+    element.textTracks.addEventListener("change", captionSync);
     const sync = () => {
       setPaused(element.paused);
       if (element.readyState >= 1) setPosition(element.currentTime || 0);
@@ -117,7 +139,6 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
       setMuted(element.muted);
       setVolume(element.volume);
       setSpeed(element.playbackRate);
-      setCaptionCount(element.textTracks.length);
     };
     const ready = () => {
       setWaiting(false);
@@ -152,6 +173,8 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
     sync();
     return () => {
       clearTimeout(hide.current);
+      element.removeEventListener("mgtv:captions", captionSync);
+      element.textTracks.removeEventListener("change", captionSync);
       for (const event of [
         "play",
         "pause",
@@ -409,35 +432,34 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
               {clock(position)} / {clock(duration)}
             </span>
             <span className="flex-1" />
-            <button
-              type="button"
-              disabled={!captionCount}
-              aria-label={
-                captions
-                  ? "Turn captions off"
-                  : captionCount
-                    ? "Turn captions on"
-                    : "No captions available"
-              }
-              aria-pressed={captions}
-              className={
-                control +
-                " hidden text-xs font-bold disabled:opacity-30 sm:grid"
-              }
-              onClick={() => {
+            <select
+              aria-label="Caption language"
+              value={captionChoice}
+              disabled={!captionOptions.length}
+              className="h-9 min-w-0 max-w-20 rounded border border-white/20 bg-black/70 px-1 text-[10px] text-white disabled:opacity-40 sm:max-w-36 sm:text-xs"
+              onChange={(event) => {
+                const selected = event.target.value;
                 const element = video.current;
                 if (element) {
-                  Array.from(element.textTracks).forEach((track, index) => {
-                    track.mode =
-                      !captions && index === 0 ? "showing" : "disabled";
-                  });
-                  setCaptions(!captions);
+                  for (const track of Array.from(element.textTracks))
+                    track.mode = "disabled";
+                  for (const track of element.querySelectorAll<HTMLTrackElement>(
+                    "track[data-mgtv-caption-id]",
+                  ))
+                    if (track.dataset.mgtvCaptionId === selected)
+                      track.track.mode = "showing";
                 }
+                setCaptionChoice(selected);
                 wake();
               }}
             >
-              CC
-            </button>
+              <option value="off">CC Off</option>
+              {captionOptions.map((t) => (
+                <option key={t.id} value={t.id}>
+                  {t.label}
+                </option>
+              ))}
+            </select>
             <select
               aria-label="Playback speed"
               value={speed}

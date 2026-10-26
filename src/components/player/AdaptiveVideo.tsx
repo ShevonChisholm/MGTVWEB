@@ -41,6 +41,48 @@ function useMediaDelivery(
       requestStarted = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const abort = new AbortController();
+    const managedTracks = new Map<string, HTMLTrackElement>();
+    function captions(items: any[]) {
+      if (video!.tagName !== "VIDEO") return;
+      const ids = new Set<string>();
+      for (const item of items) {
+        if (
+          !item ||
+          typeof item.id !== "string" ||
+          typeof item.url !== "string" ||
+          !["captions", "subtitles"].includes(item.kind)
+        )
+          continue;
+        const url = new URL(item.url, location.origin);
+        if (
+          url.origin !== location.origin ||
+          !url.pathname.startsWith("/api/v1/catalog/captions/")
+        )
+          continue;
+        ids.add(item.id);
+        let track = managedTracks.get(item.id);
+        if (!track) {
+          track = document.createElement("track");
+          track.kind = item.kind;
+          track.label = String(item.label);
+          track.srclang = String(item.language);
+          track.dataset.mgtvCaptionId = item.id;
+          track.src = url.href;
+          managedTracks.set(item.id, track);
+          video!.appendChild(track);
+        } else if (track.src !== url.href) {
+          const showing = track.track.mode === "showing";
+          track.src = url.href;
+          if (showing) track.track.mode = "showing";
+        }
+      }
+      for (const [id, track] of managedTracks)
+        if (!ids.has(id)) {
+          track.remove();
+          managedTracks.delete(id);
+        }
+      video!.dispatchEvent(new Event("mgtv:captions"));
+    }
     function budgetEvent(budget: any, message?: string) {
       video!.dispatchEvent(
         new CustomEvent("mgtv:viewing-budget", {
@@ -142,6 +184,7 @@ function useMediaDelivery(
           }
           return;
         }
+        captions(delivery.captionTracks ?? []);
         delete video!.dataset.mgtvBudgetDeferred;
         const url = new URL(delivery.url, location.origin);
         if (url.origin !== location.origin && url.protocol !== "https:")
@@ -269,6 +312,8 @@ function useMediaDelivery(
       video.removeEventListener("waiting", buffering);
       delete video.dataset.mgtvBudgetDeferred;
       clearSource();
+      for (const track of managedTracks.values()) track.remove();
+      managedTracks.clear();
     };
   }, [src]);
 }
@@ -287,6 +332,7 @@ const NativeAdaptiveVideo = forwardRef<
   return (
     <video
       {...props}
+      crossOrigin="anonymous"
       onError={(event) => {
         console.warn(
           "MGTV native video error: " + event.currentTarget.error?.code,
