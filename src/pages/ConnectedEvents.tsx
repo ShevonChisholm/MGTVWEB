@@ -1,4 +1,5 @@
-import {OriginalLabel} from "@/components/shared/OriginalLabel";
+import EventArtwork from "@/components/events/EventArtwork";
+import { OriginalLabel } from "@/components/shared/OriginalLabel";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import EventTickets from "@/components/events/EventTickets";
@@ -55,7 +56,11 @@ function Summary({ event: e }: { event: ApiEvent }) {
           .
         </p>
       )}
-      {e.statusReason && <p>{e.statusReason}</p>}
+      {e.statusReason && (
+        <p className="rounded-lg border border-gold/25 bg-black/30 p-3 text-text-primary">
+          {e.statusReason}
+        </p>
+      )}
     </div>
   );
 }
@@ -122,14 +127,14 @@ export function ConnectedEventsPage() {
         <h1 className="px-6 py-8 font-display text-5xl md:px-8">Events</h1>
       )}
       {featured && (
-        <section className="relative isolate overflow-hidden">
+        <section className="hero-card relative isolate overflow-hidden">
           <HeroBackdrop
             poster={featured.artwork.landscapeUrl}
             featureUrl={featured.featureUrl}
           />
-          <div className="relative mx-auto max-w-[1760px] px-6 py-16 md:px-8 md:py-24">
+          <div className="hero-card__content relative mx-auto w-full max-w-[1760px] px-6 py-16 md:px-8 md:py-24">
             <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-gold">
-              MGTV Events / Make a moment of it
+              MGTV Events · Be part of the moment
             </p>
             <h1 className="mb-6 max-w-3xl font-display text-5xl leading-none md:text-7xl">
               {featured.title}
@@ -284,14 +289,18 @@ export function ConnectedEventDetail() {
           </ButtonLink>
           <p className="mb-4 text-xs uppercase tracking-widest text-gold">
             MGTV Events ·{" "}
-            {event.accessTier === "premium"
-              ? "MGTV+ replay"
-              : "Free replay access"}
+            {event.replayAvailable
+              ? event.accessTier === "premium"
+                ? "MGTV+ replay"
+                : "Free replay"
+              : event.format === "online"
+                ? "Join online"
+                : "Gather with us"}
           </p>
           <h1 className="mb-6 max-w-4xl font-display text-5xl md:text-7xl">
             {event.title}
           </h1>
-          <OriginalLabel label={event?.originalLabel}/>
+          <OriginalLabel label={event?.originalLabel} />
           <Summary event={event} />
           <div className="mt-7">
             <Actions event={event} />
@@ -342,26 +351,33 @@ export function ConnectedEventDetail() {
             {notice}
           </p>
         </section>
-        <aside className="rounded-xl bg-bg-surface p-6">
-          <h2 className="mb-4 font-display text-2xl">Before you join</h2>
-          <p className="mb-4 text-sm text-text-secondary">
-            {event.classification} · Times shown in {event.timezone}. Event
-            status and replay availability are separate.
-          </p>
-          {event.onlineUrl && event.lifecycle === "scheduled" && (
-            <a
-              href={event.onlineUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mb-4 inline-flex min-h-11 text-gold"
-            >
-              Open online event ↗
-            </a>
-          )}
-          <p className="text-sm text-text-secondary">
-            Interest is saved to your profile. Reminder delivery and live
-            broadcasts are not connected.
-          </p>
+        <aside className="self-start overflow-hidden rounded-[24px_0_24px_0] border border-gold/15 bg-bg-surface">
+          <EventArtwork
+            src={event.artwork.portraitUrl}
+            title={event.title}
+            portrait
+          />
+          <div className="p-6">
+            <h2 className="mb-4 font-display text-2xl">Before you join</h2>
+            <p className="mb-4 text-sm text-text-secondary">
+              {event.classification} · Times shown in {event.timezone}. Event
+              status and replay availability are separate.
+            </p>
+            {event.onlineUrl && event.lifecycle === "scheduled" && (
+              <a
+                href={event.onlineUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mb-4 inline-flex min-h-11 text-gold"
+              >
+                Open online event ↗
+              </a>
+            )}
+            <p className="text-sm text-text-secondary">
+              Save your interest to your profile. Check this page for the latest
+              event details and availability.
+            </p>
+          </div>
         </aside>
       </div>
       <ContentRail
@@ -443,7 +459,9 @@ export function ConnectedEventWatch() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label={[event?.originalLabel,event?.title].filter(Boolean).join(" · ")}
+                aria-label={[event?.originalLabel, event?.title]
+                  .filter(Boolean)
+                  .join(" · ")}
                 className="aspect-video max-h-[75vh] w-full rounded-xl bg-black"
                 onPlay={() => audio.stop()}
                 onError={() =>

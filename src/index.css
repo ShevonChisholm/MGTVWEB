@@ -224,3 +224,17 @@ html {
 .sponsor-story-artwork>img{display:block;width:100%;height:100%;object-fit:cover}
 .sponsor-credit--with-story{display:grid;grid-template-columns:minmax(0,1fr)}
 @media(min-width:768px){.sponsor-credit--with-story{grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr)}.sponsor-credit--with-story>.sponsor-story-artwork{aspect-ratio:auto;height:100%;min-height:320px}.sponsor-credit__body{padding:2rem}}
+
+/* Events campaign system: consistent frames and footers; editable facts stay in UI. */
+.event-artwork {width:100%;overflow:hidden;background:#1e2423;}
+.event-artwork--landscape {aspect-ratio:16/9;}
+.event-artwork--portrait {aspect-ratio:2/3;max-height:36rem;}
+.event-campaign-card {display:flex;flex-direction:column;overflow:hidden;border:1px solid rgba(201,168,76,.16);border-radius:24px 0 24px 0;background:#141414;}
+.event-campaign-card__body {display:flex;flex:1;flex-direction:column;padding:1rem;}
+.event-date-stamp {display:flex;width:3.25rem;flex-shrink:0;flex-direction:column;align-items:center;border-right:1px solid rgba(201,168,76,.25);padding-right:.65rem;color:#c9a84c;}
+.event-date-stamp span {font-size:.625rem;letter-spacing:.12em;text-transform:uppercase;}
+.event-date-stamp strong {font-size:1.5rem;line-height:1.25;}
+.event-campaign-card__title {display:-webkit-box;min-height:3rem;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:1rem;font-weight:600;line-height:1.5;overflow-wrap:anywhere;}
+.event-campaign-card__time {min-height:2.5rem;margin-top:1rem;font-size:.75rem;line-height:1.25rem;color:#c9a84c;}
+.event-campaign-card__venue {display:-webkit-box;min-height:2.5rem;overflow:hidden;-webkit-line-clamp:2;-webkit-box-orient:vertical;font-size:.75rem;line-height:1.25rem;color:#a8a8a8;}
+.event-campaign-card__footer {display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem;margin-top:auto;padding-top:.75rem;}
