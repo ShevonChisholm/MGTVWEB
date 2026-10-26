@@ -313,16 +313,19 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
           <span className="size-10 animate-spin rounded-full border-2 border-white/20 border-t-gold motion-reduce:animate-none" />
         </div>
       )}
-      {paused && (!preview || !ended) && !waiting && (
-        <button
-          type="button"
-          onClick={play}
-          aria-label={ended ? "Replay video" : "Play video"}
-          className="mgtv-content-controls absolute left-1/2 top-1/2 z-10 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-gold/70 bg-black/60 text-gold backdrop-blur-sm"
-        >
-          <Icon name="play" />
-        </button>
-      )}
+      {paused &&
+        (!preview || !ended) &&
+        !waiting &&
+        captionChoice === "off" && (
+          <button
+            type="button"
+            onClick={play}
+            aria-label={ended ? "Replay video" : "Play video"}
+            className="mgtv-content-controls absolute left-1/2 top-1/2 z-10 grid size-16 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border border-gold/70 bg-black/60 text-gold backdrop-blur-sm"
+          >
+            <Icon name="play" />
+          </button>
+        )}
       {preview && ended && (
         <div className="absolute inset-0 z-30 grid place-items-center overflow-hidden bg-black">
           <img
@@ -399,7 +402,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
             </button>
             <button
               type="button"
-              className={control}
+              className={control + " hidden sm:grid"}
               onClick={() => seek(position + 10)}
               aria-label="Forward 10 seconds"
             >
@@ -429,7 +432,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
               }}
               className="mr-2 hidden w-16 accent-gold md:block"
             />
-            <span className="min-w-0 whitespace-nowrap px-1 text-[10px] tabular-nums text-white/80 sm:text-xs">
+            <span className="shrink-0 whitespace-nowrap px-1 text-[10px] tabular-nums text-white/80 sm:text-xs">
               {clock(position)} / {clock(duration)}
             </span>
             <span className="flex-1" />
@@ -437,7 +440,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
               aria-label="Caption language"
               value={captionChoice}
               disabled={!captionOptions.length}
-              className="h-9 min-w-0 max-w-20 rounded border border-white/20 bg-black/70 px-1 text-[10px] text-white disabled:opacity-40 sm:max-w-36 sm:text-xs"
+              className="h-9 min-w-0 max-w-14 rounded border border-white/20 bg-black/70 px-1 text-[10px] text-white disabled:opacity-40 sm:max-w-36 sm:text-xs"
               onChange={(event) => {
                 const selected = event.target.value;
                 const element = video.current;
