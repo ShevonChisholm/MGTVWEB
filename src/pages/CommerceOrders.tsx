@@ -114,7 +114,9 @@ export function CommerceOrders() {
                 <span className="break-all">{o.id}</span>
                 <span className="capitalize">
                   {o.status.replaceAll("_", " ")}
-                  {o.payment_hold ? " · Payment review" : ""}
+                  {o.payment_hold && o.status !== "refunded"
+                    ? " · Payment review"
+                    : ""}
                 </span>
                 <span className="text-gold">{money(o.total_minor)}</span>
               </button>
@@ -141,8 +143,11 @@ export function CommerceOrders() {
                   )}
                   {selected.payment_hold && (
                     <p role="status">
-                      Downloads and admission are on hold while this payment is
-                      reviewed.
+                      {selected.status === "refunded"
+                        ? "This order has been refunded. Downloads and admission are no longer available."
+                        : selected.payment.refund?.state === "pending"
+                          ? "Your refund is processing. Downloads and admission are paused."
+                          : "Downloads and admission are on hold while this payment is reviewed."}
                     </p>
                   )}
                   {selected.payment.provider === "stripe-sandbox" && (
@@ -291,9 +296,11 @@ export function CommerceOrders() {
                         (t: any) => t.option_id === a.optionId,
                       ) && (
                         <p className="text-sm mt-2">
-                          Admission codes appear only after verified payment. A
-                          successful payment needing event review does not issue
-                          admission.
+                          {selected.status === "refunded"
+                            ? "These tickets were refunded and are no longer valid for entry."
+                            : selected.payment_hold
+                              ? "Admission is paused while this payment or refund is reviewed."
+                              : "Admission codes appear only after verified payment. A successful payment needing event review does not issue admission."}
                         </p>
                       )}
                     </article>
