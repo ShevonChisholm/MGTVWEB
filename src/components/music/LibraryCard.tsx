@@ -1,6 +1,42 @@
+import PlaylistArtwork from "./PlaylistArtwork";
 import { Link } from "react-router";
 import { libraryPath } from "@/lib/musicLibrary";
 export function LibraryCard({ item, kind }: { item: any; kind: string }) {
+  if (kind === "playlists")
+    return (
+      <article className="playlist-card min-w-0">
+        <Link
+          className="playlist-card__link group block"
+          to={libraryPath(kind, item.id, item.isOwn)}
+        >
+          <PlaylistArtwork item={item} />
+          <span className="sr-only">
+            {item.playlistKind === "video"
+              ? "Video playlist. "
+              : "Audio playlist. "}
+          </span>
+          <h3 className="playlist-card__title">{item.title}</h3>
+          <p className="playlist-card__meta">
+            {item.isOwn ? "Made by you" : "Selected by MGTV"}
+            {typeof item.itemCount === "number"
+              ? " · " +
+                item.itemCount +
+                " " +
+                (item.playlistKind === "video"
+                  ? item.itemCount === 1
+                    ? "video"
+                    : "videos"
+                  : item.itemCount === 1
+                    ? "track"
+                    : "tracks")
+              : ""}
+          </p>
+          <span className="playlist-card__action">
+            Open playlist <span aria-hidden="true">↗</span>
+          </span>
+        </Link>
+      </article>
+    );
   const image = item.coverUrl ?? item.items?.[0]?.artwork?.portraitUrl;
   return (
     <article className="min-w-0">

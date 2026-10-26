@@ -1,3 +1,4 @@
+import PlaylistArtwork from "@/components/music/PlaylistArtwork";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useEffect, useState, useRef } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router";
@@ -322,7 +323,7 @@ function LibraryDetail({
             (artist ? "-mt-20" : "")
           }
         >
-          {image ? (
+          {kind === "playlists" ? <div className="w-52 max-w-full shrink-0 md:w-72"><PlaylistArtwork item={r}/></div> : image ? (
             <img
               src={image}
               alt=""

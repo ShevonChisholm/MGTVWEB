@@ -44,7 +44,8 @@ function CuratedCard({
   );
 }
 function EditorialSection({ section: s }: { section: any }) {
-  const destination = destinations[s.destination];
+  const playlistRail=s.items?.length>0&&s.items.every((entry:HomepageEntry)=>entry.kind==="playlist");
+  const destination = playlistRail ? ["/music?view=playlists","All playlists"] : destinations[s.destination];
   if (
     s.layout === "rail" &&
     !s.items.some((r: HomepageEntry) =>
