@@ -7,11 +7,13 @@ export function ConnectedPlaylistMenu({
   musicId,
   format,
   label = "Add to playlist",
+  compact = false,
   onSaved,
 }: {
   musicId: string;
   format: "audio" | "video";
   label?: string;
+  compact?: boolean;
   onSaved?: () => void;
 }) {
   const { session } = useMusic();
@@ -47,8 +49,27 @@ export function ConnectedPlaylistMenu({
   }
   return (
     <>
-      <Button size="sm" variant="ghost" onClick={() => void load()}>
-        {label}
+      <Button
+        size="sm"
+        variant="ghost"
+        aria-label={compact ? "Add to playlist" : undefined}
+        className={compact ? "min-h-11 min-w-11 px-2" : undefined}
+        onClick={() => void load()}
+      >
+        {compact ? (
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="size-4"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+          >
+            <path d="M3 5h13M3 10h13M3 15h7m8-3v9m-4-4h8" />
+          </svg>
+        ) : (
+          label
+        )}
       </Button>
       {open && (
         <SessionDialog

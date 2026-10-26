@@ -117,3 +117,33 @@ html {
 @media(min-width:1280px){.mgtv-loading-grid--3{grid-template-columns:repeat(3,minmax(0,1fr))}.mgtv-loading-grid--4{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 .mgtv-loading--feature .mgtv-loading-hero{width:100%;margin:0;border-radius:0;min-height:clamp(480px,68vh,760px);box-shadow:none}.mgtv-loading--feature .mgtv-skeleton{background:rgb(255 255 255 / .07)}
+
+/* Rails own card dimensions; existing content actions stay server-backed. */
+.mgtv-rail { --rail-width:18rem; --rail-aspect:16 / 9; min-width:0; }
+.mgtv-rail[data-rail-format="poster"] { --rail-width:13.75rem; --rail-aspect:2 / 3; }
+.mgtv-rail[data-rail-format="music"] { --rail-width:23.75rem; }
+.mgtv-rail[data-rail-format="artist"] { --rail-width:13.75rem; --rail-aspect:1; }
+.mgtv-rail-track { scrollbar-width:none; -ms-overflow-style:none; }
+.mgtv-rail-track::-webkit-scrollbar { display:none; width:0; height:0; }
+.mgtv-rail-item { width:min(var(--rail-width),82vw); min-width:0; }
+.mgtv-rail-item > * { width:100% !important; min-width:0; }
+.mgtv-rail-item > article { flex:1; }
+.mgtv-rail-item article > a[aria-label^="Open "],.mgtv-rail-item .rail-artwork { aspect-ratio:var(--rail-aspect); }
+.mgtv-rail-item article > a:first-child > img:only-child { aspect-ratio:var(--rail-aspect); height:auto; }
+.mgtv-rail-item article > a[aria-label^="Open "]:has(>img + div) { flex-shrink:0; }
+.mgtv-rail-item > a > img { aspect-ratio:var(--rail-aspect); height:auto; }
+.mgtv-rail-item :is(h3,article > div > a:first-child) { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.75em; }
+.mgtv-rail[data-rail-format="music"] .rail-artwork { aspect-ratio:1; }
+.mgtv-rail[data-rail-format="music"] .mgtv-music-card { min-height:10.5rem; }
+@media(min-width:768px) { .mgtv-rail:not([data-rail-format="poster"]):not([data-rail-format="artist"]):not([data-rail-format="music"]) { --rail-width:20rem; } }
+
+.mgtv-player:focus-within .mgtv-content-controls { opacity:1; pointer-events:auto; }
+.mgtv-player:has([data-ad-break="active"]) .mgtv-content-controls { display:none; }
+.mgtv-player:fullscreen { height:100vh; width:100vw; aspect-ratio:auto; }
+.mgtv-seek { accent-color:var(--color-gold); }
+.mgtv-recommendations { scrollbar-width:thin; scrollbar-color:var(--color-gold-muted) transparent; }
+.mgtv-recommendations::-webkit-scrollbar { width:4px; }
+.mgtv-recommendations::-webkit-scrollbar-thumb { border-radius:4px; background:var(--color-gold-muted); }
+@media(prefers-reduced-motion:reduce) { .mgtv-player * { transition:none !important; } }
+
+.mgtv-rail[data-rail-format="landscape"] .mgtv-rail-item article > a.group > img { aspect-ratio:16 / 9; border-radius:.75rem; height:auto; }

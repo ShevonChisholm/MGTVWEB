@@ -1,3 +1,4 @@
+import { RailViewport } from "@/components/home/RailViewport";
 import LifecycleRails from "@/components/home/LifecycleRails";
 import { ApiEventCard } from "@/components/home/ApiEventCard";
 import { Link } from "react-router";
@@ -58,6 +59,31 @@ function EditorialSection({ section: s }: { section: any }) {
         seeAllHref={destination?.[0]}
         seeAllLabel={destination?.[1]}
       />
+    );
+  if (s.layout === "rail")
+    return (
+      <RailViewport
+        title={s.label}
+        description={s.description}
+        format={
+          s.items.every((entry: HomepageEntry) =>
+            ["album", "playlist", "artist"].includes(entry.kind),
+          )
+            ? "artist"
+            : "landscape"
+        }
+        seeAllHref={destination?.[0]}
+        seeAllLabel={destination?.[1]}
+      >
+        {s.items.map((entry: HomepageEntry) => (
+          <div
+            key={entry.kind + entry.id}
+            className="mgtv-rail-item flex shrink-0 snap-start flex-col"
+          >
+            <CuratedCard entry={entry} fluid />
+          </div>
+        ))}
+      </RailViewport>
     );
   if (s.layout === "news") {
     const [first, ...rest] = s.items as HomepageEntry[];
@@ -181,7 +207,7 @@ export default function ConnectedHome() {
           </Link>
         </section>
       ) : null}
-      <LifecycleRails/>
+      <LifecycleRails />
       <SponsoredCards
         kind="home"
         targetId="00000000-0000-4000-8000-000000000000"

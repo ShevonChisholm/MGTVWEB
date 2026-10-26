@@ -1,5 +1,5 @@
-import {ApiSportsCard} from "./ApiSportsCard";
-import {LibraryCard} from "@/components/music/LibraryCard";
+import { ApiSportsCard } from "./ApiSportsCard";
+import { LibraryCard } from "@/components/music/LibraryCard";
 import { ApiEventCard } from "./ApiEventCard";
 import { ApiMusicCard } from "./ApiMusicCard";
 import { ApiShowCard } from "./ApiShowCard";
@@ -21,17 +21,65 @@ export interface MediaCardProps {
   item: ContentItem;
   mode?: "standard" | "continue";
   fluid?: boolean;
+  railFormat?: "poster" | "landscape" | "music" | "artist";
   trackIds?: string[];
   trackOrigin?: string;
 }
 
 export function MediaCard(props: MediaCardProps) {
-  if(props.item.source==="api" && props.item.type==="sports") return <ApiSportsCard item={props.item} fluid={props.fluid} continuing={props.mode==="continue"}/>;
-  return props.item.source === "api" && ["news","lifestyle"].includes(props.item.type??"") ? <Link to={"/"+props.item.type+"/"+props.item.id} className={(props.fluid?"w-full":"w-72 shrink-0 md:w-80")+" group overflow-hidden rounded-xl border border-white/5 bg-bg-surface"}><img src={props.item.thumbnail} alt="" className="aspect-video w-full object-cover" loading="lazy"/><div className="p-5"><p className="text-xs uppercase tracking-widest text-gold">{props.item.genre}</p><h3 className="mt-2 font-display text-2xl text-text-primary group-hover:text-gold">{props.item.title}</h3><p className="mt-3 text-sm text-text-secondary">{props.item.description}</p><p className="mt-4 text-xs text-text-secondary">{props.item.date} · {props.item.readTime}</p></div></Link> : props.item.source === "api" && props.item.type === "artist" ? <div className="w-44 shrink-0 md:w-52"><LibraryCard kind="artists" item={{...props.item,coverUrl:props.item.thumbnail}}/></div> : props.item.source === "api" && props.item.type === "event" ? <ApiEventCard item={props.item} fluid={props.fluid}/> : props.item.source === "api" &&
+  if (props.item.source === "api" && props.item.type === "sports")
+    return (
+      <ApiSportsCard
+        item={props.item}
+        fluid={props.fluid}
+        continuing={props.mode === "continue"}
+      />
+    );
+  return props.item.source === "api" &&
+    ["news", "lifestyle"].includes(props.item.type ?? "") ? (
+    <Link
+      to={"/" + props.item.type + "/" + props.item.id}
+      className={
+        (props.fluid ? "w-full" : "w-72 shrink-0 md:w-80") +
+        " group overflow-hidden rounded-xl border border-white/5 bg-bg-surface"
+      }
+    >
+      <img
+        src={props.item.thumbnail}
+        alt=""
+        className="aspect-video w-full object-cover"
+        loading="lazy"
+      />
+      <div className="p-5">
+        <p className="text-xs uppercase tracking-widest text-gold">
+          {props.item.genre}
+        </p>
+        <h3 className="mt-2 font-display text-2xl text-text-primary group-hover:text-gold">
+          {props.item.title}
+        </h3>
+        <p className="mt-3 text-sm text-text-secondary">
+          {props.item.description}
+        </p>
+        <p className="mt-4 text-xs text-text-secondary">
+          {props.item.date} · {props.item.readTime}
+        </p>
+      </div>
+    </Link>
+  ) : props.item.source === "api" && props.item.type === "artist" ? (
+    <div className="w-44 shrink-0 md:w-52">
+      <LibraryCard
+        kind="artists"
+        item={{ ...props.item, coverUrl: props.item.thumbnail }}
+      />
+    </div>
+  ) : props.item.source === "api" && props.item.type === "event" ? (
+    <ApiEventCard item={props.item} fluid={props.fluid} />
+  ) : props.item.source === "api" &&
     ["track", "musicVideo"].includes(props.item.type ?? "") ? (
     <ApiMusicCard
       item={props.item}
       fluid={props.fluid}
+      railFormat={props.railFormat}
       continuing={props.mode === "continue"}
     />
   ) : props.item.source === "api" && props.item.type !== "movie" ? (

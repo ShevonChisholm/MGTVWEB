@@ -59,7 +59,7 @@ export function MovieDiscovery({
       .filter((k) => params.has(k))
       .map((k) => [k, params.get(k)!]),
   );
-  const qs = new URLSearchParams({ limit: "24" });
+  const qs = new URLSearchParams({ limit: children ? (collection === "shows" ? "50" : "100") : "24" });
   const searchQuery = query || params.get("q") || "";
   if (searchQuery) qs.set("q", searchQuery);
   if (musicKind) qs.set("musicKind", musicKind);

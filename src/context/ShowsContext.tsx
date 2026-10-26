@@ -130,7 +130,7 @@ function useShowsValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=24"),
+      request("?limit=50"),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),

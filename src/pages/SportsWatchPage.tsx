@@ -1,3 +1,5 @@
+import { PlaybackAccess } from "@/components/player/PlaybackAccess";
+import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { useLocation } from "react-router";
 import { AdaptiveVideo } from "@/components/player/AdaptiveVideo";
 import { useEffect, useRef, useState } from "react";
@@ -6,7 +8,6 @@ import { customerApi } from "@/lib/customerAuth";
 import { useSports, sportsItem, type ApiSports } from "@/context/SportsContext";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
-import { ContentRail } from "@/components/home/ContentRail";
 export function SportsWatchPage() {
   const location = useLocation();
   const returnTo = encodeURIComponent(location.pathname + location.search);
@@ -88,16 +89,27 @@ export function SportsWatchPage() {
           setSource("/api/v1/catalog/sports/" + id + "/preview");
         }
       } else {
-        if (!sports.session)
+        if (!sports.session) {
+          const response = await fetch(
+            "/api/v1/catalog/sports/" + encodeURIComponent(id),
+          );
+          if (response.ok) {
+            const detail = await response.json();
+            if (active) setSports(detail);
+          }
           throw Error(
             "Sign in with a customer account to watch the full sports video.",
           );
+        }
         if (sports.profileRequired)
           throw Error(
             "Choose who’s watching before starting this sports video.",
           );
         const [detail, playback] = await Promise.all([
-          sports.request("/" + encodeURIComponent(id)),
+          sports.request("/" + encodeURIComponent(id)).then((detail) => {
+            if (active) setSports(detail);
+            return detail;
+          }),
           customerApi("/sports/" + encodeURIComponent(id) + "/playback"),
         ]);
         if (active) {
@@ -184,11 +196,15 @@ export function SportsWatchPage() {
                     }}
                   ></AdaptiveVideo>
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                    <p role={error ? "alert" : "status"}>
-                      {loading ? "Checking sports video access…" : error}
-                    </p>
-                  </div>
+                  <PlaybackAccess
+                    poster={coverage?.artwork.landscapeUrl}
+                    title={coverage?.title}
+                    message={error}
+                    loading={loading}
+                    signedIn={!!sports.session}
+                    needsProfile={sports.profileRequired}
+                    onRetry={() => setRevision((value) => value + 1)}
+                  />
                 )}
               </div>
               {error && (
@@ -235,9 +251,8 @@ export function SportsWatchPage() {
             </Text>
           </div>
           <aside className="min-w-0">
-            <ContentRail
-              title="More to Watch"
-              layout="contained"
+            <PlayerRecommendations
+              title="Keep the stories coming"
               items={sports.items.filter((m) => m.id !== id).map(sportsItem)}
             />
           </aside>

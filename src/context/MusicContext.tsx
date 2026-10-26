@@ -114,7 +114,7 @@ function useMusicValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=24"),
+      request("?limit=100"),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),

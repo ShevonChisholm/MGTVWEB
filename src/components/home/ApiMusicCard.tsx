@@ -1,4 +1,4 @@
-import {ConnectedPlaylistMenu} from "@/components/music/ConnectedPlaylistMenu";
+import { ConnectedPlaylistMenu } from "@/components/music/ConnectedPlaylistMenu";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/Button";
@@ -11,21 +11,24 @@ export function ApiMusicCard({
   item,
   fluid = false,
   continuing = false,
+  railFormat,
 }: {
   item: ContentItem;
   fluid?: boolean;
   continuing?: boolean;
+  railFormat?: string;
 }) {
   const library = useMusic(),
     release = { id: item.id, preference: item.moviePreference };
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
+  const horizontal = !railFormat || railFormat === "music";
   const saved = library.preference(release).saved;
   return (
     <article
       data-content-id={item.id}
       data-content-type={item.type}
-      className={`group flex flex-1 shrink-0 flex-col min-w-0 ${fluid ? "w-full" : item.type === "track" ? "w-48 md:w-56" : "w-64 md:w-72"}`}
+      className={`mgtv-music-card group flex shrink-0 min-w-0 ${horizontal ? "h-48 flex-row items-stretch gap-4 rounded-xl border border-white/10 bg-bg-surface p-3" : "flex-1 flex-col"} ${fluid ? "w-full" : "w-80 md:w-[380px]"}`}
     >
       <Link
         to={
@@ -34,7 +37,7 @@ export function ApiMusicCard({
             : `/music/video/${item.id}`
         }
         aria-label={`Open ${item.title}`}
-        className={`relative block overflow-hidden bg-bg-elevated rounded-xl ${continuing ? "aspect-video" : item.type === "track" ? "aspect-square" : "aspect-video"}`}
+        className={`rail-artwork relative block shrink-0 overflow-hidden bg-bg-elevated rounded-lg ${horizontal ? "h-28 w-28 self-center sm:h-32 sm:w-32" : "aspect-video w-full"}`}
       >
         <img
           src={continuing ? item.landscapeThumbnail : item.thumbnail}
@@ -55,42 +58,45 @@ export function ApiMusicCard({
           aria-label={`${item.title}: ${Math.round(item.progress ?? 0)}% watched`}
         />
       )}
-      <div className="flex flex-1 flex-col gap-2 pt-3">
+      <div
+        className={`min-w-0 flex flex-1 flex-col gap-1.5 ${horizontal ? "py-1" : "pt-3"}`}
+      >
         <Link
           to={
             item.type === "track"
               ? `/music/track/${item.id}`
               : `/music/video/${item.id}`
           }
-          className="text-sm font-semibold leading-snug text-text-primary hover:text-gold"
+          className="line-clamp-2 text-sm font-semibold leading-snug text-text-primary hover:text-gold"
         >
           {item.title}
         </Link>
         <div className="space-y-1 text-xs text-text-secondary">
-          <Text>{item.artist}</Text>
-          <Text>
-            {item.year} · {item.duration}
-          </Text>
-          <Text>
-            {item.classification} · {item.genre}
+          <Text className="truncate">{item.artist}</Text>
+          <Text className="flex flex-wrap gap-x-2">
+            <span>{item.genre}</span>
+            <span>{item.year}</span>
+            <span>{item.duration}</span>
           </Text>
         </div>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
-          <Link
-            to={
-              continuing
-                ? item.type === "track"
-                  ? `/music/track/${item.id}`
-                  : `/music/video/${item.id}`
-                : item.type === "track"
-                  ? `/music/track/${item.id}`
-                  : `/music/video/${item.id}`
-            }
-            className="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-gold hover:text-gold-light"
-          >
-            {continuing ? "Resume" : "View release"}{" "}
-            <span aria-hidden="true">›</span>
-          </Link>
+          {!horizontal && (
+            <Link
+              to={
+                continuing
+                  ? item.type === "track"
+                    ? `/music/track/${item.id}`
+                    : `/music/video/${item.id}`
+                  : item.type === "track"
+                    ? `/music/track/${item.id}`
+                    : `/music/video/${item.id}`
+              }
+              className="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-gold hover:text-gold-light"
+            >
+              {continuing ? "Resume" : "View release"}{" "}
+              <span aria-hidden="true">›</span>
+            </Link>
+          )}
           {library.session && release ? (
             <Button
               variant="ghost"
@@ -108,7 +114,16 @@ export function ApiMusicCard({
                   .finally(() => setBusy(false));
               }}
             >
-              {saved ? "✓ Saved" : "+ Save"}
+              <svg
+                aria-hidden="true"
+                viewBox="0 0 24 24"
+                className="size-4"
+                fill={saved ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth="1.8"
+              >
+                <path d="M6 3h12v18l-6-4-6 4z" />
+              </svg>
             </Button>
           ) : (
             <Link
@@ -116,11 +131,15 @@ export function ApiMusicCard({
               className="inline-flex min-h-11 items-center px-2 text-xs text-text-secondary"
               aria-label={`Sign in to save ${item.title}`}
             >
-              + Save
+              <span aria-hidden="true">＋</span>
             </Link>
           )}
+          <ConnectedPlaylistMenu
+            musicId={item.id}
+            format={item.type === "track" ? "audio" : "video"}
+            compact
+          />
         </div>
-        <ConnectedPlaylistMenu musicId={item.id} format={item.type==="track"?"audio":"video"}/>
         {error && (
           <p role="alert" className="text-xs text-rose-300">
             {error}

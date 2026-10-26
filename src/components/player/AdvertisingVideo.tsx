@@ -19,7 +19,7 @@ export function advertisingSource(src?: string) {
     ? {
         kind: (
           {
-            sports:"sports",
+            sports: "sports",
             movies: "movie",
             episodes: "episode",
             music: "music",
@@ -180,7 +180,10 @@ export default function AdvertisingVideo({
   }, [preparing, ad]);
   const caption = ad ? `Advertisement · ${ad.headline}` : "Preparing playback…";
   return (
-    <div className="relative h-full w-full">
+    <div
+      className="relative h-full w-full"
+      data-ad-break={preparing || ad ? "active" : undefined}
+    >
       <Base
         {...props}
         ref={attach}

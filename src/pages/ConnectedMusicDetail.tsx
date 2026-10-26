@@ -1,8 +1,10 @@
-import {MusicCollectionCredits} from "@/components/music/MusicCollectionCredits";
-import {CollectionVideoNavigation} from "@/components/music/CollectionVideoNavigation";
-import {ConnectedPlaylistMenu} from "@/components/music/ConnectedPlaylistMenu";
-import {ReportContent} from "@/components/moderation/ReportContent";
-import {SponsoredCards} from "@/components/shared/SponsoredCards";
+import { PlaybackAccess } from "@/components/player/PlaybackAccess";
+import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
+import { MusicCollectionCredits } from "@/components/music/MusicCollectionCredits";
+import { CollectionVideoNavigation } from "@/components/music/CollectionVideoNavigation";
+import { ConnectedPlaylistMenu } from "@/components/music/ConnectedPlaylistMenu";
+import { ReportContent } from "@/components/moderation/ReportContent";
+import { SponsoredCards } from "@/components/shared/SponsoredCards";
 import { AdaptiveVideo } from "@/components/player/AdaptiveVideo";
 import { ShareBar } from "@/components/shared/ShareBar";
 import { ApiMusicCard } from "@/components/home/ApiMusicCard";
@@ -13,7 +15,6 @@ import { customerApi } from "@/lib/customerAuth";
 import { useMusic, musicItem, type ApiMusic } from "@/context/MusicContext";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
-import { ContentRail } from "@/components/home/ContentRail";
 export function ConnectedMusicDetail() {
   const { id } = useParams(),
     [params] = useSearchParams(),
@@ -134,7 +135,7 @@ export function ConnectedMusicDetail() {
         });
     return () => {
       active = false;
-      if(video.current) persist(video.current.currentTime, true);
+      if (video.current) persist(video.current.currentTime, true);
       video.current?.pause();
       progressState.current = null;
     };
@@ -207,7 +208,11 @@ export function ConnectedMusicDetail() {
               )}
             </div>
           </div>
-          <MusicCollectionCredits musicId={music.id}/><ConnectedPlaylistMenu musicId={music.id} format="audio"/><ReportContent kind="music" contentId={music.id}/><SponsoredCards kind="music" targetId={music.id}/><Text as="h2" className="mb-6 mt-14 font-display text-3xl">
+          <MusicCollectionCredits musicId={music.id} />
+          <ConnectedPlaylistMenu musicId={music.id} format="audio" />
+          <ReportContent kind="music" contentId={music.id} />
+          <SponsoredCards kind="music" targetId={music.id} />
+          <Text as="h2" className="mb-6 mt-14 font-display text-3xl">
             More tracks to discover
           </Text>
           <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -228,7 +233,7 @@ export function ConnectedMusicDetail() {
         <ButtonLink to="/music" variant="ghost" className="mb-5">
           Back to Music
         </ButtonLink>
-        <div className="grid gap-8 lg:grid-cols-[1fr_280px]">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
           <div className="min-w-0">
             <div className="overflow-hidden rounded-xl bg-bg-surface">
               <div className="relative aspect-video bg-bg-base">
@@ -238,7 +243,7 @@ export function ConnectedMusicDetail() {
                     ref={video as any}
                     key={source + revision + library.audience}
                     controls
-                    autoPlay={params.get("autoplay")==="1"}
+                    autoPlay={params.get("autoplay") === "1"}
                     onPlay={() => audio.stop()}
                     playsInline
                     preload="metadata"
@@ -264,7 +269,12 @@ export function ConnectedMusicDetail() {
                     }}
                     onEnded={() => {
                       if (video.current) persist(video.current.duration, true);
-                      if(!preview)window.dispatchEvent(new CustomEvent("mgtv-library-video-ended",{detail:id}));
+                      if (!preview)
+                        window.dispatchEvent(
+                          new CustomEvent("mgtv-library-video-ended", {
+                            detail: id,
+                          }),
+                        );
                     }}
                     onSeeked={() => {
                       if (video.current)
@@ -278,15 +288,17 @@ export function ConnectedMusicDetail() {
                       );
                       setSource("");
                     }}
-                  >
-
-                  </Player>
+                  ></Player>
                 ) : (
-                  <div className="absolute inset-0 flex items-center justify-center p-6 text-center">
-                    <p role={error ? "alert" : "status"}>
-                      {loading ? "Checking release access…" : error}
-                    </p>
-                  </div>
+                  <PlaybackAccess
+                    poster={music?.artwork.landscapeUrl}
+                    title={music?.title}
+                    message={error}
+                    loading={loading}
+                    signedIn={!!library.session}
+                    needsProfile={library.profileRequired}
+                    onRetry={() => setRevision((value) => value + 1)}
+                  />
                 )}
               </div>
               {error && (
@@ -331,14 +343,20 @@ export function ConnectedMusicDetail() {
             </Text>
           </div>
           <aside className="min-w-0">
-            <ContentRail
-              title="More to Watch"
-              layout="contained"
-              items={library.items.filter((m) => m.id !== id).map(musicItem)}
+            <PlayerRecommendations
+              title="Keep the stories coming"
+              items={library.items
+                .filter((m) => m.id !== id && m.kind === "music-video")
+                .map(musicItem)}
             />
           </aside>
         </div>
-      <MusicCollectionCredits musicId={id!}/><CollectionVideoNavigation currentId={id!}/><ConnectedPlaylistMenu musicId={id!} format="video"/><ReportContent kind="music" contentId={music?.id??id!}/><SponsoredCards kind="music" targetId={music?.id??id!}/></div>
+        <MusicCollectionCredits musicId={id!} />
+        <CollectionVideoNavigation currentId={id!} />
+        <ConnectedPlaylistMenu musicId={id!} format="video" />
+        <ReportContent kind="music" contentId={music?.id ?? id!} />
+        <SponsoredCards kind="music" targetId={music?.id ?? id!} />
+      </div>
     </main>
   );
 }

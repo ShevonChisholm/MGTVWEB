@@ -1,5 +1,6 @@
-import {usePlaybackAnalytics} from "@/lib/playbackAnalytics";
-import AdvertisingVideo,{advertisingSource} from "./AdvertisingVideo";
+import { MGTVPlayer } from "./MGTVPlayer";
+import { usePlaybackAnalytics } from "@/lib/playbackAnalytics";
+import AdvertisingVideo, { advertisingSource } from "./AdvertisingVideo";
 import {
   forwardRef,
   useEffect,
@@ -10,7 +11,7 @@ import {
 } from "react";
 import type Hls from "hls.js";
 
-/** Keep MGTV's native player UI; resolve protected delivery through the API. */
+/** Resolve protected media delivery while retaining MGTV playback and advertising behavior. */
 function useMediaDelivery(
   node: RefObject<HTMLMediaElement | null>,
   src?: string,
@@ -172,10 +173,36 @@ const NativeAdaptiveVideo = forwardRef<
         if (typeof forwardedRef === "function") forwardedRef(element);
         else if (forwardedRef) forwardedRef.current = element;
       }}
-    />
+    >
+      {children}
+    </video>
   );
 });
-export const AdaptiveVideo=forwardRef<HTMLVideoElement,VideoHTMLAttributes<HTMLVideoElement>>(function AdaptiveVideo(props,forwarded){return import.meta.env.VITE_API_MODE==='connected'&&advertisingSource(props.src)?<AdvertisingVideo {...props} base={NativeAdaptiveVideo} forwarded={forwarded}/>:<NativeAdaptiveVideo {...props} ref={forwarded}/>;});
+const DeliveryVideo = forwardRef<
+  HTMLVideoElement,
+  VideoHTMLAttributes<HTMLVideoElement>
+>(function DeliveryVideo(props, forwarded) {
+  return import.meta.env.VITE_API_MODE === "connected" &&
+    advertisingSource(props.src) ? (
+    <AdvertisingVideo
+      {...props}
+      base={NativeAdaptiveVideo}
+      forwarded={forwarded}
+    />
+  ) : (
+    <NativeAdaptiveVideo {...props} ref={forwarded} />
+  );
+});
+export const AdaptiveVideo = forwardRef<
+  HTMLVideoElement,
+  VideoHTMLAttributes<HTMLVideoElement>
+>(function AdaptiveVideo(props, forwarded) {
+  return props.controls ? (
+    <MGTVPlayer {...props} base={DeliveryVideo} forwarded={forwarded} />
+  ) : (
+    <DeliveryVideo {...props} ref={forwarded} />
+  );
+});
 export const AdaptiveAudio = forwardRef<
   HTMLAudioElement,
   AudioHTMLAttributes<HTMLAudioElement>

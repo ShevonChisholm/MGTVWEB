@@ -1,3 +1,5 @@
+import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
+import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import EventTickets from "@/components/events/EventTickets";
 import LifecycleRails from "@/components/home/LifecycleRails";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -135,7 +137,13 @@ export function ConnectedEventsPage() {
               <Summary event={featured} />
             </div>
             <Actions event={featured} />
-            <SponsorStrip key={featured.id} kind="events" id={featured.id} compact context={featured.title}/>
+            <SponsorStrip
+              key={featured.id}
+              kind="events"
+              id={featured.id}
+              compact
+              context={featured.title}
+            />
           </div>
         </section>
       )}
@@ -423,50 +431,77 @@ export function ConnectedEventWatch() {
         <h1 className="mb-6 mt-3 font-display text-4xl md:text-6xl">
           {event?.title ?? "MGTV Events"}
         </h1>
-        {source ? (
-          <AdaptiveVideo
-            key={source}
-            src={source}
-            poster={event?.artwork.landscapeUrl}
-            controls
-            playsInline
-            preload="metadata"
-            aria-label={event?.title}
-            className="aspect-video max-h-[75vh] w-full rounded-xl bg-black"
-            onPlay={() => audio.stop()}
-            onError={() => setError("This video could not load. Try again.")}
-          />
-        ) : !error ? (
-          <p role="status">Preparing the event…</p>
-        ) : null}
-        {error && (
-          <div
-            role="alert"
-            className="my-6 rounded-xl border border-gold/20 bg-bg-surface p-6"
-          >
-            <p>{error}</p>
-            <div className="mt-4 flex flex-wrap gap-3">
-              <Button onClick={() => setRevision((x) => x + 1)}>
-                Try again
-              </Button>
-              <ButtonLink
-                to={c.session ? "/profiles" : "/auth/sign-in"}
-                variant="outline"
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="min-w-0">
+            {source ? (
+              <AdaptiveVideo
+                key={source}
+                src={source}
+                poster={event?.artwork.landscapeUrl}
+                controls
+                playsInline
+                preload="metadata"
+                aria-label={event?.title}
+                className="aspect-video max-h-[75vh] w-full rounded-xl bg-black"
+                onPlay={() => audio.stop()}
+                onError={() =>
+                  setError("This video could not load. Try again.")
+                }
+              />
+            ) : (
+              <div className="relative aspect-video overflow-hidden rounded-xl">
+                <PlaybackAccess
+                  poster={event?.artwork.landscapeUrl}
+                  title={event?.title}
+                  loading={!error}
+                  message={error}
+                  signedIn={!!c.session}
+                  needsProfile={!c.session?.activeProfileId}
+                  onRetry={() => setRevision((value) => value + 1)}
+                />
+              </div>
+            )}
+            {error && (
+              <div
+                role="alert"
+                className="my-6 rounded-xl border border-gold/20 bg-bg-surface p-6"
               >
-                {c.session ? "Choose profile" : "Sign in"}
-              </ButtonLink>
-              <ButtonLink to="/mgtv-plus" variant="ghost">
-                Explore MGTV tiers
-              </ButtonLink>
-            </div>
+                <p>{error}</p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  <Button onClick={() => setRevision((x) => x + 1)}>
+                    Try again
+                  </Button>
+                  <ButtonLink
+                    to={c.session ? "/profiles" : "/auth/sign-in"}
+                    variant="outline"
+                  >
+                    {c.session ? "Choose profile" : "Sign in"}
+                  </ButtonLink>
+                  <ButtonLink to="/mgtv-plus" variant="ghost">
+                    Explore MGTV tiers
+                  </ButtonLink>
+                </div>
+              </div>
+            )}
+            {event && (
+              <div className="mt-8">
+                <Summary event={event} />
+                <SponsorStrip
+                  kind="events"
+                  id={event.id}
+                  compact
+                  context="This event replay"
+                />
+              </div>
+            )}
           </div>
-        )}
-        {event && (
-          <div className="mt-8">
-            <Summary event={event} />
-            <SponsorStrip kind="events" id={event.id} compact context="This event replay"/>
-          </div>
-        )}
+          <aside className="min-w-0">
+            <PlayerRecommendations
+              items={c.items.filter((item) => item.id !== id).map(eventItem)}
+              title="More moments to discover"
+            />
+          </aside>
+        </div>
       </div>
     </main>
   );
