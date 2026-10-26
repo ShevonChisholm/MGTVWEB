@@ -20,6 +20,7 @@ export type SportsPreference = {
   version: number;
 };
 export type ApiSports = {
+  originalLabel?:string|null;
   id: string;
   sport: string;
   competition: string;

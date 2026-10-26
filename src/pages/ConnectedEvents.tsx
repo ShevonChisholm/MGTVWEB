@@ -1,3 +1,4 @@
+import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import EventTickets from "@/components/events/EventTickets";
@@ -290,6 +291,7 @@ export function ConnectedEventDetail() {
           <h1 className="mb-6 max-w-4xl font-display text-5xl md:text-7xl">
             {event.title}
           </h1>
+          <OriginalLabel label={event?.originalLabel}/>
           <Summary event={event} />
           <div className="mt-7">
             <Actions event={event} />
@@ -441,7 +443,7 @@ export function ConnectedEventWatch() {
                 controls
                 playsInline
                 preload="metadata"
-                aria-label={event?.title}
+                aria-label={[event?.originalLabel,event?.title].filter(Boolean).join(" · ")}
                 className="aspect-video max-h-[75vh] w-full rounded-xl bg-black"
                 onPlay={() => audio.stop()}
                 onError={() =>

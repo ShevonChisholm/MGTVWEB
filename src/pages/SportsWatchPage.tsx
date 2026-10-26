@@ -186,7 +186,7 @@ export function SportsWatchPage() {
                       if (video.current)
                         persist(video.current.currentTime, true);
                     }}
-                    aria-label={`${preview ? "Preview: " : ""}${coverage?.title}`}
+                    aria-label={`${coverage?.originalLabel ? coverage.originalLabel + " · " : ""}${preview ? "Preview: " : ""}${coverage?.title}`}
                     className="h-full w-full"
                     onError={() => {
                       setError(

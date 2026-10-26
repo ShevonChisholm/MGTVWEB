@@ -1,3 +1,4 @@
+import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ReportContent } from "@/components/moderation/ReportContent";
 import { SponsoredCards } from "@/components/shared/SponsoredCards";
@@ -141,6 +142,7 @@ function ShowView({ remote }: { remote: ApiSeries }) {
           >
             {show.title}
           </h1>
+          <OriginalLabel label={remote?.originalLabel}/>
           <div className="flex flex-wrap gap-3">
             {nextEpisode && (
               <ButtonLink

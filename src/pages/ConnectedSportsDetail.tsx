@@ -1,3 +1,4 @@
+import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -79,6 +80,7 @@ export function ConnectedSportsDetail() {
           >
             {item.title}
           </Text>
+          <OriginalLabel label={item?.originalLabel}/>
           <Text className="mb-4 text-sm text-text-secondary">
             {item.sport} · {item.competition} · {item.classification} ·{" "}
             {Math.ceil(item.durationSeconds / 60)} min

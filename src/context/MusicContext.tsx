@@ -20,6 +20,7 @@ export type MusicPreference = {
   version: number;
 };
 export type ApiMusic = {
+  originalLabel?:string|null;
   kind: "track" | "music-video";
   artist: string;
   album: string;

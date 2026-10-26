@@ -205,7 +205,7 @@ export function EpisodeWatchPage() {
                       if (video.current)
                         persist(video.current.currentTime, true);
                     }}
-                    aria-label={`${preview ? "Preview: " : ""}${movie?.title}`}
+                    aria-label={`${movie?.originalLabel ? movie.originalLabel + " · " : ""}${preview ? "Preview: " : ""}${movie?.title}`}
                     className="h-full w-full"
                     onError={() => {
                       setError(

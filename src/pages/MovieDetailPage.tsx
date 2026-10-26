@@ -1,3 +1,4 @@
+import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ReportContent } from "@/components/moderation/ReportContent";
 import { SponsoredCards } from "@/components/shared/SponsoredCards";
@@ -184,6 +185,7 @@ function MovieDetailView({
           >
             {movie.title}
           </h1>
+          <OriginalLabel label={remote?.originalLabel}/>
           <div className="flex gap-3 flex-wrap">
             <ButtonLink size="lg" to={`/watch/${movie.id}`}>
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">

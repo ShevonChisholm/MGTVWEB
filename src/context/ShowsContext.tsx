@@ -20,6 +20,7 @@ export type SeriesPreference = {
   version: number;
 };
 export type ApiSeries = {
+  originalLabel?:string|null;
   id: string;
   kind: "show" | "episode";
   parentId: string | null;

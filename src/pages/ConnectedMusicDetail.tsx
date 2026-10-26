@@ -1,3 +1,4 @@
+import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { MusicCollectionCredits } from "@/components/music/MusicCollectionCredits";
@@ -280,7 +281,7 @@ export function ConnectedMusicDetail() {
                       if (video.current)
                         persist(video.current.currentTime, true);
                     }}
-                    aria-label={`${preview ? "Preview: " : ""}${music?.title}`}
+                    aria-label={`${music?.originalLabel ? music.originalLabel + " · " : ""}${preview ? "Preview: " : ""}${music?.title}`}
                     className="h-full w-full"
                     onError={() => {
                       setError(
@@ -330,6 +331,7 @@ export function ConnectedMusicDetail() {
               {music ? music.title : "Music playback"}
               {preview ? " · Preview" : ""}
             </Text>
+            <OriginalLabel label={music?.originalLabel}/>
             <Text className="mt-3 text-sm text-text-secondary">
               {music
                 ? `${music.classification} · ${preview ? "Free preview" : Math.max(1, Math.ceil(music.durationSeconds / 60)) + " min"}`

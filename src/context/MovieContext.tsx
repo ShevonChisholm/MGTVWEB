@@ -20,6 +20,7 @@ export type MoviePreference = {
   version: number;
 };
 export type ApiMovie = {
+  originalLabel?:string|null;
   id: string;
   title: string;
   synopsis: string;

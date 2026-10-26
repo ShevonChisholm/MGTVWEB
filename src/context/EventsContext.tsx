@@ -13,6 +13,7 @@ import {
 } from "@/lib/customerAuth";
 import type { CatalogItem } from "@/data/mockContent";
 export type ApiEvent = {
+  originalLabel?:string|null;
   id: string;
   title: string;
   description: string;
