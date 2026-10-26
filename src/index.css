@@ -24,6 +24,36 @@ html, body, #root {
   font-family: 'Inter', sans-serif;
 }
 
+/* Main page scrollbar: native scrolling with restrained MGTV branding. */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gold-muted) var(--color-bg-surface);
+}
+
+/* Older engines without the standard properties retain a narrow native track. */
+@supports not (scrollbar-width: thin) {
+  html::-webkit-scrollbar { width: 8px; height: 8px; }
+  html::-webkit-scrollbar-track { background: var(--color-bg-surface); }
+  html::-webkit-scrollbar-thumb {
+    background: var(--color-gold-muted);
+    border: 2px solid var(--color-bg-surface);
+    border-radius: 999px;
+  }
+  html::-webkit-scrollbar-thumb:hover { background: var(--color-gold); }
+  html::-webkit-scrollbar-corner { background: var(--color-bg-surface); }
+  @media (forced-colors: active) {
+    html::-webkit-scrollbar { width: revert; height: revert; }
+    html::-webkit-scrollbar-track,
+    html::-webkit-scrollbar-thumb,
+    html::-webkit-scrollbar-corner { background: revert; border: revert; }
+  }
+}
+
+/* Let high-contrast users keep their platform's scrollbar size and colors. */
+@media (forced-colors: active) {
+  html { scrollbar-width: auto; scrollbar-color: auto; }
+}
+
 /* Hide scrollbar on rails */
 .scrollbar-hide {
   -ms-overflow-style: none;
