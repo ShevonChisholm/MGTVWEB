@@ -7,6 +7,8 @@ type Sponsor = {
   website: string;
   logoUrl: string;
   logoBackground?: "light" | "dark";
+  storyImageUrl?: string | null;
+  storyImageAlt?: string;
 };
 function SponsorLogo({
   s,
@@ -19,10 +21,11 @@ function SponsorLogo({
   useEffect(() => setFailed(false), [s.logoUrl]);
   return (
     <div
-      className={`${compact ? "h-10 w-16" : "h-28 w-full sm:h-32 sm:w-44"} flex shrink-0 items-center justify-center overflow-hidden rounded-lg border ${s.logoBackground === "light" ? "border-black/10 bg-[#f3efe5] text-[#29251c]" : "border-white/10 bg-[#181b1c] text-gold"}`}
+      className={`${compact ? "sponsor-logo--compact" : "sponsor-logo--full"} sponsor-logo flex shrink-0 items-center justify-center overflow-hidden rounded-lg border ${s.logoBackground === "light" ? "border-black/10 bg-[#f3efe5] text-[#29251c]" : "border-white/10 bg-[#181b1c] text-gold"}`}
     >
       {failed ? (
         <span
+          role="img"
           className="font-display text-2xl"
           aria-label={s.name + " logo unavailable"}
         >
@@ -38,10 +41,41 @@ function SponsorLogo({
           alt={compact ? "" : s.name + " logo"}
           loading="lazy"
           decoding="async"
-          width={compact ? 64 : 176}
-          height={compact ? 40 : 128}
+          width={compact ? 80 : 288}
+          height={compact ? 48 : 88}
           onError={() => setFailed(true)}
-          className={`h-full w-full object-contain ${compact ? "p-1.5" : "p-4"}`}
+          className={`h-full w-full object-contain ${compact ? "p-1" : "p-2.5"}`}
+        />
+      )}
+    </div>
+  );
+}
+function SponsorStoryArtwork({ s }: { s: Sponsor }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [s.storyImageUrl]);
+  if (!s.storyImageUrl) return null;
+  return (
+    <div className="sponsor-story-artwork">
+      {failed ? (
+        <div className="flex h-full min-h-48 flex-col items-center justify-center gap-3 bg-bg-elevated p-6 text-center text-xs text-text-secondary">
+          <p>Story artwork is temporarily unavailable.</p>
+          <button
+            type="button"
+            className="min-h-11 px-4 text-gold underline underline-offset-4"
+            onClick={() => setFailed(false)}
+          >
+            Retry story artwork
+          </button>
+        </div>
+      ) : (
+        <img
+          src={s.storyImageUrl}
+          alt={s.storyImageAlt || "Editorial image for " + s.name}
+          loading="lazy"
+          decoding="async"
+          width="1440"
+          height="900"
+          onError={() => setFailed(true)}
         />
       )}
     </div>
@@ -114,16 +148,26 @@ export function SponsorStrip({
       <div
         role="status"
         aria-label="Loading sponsor credits"
-        className={
-          compact
-            ? "mt-5 min-h-14"
-            : "my-8 min-h-40 rounded-xl border border-white/5 p-5"
-        }
+        className={compact ? "mt-5 min-h-14" : "my-8 min-w-0"}
       >
-        <div
-          aria-hidden="true"
-          className={`rounded-lg bg-white/5 motion-safe:animate-pulse ${compact ? "h-10 w-44" : "h-28 w-full"}`}
-        />
+        {compact ? (
+          <div
+            aria-hidden="true"
+            className="h-12 w-56 rounded-lg bg-white/5 motion-safe:animate-pulse"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="sponsor-credit sponsor-credit--with-story"
+          >
+            <div className="sponsor-story-artwork mgtv-skeleton" />
+            <div className="sponsor-credit__body">
+              <div className="mgtv-skeleton h-20 w-full max-w-72" />
+              <div className="mgtv-skeleton mt-5 h-8 w-3/4" />
+              <div className="mgtv-skeleton mt-4 h-20 w-full" />
+            </div>
+          </div>
+        )}
         <span className="sr-only">Loading sponsor credits…</span>
       </div>
     );
@@ -203,11 +247,15 @@ export function SponsorStrip({
         {current.items.map((s) => (
           <article
             key={s.id}
-            className="relative grid min-w-0 gap-5 overflow-hidden rounded-xl border border-gold/20 bg-gradient-to-br from-[#191a16] to-bg-surface p-5 sm:grid-cols-[auto_minmax(0,1fr)] sm:p-6"
+            className={
+              "sponsor-credit " +
+              (s.storyImageUrl ? "sponsor-credit--with-story" : "")
+            }
           >
-            <SponsorLogo s={s} />
-            <div className="min-w-0">
-              <h3 className="break-words font-display text-2xl text-text-primary">
+            <SponsorStoryArtwork s={s} />
+            <div className="sponsor-credit__body">
+              <SponsorLogo s={s} />
+              <h3 className="mt-5 break-words font-display text-3xl text-text-primary">
                 {s.name}
               </h3>
               <p className="mt-3 whitespace-pre-line break-words text-sm leading-relaxed text-text-secondary">
