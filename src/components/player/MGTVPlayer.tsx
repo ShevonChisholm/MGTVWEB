@@ -1,3 +1,4 @@
+import { playAuthorizedMedia } from "@/lib/viewingBudget";
 import {
   useCallback,
   useEffect,
@@ -103,12 +104,15 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
     const element = video.current;
     if (!element) return;
     setEnded(false);
+    setDuration(0);
+    setPosition(0);
     setMessage("");
     setPaused(element.paused);
     const sync = () => {
       setPaused(element.paused);
-      setPosition(element.currentTime || 0);
-      setDuration(Number.isFinite(element.duration) ? element.duration : 0);
+      if (element.readyState >= 1) setPosition(element.currentTime || 0);
+      if (Number.isFinite(element.duration) && element.duration > 0)
+        setDuration(element.duration);
       setMuted(element.muted);
       setVolume(element.volume);
       setSpeed(element.playbackRate);
@@ -165,6 +169,25 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
       document.removeEventListener("fullscreenchange", screen);
     };
   }, [props.src]);
+  useEffect(() => {
+    const element = video.current;
+    if (!element) return;
+    const budget = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (detail?.message) {
+        setMessage(detail.message);
+        setPaused(true);
+      } else if (detail?.limited && detail.remainingSeconds !== null) {
+        setMessage(
+          detail.remainingSeconds === 0 && detail.windowId
+            ? "Final viewing window · resets at midnight in Jamaica"
+            : `Viewing time: ${Math.ceil(detail.remainingSeconds / 60)} min left today · Jamaica time`,
+        );
+      }
+    };
+    element.addEventListener("mgtv:viewing-budget", budget);
+    return () => element.removeEventListener("mgtv:viewing-budget", budget);
+  }, [props.src]);
   function adPlaying() {
     return !!root.current?.querySelector('[data-ad-break="active"]');
   }
@@ -177,9 +200,9 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
       setEnded(false);
     }
     if (element.paused)
-      void element
-        .play()
-        .catch(() => setMessage("Press play when you’re ready."));
+      void playAuthorizedMedia(element, ended).catch(() =>
+        setMessage("Press play when you’re ready."),
+      );
     else element.pause();
     wake();
   }

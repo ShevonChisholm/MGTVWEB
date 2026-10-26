@@ -307,8 +307,7 @@ export default function ConnectedAccount() {
             </div>
             <p className="mt-4 text-xs leading-relaxed text-text-secondary">
               Your choice is saved for this session. Catalog age classifications
-              follow this profile. Daily viewing limits block full video
-              playback until reliable usage enforcement is available.
+              follow this profile. Full-video limits are shared across devices and reset at midnight in Jamaica. Authorized windows are up to 15 seconds; the last partial window can count when you pause or close playback. Audio, ads, previews and hero clips do not use this allowance.
             </p>
           </section>
           {session.activeProfileId && params.has("returnTo") && (

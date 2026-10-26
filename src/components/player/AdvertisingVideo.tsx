@@ -1,3 +1,4 @@
+import { playAuthorizedMedia } from "@/lib/viewingBudget";
 import {
   useEffect,
   useRef,
@@ -68,7 +69,7 @@ export default function AdvertisingVideo({
     show(null);
     setPlaying(false);
     setMessage("");
-    if (resume.current) void main.current?.play().catch(() => {});
+    if (resume.current) void playAuthorizedMedia(main.current).catch(() => {});
   }
   function event(
     action: string,
@@ -176,7 +177,7 @@ export default function AdvertisingVideo({
   }, [props.src]);
   useEffect(() => {
     if (!preparing && !ad && resume.current)
-      void main.current?.play().catch(() => {});
+      void playAuthorizedMedia(main.current).catch(() => {});
   }, [preparing, ad]);
   const caption = ad ? `Advertisement · ${ad.headline}` : "Preparing playback…";
   return (
@@ -186,6 +187,7 @@ export default function AdvertisingVideo({
     >
       <Base
         {...props}
+        data-mgtv-budget-suspended={preparing || !!ad}
         ref={attach}
         style={{
           ...props.style,
