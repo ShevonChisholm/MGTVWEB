@@ -290,6 +290,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
         {...props}
         ref={attach}
         controls={false}
+        data-mgtv-custom-controls="true"
         className="h-full w-full object-contain"
       />
       <div

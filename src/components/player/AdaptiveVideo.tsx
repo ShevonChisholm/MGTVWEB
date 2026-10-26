@@ -42,6 +42,27 @@ function useMediaDelivery(
     let timer: ReturnType<typeof setTimeout> | undefined;
     const abort = new AbortController();
     const managedTracks = new Map<string, HTMLTrackElement>();
+    function placeCaptions() {
+      if (disposed || video!.dataset.mgtvCustomControls !== "true") return;
+      const height = video!.clientHeight || 360;
+      const line = Math.max(20, Math.min(88, (100 * (height - 100)) / height));
+      for (const track of managedTracks.values()) {
+        for (const raw of Array.from(track.track.cues ?? [])) {
+          const cue = raw as VTTCue;
+          if ("snapToLines" in cue && "line" in cue) {
+            cue.snapToLines = false;
+            cue.line = line;
+            cue.lineAlign = "end";
+            cue.position = 50;
+            cue.size = 90;
+            cue.align = "center";
+          }
+        }
+      }
+    }
+    const captionResize = new ResizeObserver(placeCaptions);
+    captionResize.observe(video);
+    video.addEventListener("loadedmetadata", placeCaptions);
     function captions(items: any[]) {
       if (video!.tagName !== "VIDEO") return;
       const ids = new Set<string>();
@@ -67,6 +88,7 @@ function useMediaDelivery(
           track.label = String(item.label);
           track.srclang = String(item.language);
           track.dataset.mgtvCaptionId = item.id;
+          track.addEventListener("load", placeCaptions);
           track.src = url.href;
           managedTracks.set(item.id, track);
           video!.appendChild(track);
@@ -81,6 +103,7 @@ function useMediaDelivery(
           track.remove();
           managedTracks.delete(id);
         }
+      placeCaptions();
       video!.dispatchEvent(new Event("mgtv:captions"));
     }
     function budgetEvent(budget: any, message?: string) {
@@ -314,6 +337,8 @@ function useMediaDelivery(
       clearSource();
       for (const track of managedTracks.values()) track.remove();
       managedTracks.clear();
+      captionResize.disconnect();
+      video.removeEventListener("loadedmetadata", placeCaptions);
     };
   }, [src]);
 }
