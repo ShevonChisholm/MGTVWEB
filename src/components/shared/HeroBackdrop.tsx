@@ -3,10 +3,12 @@ import { useEffect, useRef, useState } from "react";
 /** Poster first. Public editorial clips run only under an actual mouse hover. */
 export function HeroBackdrop({
   poster,
+  portraitPoster,
   featureUrl,
   sideGradient = true,
 }: {
   poster: string;
+  portraitPoster?: string | null;
   featureUrl?: string | null;
   sideGradient?: boolean;
 }) {
@@ -113,6 +115,8 @@ export function HeroBackdrop({
   }
   return (
     <div ref={root} className="hero-backdrop absolute inset-0">
+      <picture>
+      {portraitPoster&&<source media="(max-width: 767px)" srcSet={portraitPoster}/>}
       <img
         src={poster}
         alt=""
@@ -121,6 +125,7 @@ export function HeroBackdrop({
         decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
+      </picture>
       {allowed && hovered && featureUrl && !failed && (
         <AdaptiveVideo
           ref={video}
