@@ -1,6 +1,6 @@
 import { AdaptiveVideo } from "@/components/player/AdaptiveVideo";
 import { useEffect, useRef, useState } from "react";
-/** Decorative, public editorial clip. Never uses a full-content playback URL. */
+/** Poster first. Public editorial clips run only under an actual mouse hover. */
 export function HeroBackdrop({
   poster,
   featureUrl,
@@ -12,37 +12,77 @@ export function HeroBackdrop({
 }) {
   const video = useRef<HTMLVideoElement>(null),
     root = useRef<HTMLDivElement>(null),
-    wanted = useRef(true),
+    wanted = useRef(false),
+    inside = useRef(false),
     visible = useRef(true);
   const [allowed, setAllowed] = useState(false),
+    [hovered, setHovered] = useState(false),
     [playing, setPlaying] = useState(false),
     [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false);
   useEffect(() => {
-    const preference = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setAllowed(!preference.matches);
+    const motion = window.matchMedia("(prefers-reduced-motion: reduce)"),
+      mouse = window.matchMedia("(hover: hover) and (pointer: fine)");
+    const update = () => setAllowed(!motion.matches && mouse.matches);
     update();
-    preference.addEventListener("change", update);
-    return () => preference.removeEventListener("change", update);
+    motion.addEventListener("change", update);
+    mouse.addEventListener("change", update);
+    return () => {
+      motion.removeEventListener("change", update);
+      mouse.removeEventListener("change", update);
+    };
   }, []);
   useEffect(() => {
-    setReady(false);
-    setFailed(false);
-    wanted.current = true;
-    setPlaying(false);
-  }, [featureUrl]);
+    const surface = root.current?.parentElement;
+    if (!surface) return;
+    const leave = () => {
+      inside.current = false;
+      wanted.current = false;
+      video.current?.pause();
+      setHovered(false);
+      setPlaying(false);
+      setReady(false);
+    };
+    const enter = (event: PointerEvent) => {
+      if (!allowed || event.pointerType !== "mouse" || inside.current) return;
+      inside.current = true;
+      wanted.current = true;
+      setFailed(false);
+      setReady(false);
+      setHovered(true);
+    };
+    leave();
+    // The surrounding hero owns hover: text, buttons and sponsor credits sit above the backdrop.
+    surface.addEventListener("pointerenter", enter);
+    surface.addEventListener("pointermove", enter);
+    surface.addEventListener("pointerleave", leave);
+    return () => {
+      surface.removeEventListener("pointerenter", enter);
+      surface.removeEventListener("pointermove", enter);
+      surface.removeEventListener("pointerleave", leave);
+      wanted.current = false;
+      inside.current = false;
+      video.current?.pause();
+    };
+  }, [featureUrl, allowed]);
   useEffect(() => {
     const element = video.current,
       node = root.current;
-    if (!element || !node || !allowed || failed) return;
+    if (!element || !node || !allowed || !hovered || failed) return;
     const reconcile = () => {
-      if (wanted.current && visible.current && !document.hidden) {
+      if (
+        inside.current &&
+        wanted.current &&
+        visible.current &&
+        !document.hidden
+      )
         void element.play().catch(() => setPlaying(false));
-      } else element.pause();
+      else element.pause();
     };
     const observer = new IntersectionObserver(
       ([entry]) => {
-        visible.current = entry.isIntersecting;
+        visible.current =
+          entry.isIntersecting && entry.intersectionRatio >= 0.05;
         reconcile();
       },
       { threshold: 0.05 },
@@ -55,10 +95,10 @@ export function HeroBackdrop({
       document.removeEventListener("visibilitychange", reconcile);
       element.pause();
     };
-  }, [featureUrl, allowed, failed]);
+  }, [featureUrl, allowed, hovered, failed]);
   async function toggle() {
     const element = video.current;
-    if (!element) return;
+    if (!element || !inside.current) return;
     if (playing) {
       wanted.current = false;
       element.pause();
@@ -76,9 +116,12 @@ export function HeroBackdrop({
       <img
         src={poster}
         alt=""
+        fetchPriority="high"
+        loading="eager"
+        decoding="async"
         className="absolute inset-0 h-full w-full object-cover"
       />
-      {allowed && featureUrl && !failed && (
+      {allowed && hovered && featureUrl && !failed && (
         <AdaptiveVideo
           ref={video}
           key={featureUrl}
@@ -87,23 +130,39 @@ export function HeroBackdrop({
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="none"
           aria-hidden="true"
           tabIndex={-1}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready ? "opacity-100" : "opacity-0"}`}
+          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready && playing ? "opacity-100" : "opacity-0"}`}
           onLoadedData={() => {
             setReady(true);
-            if (wanted.current && visible.current && !document.hidden)
+            if (
+              inside.current &&
+              wanted.current &&
+              visible.current &&
+              !document.hidden
+            )
               void video.current?.play().catch(() => setPlaying(false));
           }}
-          onPlaying={() => setPlaying(true)}
+          onPlaying={() => {
+            if (!inside.current || !wanted.current) {
+              video.current?.pause();
+              return;
+            }
+            setPlaying(true);
+          }}
           onPause={() => setPlaying(false)}
-          onError={() => setFailed(true)}
+          onError={() => {
+            setFailed(true);
+            setPlaying(false);
+          }}
         />
       )}
-      {sideGradient && <div className="hero-side-gradient pointer-events-none absolute inset-0" />}
+      {sideGradient && (
+        <div className="hero-side-gradient pointer-events-none absolute inset-0" />
+      )}
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-bg-base via-transparent to-transparent" />
-      {allowed && featureUrl && !failed && (
+      {allowed && hovered && featureUrl && !failed && (
         <button
           type="button"
           onClick={() => void toggle()}
