@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { playAuthorizedMedia } from "@/lib/viewingBudget";
 import {
   useCallback,
@@ -271,9 +272,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
       <div
         className={`mgtv-content-controls pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center gap-3 bg-gradient-to-b from-black/85 to-transparent px-4 pb-8 pt-3 transition-opacity ${visible || paused ? "opacity-100" : "opacity-0"}`}
       >
-        <span className="font-display text-2xl tracking-wide text-white">
-          MG<span className="text-gold">TV</span>
-        </span>
+        <BrandLogo className="h-8 w-16" />
         <span className="min-w-0 truncate text-xs text-white/75">{title}</span>
         {preview && (
           <span className="ml-auto rounded border border-gold/50 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest text-gold">
@@ -309,9 +308,7 @@ export function MGTVPlayer({ base: Base, forwarded, ...props }: Props) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/55 to-black/30" />
           <div className="relative max-w-lg px-5 text-center">
-            <span className="hidden font-display text-3xl tracking-wider text-gold sm:inline">
-              MGTV
-            </span>
+            <BrandLogo className="mx-auto hidden h-12 w-24 sm:block" />
             <h2 className="mt-2 font-display text-2xl leading-tight sm:text-4xl">
               There’s more to the story.
             </h2>

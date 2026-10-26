@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { Link } from "react-router";
 export function PlaybackAccess({
   poster,
@@ -33,9 +34,7 @@ export function PlaybackAccess({
       )}
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-black/95 via-black/60 to-black/30" />
       <div className="max-w-lg px-5 text-center">
-        <span className="font-display text-2xl text-gold sm:text-3xl">
-          MGTV
-        </span>
+        <BrandLogo className="mx-auto h-10 w-20 sm:h-12 sm:w-24" />
         <h2 className="mt-1 font-display text-xl sm:text-3xl">
           {loading
             ? "Your story is loading…"

@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { ButtonLink } from "@/components/ui/Button"
 import { Text } from "@/components/ui/Text"
 import { useAppState } from "@/context/AppStateContext"
@@ -5,9 +6,7 @@ export function AuthLandingPage() {
   const { execute } = useAppState()
   return (
     <div className="text-center">
-      <Text className="mb-5 font-display text-3xl tracking-widest text-gold">
-        MGTV
-      </Text>
+      <BrandLogo className="mx-auto mb-5 h-16 w-32" />
       <Text as="h1" className="mb-4 font-display text-5xl">
         Welcome to MGTV
       </Text>

@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import {ConnectedCommerceCart} from "@/components/shared/ConnectedCommerceCart";
 import {openCart} from "@/lib/commerce";
 import {useNotifications} from "@/components/notifications/ConnectedNotifications";
@@ -162,10 +163,7 @@ export function Navbar() {
             aria-label="MGTV Home"
             className="shrink-0 font-display text-2xl tracking-wider text-text-primary"
           >
-            MG
-            <Text as="span" className="text-gold">
-              TV
-            </Text>
+            <BrandLogo className="h-10 w-20" decorative />
           </Link>
           <nav
             aria-label="Main navigation"

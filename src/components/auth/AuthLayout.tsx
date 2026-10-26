@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { Link, Outlet } from "react-router"
 
 const panels = [
@@ -37,20 +38,7 @@ export function AuthLayout() {
         {/* Top logo */}
         <div className="relative z-10 p-10">
           <Link to="/" className="flex items-center gap-2 w-fit">
-            <div className="w-9 h-9 rounded-lg bg-[#C9A84C] flex items-center justify-center">
-              <span
-                className="text-[#0A0A0A] font-bold text-sm"
-                style={{ fontFamily: "Bebas Neue, sans-serif" }}
-              >
-                M
-              </span>
-            </div>
-            <span
-              className="text-white font-bold text-2xl tracking-wider"
-              style={{ fontFamily: "Bebas Neue, sans-serif" }}
-            >
-              MG<span className="text-[#C9A84C]">TV</span>
-            </span>
+            <BrandLogo className="h-16 w-32" />
           </Link>
         </div>
 
@@ -88,20 +76,7 @@ export function AuthLayout() {
         {/* Mobile logo */}
         <div className="lg:hidden flex items-center justify-between px-6 py-5 border-b border-white/8">
           <Link to="/" className="flex items-center gap-1.5">
-            <div className="w-7 h-7 rounded bg-[#C9A84C] flex items-center justify-center">
-              <span
-                className="text-[#0A0A0A] font-bold text-xs"
-                style={{ fontFamily: "Bebas Neue, sans-serif" }}
-              >
-                M
-              </span>
-            </div>
-            <span
-              className="text-white font-bold text-lg tracking-wider"
-              style={{ fontFamily: "Bebas Neue, sans-serif" }}
-            >
-              MG<span className="text-[#C9A84C]">TV</span>
-            </span>
+            <BrandLogo className="h-10 w-20" />
           </Link>
           <Link
             to="/"

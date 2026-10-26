@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import {NewsletterSignup} from "@/components/shared/NewsletterSignup";
 import {usePlatformSettings} from "@/lib/platformSettings";
 import { Link } from "react-router"
@@ -73,20 +74,7 @@ export function Footer() {
         {/* Logo + tagline */}
         <div className="mb-12">
           <Link to="/" className="flex items-center gap-2 mb-3 w-fit">
-            <div className="w-8 h-8 rounded bg-[#C9A84C] flex items-center justify-center">
-              <span
-                className="text-[#0A0A0A] font-bold text-sm"
-                style={{ fontFamily: "Bebas Neue, sans-serif" }}
-              >
-                M
-              </span>
-            </div>
-            <span
-              className="text-[#F5F5F5] font-bold text-2xl tracking-wider"
-              style={{ fontFamily: "Bebas Neue, sans-serif" }}
-            >
-              MG<span className="text-[#C9A84C]">TV</span>
-            </span>
+            <BrandLogo className="h-12 w-24" />
           </Link>
           <p className="text-text-secondary text-sm max-w-sm">
             Jamaican roots, Caribbean perspectives. Explore the sample

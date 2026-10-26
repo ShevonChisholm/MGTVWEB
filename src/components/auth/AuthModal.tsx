@@ -1,3 +1,4 @@
+import { BrandLogo } from "@/components/shared/BrandLogo";
 import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
 
@@ -46,12 +47,7 @@ export function AuthModal({ initialView = 'signin', onClose }: AuthModalProps) {
         <div className="px-8 py-8">
           {/* Logo */}
           <div className="flex items-center gap-1.5 mb-8">
-            <div className="w-6 h-6 rounded bg-[#C9A84C] flex items-center justify-center">
-              <span className="text-[#0A0A0A] font-bold text-xs" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>M</span>
-            </div>
-            <span className="text-[#F5F5F5] font-bold text-base tracking-wider" style={{ fontFamily: 'Bebas Neue, sans-serif' }}>
-              MG<span className="text-[#C9A84C]">TV</span>
-            </span>
+            <BrandLogo className="h-12 w-24" />
           </div>
 
           {view === 'forgot' ? (
