@@ -1,0 +1,41 @@
+{
+  "checkedAt": "2026-10-26T23:21:33.479Z",
+  "url": "https://mgtv-web.vercel.app",
+  "commit": "8e95cacd6300a0b57411f76813690e1d8251ceea",
+  "deploymentId": "dpl_2jDXvw25dWxK1ntrf5Fa6xGP6GNr",
+  "state": "READY",
+  "script": "/assets/index-CARqEx_A.js",
+  "sharedSessionBundleVerified": true,
+  "anonymousSessionStatus": 401,
+  "anonymousSessionCode": "SESSION_REQUIRED",
+  "regressionChecks": 10,
+  "concurrentConsumers": 12,
+  "expectedSessionRequests": 1,
+  "browser": {
+    "guestBrowsing": true,
+    "signIn": true,
+    "parentVerification": true,
+    "mainProfileSelection": true,
+    "signedInNavigation": true,
+    "signOutClearsIdentity": true,
+    "guestProfilesGate": true,
+    "noPageOverflowAtWidths": [
+      390,
+      1280
+    ],
+    "consoleErrorsObserved": []
+  },
+  "scope": {
+    "staffAuth": "unchanged",
+    "design": "unchanged",
+    "api": "unchanged",
+    "drm": "pending",
+    "productionEmail": "pending",
+    "artists": "not started"
+  },
+  "screenshots": [
+    "C:/Users/chish/.codex/visualizations/2026/10/22/01a16480-a614-7543-80c2-fac991b681e9/customer-session-guest-mobile.png",
+    "C:/Users/chish/.codex/visualizations/2026/10/22/01a16480-a614-7543-80c2-fac991b681e9/customer-session-home-desktop.png"
+  ],
+  "concurrencyVerification": "automated actual-auth-adapter regression, not hosted browser network instrumentation"
+}
