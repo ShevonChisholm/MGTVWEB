@@ -7,39 +7,14 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { shopApi, money, addCommerceItem } from "@/lib/commerce";
+import {
+  ProductCard,
+  ProductArtwork,
+  ShopCollectionSkeleton,
+  ShopDevelopmentNotice,
+} from "@/components/shop/ProductCard";
+import { productPresentation } from "@/lib/commercePresentation";
 import { useCustomerSession } from "@/lib/customerAuth";
-function ProductCard({ p }: { p: any }) {
-  return (
-    <article className="group relative bg-[#111111] hover:bg-[#161616] transition-colors">
-      <Link to={"/shop/" + p.id} className="block">
-        <div className="aspect-square overflow-hidden">
-          <img
-            src={"/api/v1/catalog/commerce/products/" + p.id + "/cover"}
-            alt={p.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        </div>
-        <div className="p-4">
-          <p className="text-text-secondary text-xs uppercase tracking-widest">
-            {p.category}
-          </p>
-          <h3 className="text-sm font-semibold mt-2 group-hover:text-gold">
-            {p.name}
-          </h3>
-          <p className="text-gold mt-3">
-            {p.options.length
-              ? "From " +
-                money(Math.min(...p.options.map((o: any) => o.price_minor)))
-              : "Currently unavailable"}
-          </p>
-          <p className="text-xs text-text-secondary mt-1 capitalize">
-            {p.kind === "physical" ? "Merchandise" : p.kind}
-          </p>
-        </div>
-      </Link>
-    </article>
-  );
-}
 export function ConnectedShop() {
   const lifestyle = useLifestyle("/lifestyle?limit=1");
   const featuredStory = lifestyle.data?.items?.[0];
@@ -71,12 +46,13 @@ export function ConnectedShop() {
     (p) => category === "all" || p.category === category,
   );
   if (sort !== "featured")
-    filtered = [...filtered].sort(
-      (a, b) =>
-        (Math.min(...a.options.map((o: any) => o.price_minor)) -
-          Math.min(...b.options.map((o: any) => o.price_minor))) *
-        (sort === "asc" ? 1 : -1),
-    );
+    filtered = [...filtered].sort((a, b) => {
+      const left = productPresentation(a).price,
+        right = productPresentation(b).price;
+      if (left === null) return right === null ? 0 : 1;
+      if (right === null) return -1;
+      return (left - right) * (sort === "asc" ? 1 : -1);
+    });
   return (
     <div className="min-h-screen bg-[#0A0A0A] pt-16">
       <section
@@ -99,7 +75,7 @@ export function ConnectedShop() {
             Take the culture with you. Discover original merchandise, digital
             finds and moments worth making time for.
           </p>
-          <div className="flex gap-4 items-center">
+          <div className="flex flex-wrap gap-4 items-center">
             <a
               href="#products"
               className="bg-gold text-black px-6 py-3 font-bold"
@@ -112,19 +88,25 @@ export function ConnectedShop() {
           </div>
         </div>
         <div className="hidden md:grid flex-1 grid-cols-3 grid-rows-2 gap-0.5 relative">
-          {items.slice(0, 6).map((p) => (
-            <img
-              key={p.id}
-              src={"/api/v1/catalog/commerce/products/" + p.id + "/cover"}
-              alt=""
-              className="w-full h-full object-cover min-h-0 opacity-80"
-            />
-          ))}
+          {[...items]
+            .sort(
+              (a, b) =>
+                Number(b.kind === "physical") - Number(a.kind === "physical"),
+            )
+            .slice(0, 6)
+            .map((p) => (
+              <img
+                key={p.id}
+                src={"/api/v1/catalog/commerce/products/" + p.id + "/cover"}
+                alt=""
+                className="w-full h-full object-cover min-h-0 opacity-90"
+              />
+            ))}
           <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-transparent to-transparent" />
         </div>
       </section>
-      {featuredStory && (
-        <section className="border-y border-white/5">
+      <section className="border-y border-white/5 min-h-[90px]">
+        {featuredStory ? (
           <Link
             to={"/lifestyle/" + featuredStory.id}
             className="group flex justify-between items-center gap-5 px-6 md:px-8 py-5"
@@ -146,8 +128,23 @@ export function ConnectedShop() {
             </div>
             <span className="text-text-secondary text-xs">Read →</span>
           </Link>
-        </section>
-      )}
+        ) : lifestyle.loading ? (
+          <div
+            aria-hidden="true"
+            className="h-[88px] px-6 md:px-8 flex items-center gap-6"
+          >
+            <div className="mgtv-skeleton w-12 h-12 shrink-0" />
+            <div className="mgtv-skeleton w-48 h-8" />
+          </div>
+        ) : (
+          <Link
+            to="/lifestyle"
+            className="min-h-[88px] px-6 md:px-8 flex items-center text-sm text-gold"
+          >
+            Explore the culture behind the collection →
+          </Link>
+        )}
+      </section>
       <section
         id="products"
         className="max-w-[1760px] mx-auto px-6 md:px-8 py-14"
@@ -167,12 +164,13 @@ export function ConnectedShop() {
             </select>
           </label>
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide border-b border-white/10 mb-8">
+        <div className="shop-category-filters flex flex-wrap gap-2 border-b border-white/10 mb-8">
           {["all", ...new Set(items.map((p) => p.category))].map((c) => (
             <button
               key={c}
+              aria-pressed={category === c}
               className={
-                "px-5 py-3 capitalize whitespace-nowrap border-b-2 " +
+                "min-h-11 px-3 py-2 md:px-5 md:py-3 text-sm capitalize whitespace-nowrap border-b-2 " +
                 (category === c
                   ? "border-gold text-gold"
                   : "border-transparent text-text-secondary")
@@ -184,18 +182,14 @@ export function ConnectedShop() {
           ))}
         </div>
         {loading ? (
-          <LoadingSkeleton
-            label="Loading the collection…"
-            variant="products"
-            columns={4}
-          />
+          <ShopCollectionSkeleton />
         ) : error ? (
           <ErrorState
             message={error}
             onRetry={() => setRevision((n) => n + 1)}
           />
         ) : filtered.length ? (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="shop-product-grid">
             {filtered.map((p) => (
               <ProductCard key={p.id} p={p} />
             ))}
@@ -203,10 +197,9 @@ export function ConnectedShop() {
         ) : (
           <p>No products in this collection yet.</p>
         )}
-        <p className="mt-10 text-xs text-text-secondary">
-          Development store · JMD · Provisional tax and delivery rules. Payments
-          are not connected.
-        </p>
+        <div className="mt-10">
+          <ShopDevelopmentNotice />
+        </div>
         <ButtonLink to="/shop/orders" variant="outline" className="mt-5">
           Your orders
         </ButtonLink>
@@ -308,11 +301,7 @@ export function ConnectedProduct() {
         )
       ) : (
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 mt-10">
-          <img
-            className="aspect-square w-full object-cover bg-[#111]"
-            src={"/api/v1/catalog/commerce/products/" + p.id + "/cover"}
-            alt={p.name}
-          />
+          <ProductArtwork key={p.id} p={p} eager className="self-start" />
           <div className="flex flex-col justify-center">
             <p className="text-gold text-xs uppercase tracking-[.3em] mb-4">
               {p.category}
@@ -400,10 +389,9 @@ export function ConnectedProduct() {
                 Digital delivery follows verified payment.
               </p>
             )}
-            <p className="mt-6 text-xs text-text-secondary">
-              Development store · Payments unavailable until the payment
-              provider is connected.
-            </p>
+            <div className="mt-6">
+              <ShopDevelopmentNotice />
+            </div>
           </div>
         </div>
       )}

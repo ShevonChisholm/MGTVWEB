@@ -147,3 +147,40 @@ html {
 @media(prefers-reduced-motion:reduce) { .mgtv-player * { transition:none !important; } }
 
 .mgtv-rail[data-rail-format="landscape"] .mgtv-rail-item article > a.group > img { aspect-ratio:16 / 9; border-radius:.75rem; height:auto; }
+
+/* Shop: one consistent card frame; product facts remain live API text. */
+.shop-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem;align-items:stretch;grid-auto-rows:1fr}
+.shop-product-card{min-width:0;overflow:hidden;background:#111;border:1px solid rgb(255 255 255 / .08);border-radius:1rem 0 1rem 0;transition:border-color .2s,background .2s}
+.shop-product-card:hover,.shop-product-card:focus-within{border-color:rgb(201 168 76 / .65);background:#161616}
+.shop-product-card__link{display:flex;flex-direction:column;height:100%;outline-offset:4px}
+.shop-product-card__link:focus-visible{outline:2px solid var(--color-gold);outline-offset:-3px}
+.shop-product-artwork{aspect-ratio:1;width:100%;position:relative;overflow:hidden;background:#1b1c19}
+.shop-product-artwork img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .45s}
+.shop-product-card:hover .shop-product-artwork img{transform:scale(1.025)}
+.shop-product-artwork__fallback{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.5rem;padding:1rem;text-align:center;color:var(--color-text-secondary);font-size:.875rem}
+.shop-product-artwork__fallback>span:first-child{font-size:2rem;color:var(--color-gold)}
+.shop-product-card__kind{position:absolute;left:.65rem;top:.65rem;max-width:calc(100% - 1.3rem);background:rgb(8 8 8 / .9);border:1px solid rgb(255 255 255 / .16);border-radius:.25rem;color:#eee;padding:.3rem .5rem;font-size:.625rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.shop-product-card__body{display:flex;flex:1;flex-direction:column;min-height:300px;padding:1rem;min-width:0}
+.shop-product-card__category{font-size:.625rem;text-transform:uppercase;letter-spacing:.13em;color:var(--color-text-secondary);overflow-wrap:anywhere}
+.shop-product-card__title{font-size:.9375rem;font-weight:650;line-height:1.45;margin-top:.55rem;min-height:2.9em;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;overflow-wrap:anywhere}
+.shop-product-card__detail{font-size:.75rem;line-height:1.5;color:var(--color-text-secondary);margin-top:.5rem;min-height:3em;overflow-wrap:anywhere}
+.shop-product-card__purchase{margin-top:auto;padding-top:1rem}
+.shop-product-card__price{font-size:.9375rem;line-height:1.5;font-weight:650;color:var(--color-gold);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.shop-product-card__availability{font-size:.6875rem;line-height:1.5;margin-top:.2rem}
+.shop-product-card__action{display:flex;align-items:center;justify-content:space-between;gap:.5rem;min-height:44px;border-top:1px solid rgb(255 255 255 / .12);margin-top:.8rem;font-size:.75rem;font-weight:600;color:#eee}
+.shop-product-card__action>span{color:var(--color-gold);font-size:1.1rem}
+@media(min-width:768px){.shop-product-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25rem}.shop-product-card__body{padding:1.25rem}.shop-product-card__title{font-size:1rem}.shop-product-card__price{font-size:1.05rem}}
+@media(min-width:1024px){.shop-product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.shop-product-card,.shop-product-artwork img{transition:none}.shop-product-card:hover .shop-product-artwork img{transform:none}}
+
+#products{scroll-margin-top:5rem}
+
+.shop-product-card__category{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-product-card__detail{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.shop-product-card__price-prefix{display:block;min-height:1.3em;font-size:.6875rem;font-weight:400;line-height:1.3;color:var(--color-text-secondary)}
+@media(max-width:359px){.shop-product-grid{grid-template-columns:minmax(0,1fr)}}
+
+.shop-category-filters{min-height:152px;align-content:flex-start}
+.shop-category-filters>button{max-width:100%;overflow:hidden;text-overflow:ellipsis}
+@media(min-width:768px){.shop-category-filters{min-height:112px}}
+@media(min-width:1024px){.shop-category-filters{min-height:56px}}
