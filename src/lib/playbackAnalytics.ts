@@ -1,5 +1,5 @@
 import { useEffect, type RefObject } from "react";
-import { customerApi } from "./customerAuth";
+import { customerApi, getCustomerSession } from "./customerAuth";
 export function usePlaybackAnalytics(
   ref: RefObject<HTMLMediaElement | null>,
   src?: string,
@@ -32,7 +32,8 @@ export function usePlaybackAnalytics(
       if (id || starting || disabled || disposed) return;
       starting = true;
       try {
-        const identity = await customerApi("/session");
+        const identity = await getCustomerSession();
+        if (!identity?.activeProfileId) return;
         profile = identity.activeProfileId;
         const device =
           window.innerWidth < 600

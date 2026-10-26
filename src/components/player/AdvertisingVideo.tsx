@@ -6,7 +6,7 @@ import {
   type VideoHTMLAttributes,
   type Ref,
 } from "react";
-import { customerApi } from "@/lib/customerAuth";
+import { customerApi, getCustomerSession } from "@/lib/customerAuth";
 type Props = VideoHTMLAttributes<HTMLVideoElement> & {
   base: any;
   forwarded: Ref<HTMLVideoElement>;
@@ -123,7 +123,8 @@ export default function AdvertisingVideo({
       }
     }, 5000);
     void (async () => {
-      const identity = await customerApi("/session");
+      const identity = await getCustomerSession();
+      if (!identity?.activeProfileId) return;
       profile.current = identity.activeProfileId;
       const result = await customerApi(
         "/advertising/playback",

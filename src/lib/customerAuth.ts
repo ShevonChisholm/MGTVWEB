@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
-export const connectedAuth = import.meta.env.VITE_API_MODE === "connected";
-let csrf = "";
+import { useEffect, useSyncExternalStore } from "react"
+import { createCustomerSessionStore } from "./customerSessionStore"
+import { useLocation } from "react-router"
+export const connectedAuth = import.meta.env.VITE_API_MODE === "connected"
+let csrf = ""
+let authGeneration = 0
 export class CustomerAuthError extends Error {
   constructor(
     public status: number,
     message: string,
   ) {
-    super(message);
+    super(message)
   }
 }
 export async function customerApi(
@@ -16,9 +18,10 @@ export async function customerApi(
   body?: unknown,
   extraHeaders: Record<string, string> = {},
 ): Promise<any> {
-  const headers: Record<string, string> = { ...extraHeaders };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
-  if (method !== "GET") headers["X-CSRF-Token"] = csrf;
+  const requestGeneration = authGeneration
+  const headers: Record<string, string> = { ...extraHeaders }
+  if (body !== undefined) headers["Content-Type"] = "application/json"
+  if (method !== "GET") headers["X-CSRF-Token"] = csrf
   const response = await fetch("/api/v1/customer" + path, {
     method,
     headers,
@@ -28,77 +31,91 @@ export async function customerApi(
     throw new CustomerAuthError(
       0,
       "Unable to reach MGTV. Check your connection and try again.",
-    );
-  });
-  let unreadable = false;
+    )
+  })
+  let unreadable = false
   const result =
-    response.status === 204
-      ? null
-      : await response.json().catch(() => {
-          unreadable = true;
+    response.status === 204 ? null : await response.json().catch(() => {
+          unreadable = true
           return {
             message: "MGTV returned an unreadable response. Please try again.",
-          };
-        });
+          }
+        })
   if (!response.ok) {
     if (
       response.status === 401 &&
       ["SESSION_REQUIRED", "SESSION_EXPIRED"].includes(result?.code)
-    )
-      csrf = "";
+    ) {
+      if (requestGeneration === authGeneration) {
+        csrf = ""
+        if (path !== "/session") {
+          authGeneration++
+          sessionStore.guest()
+        }
+      }
+    }
     throw new CustomerAuthError(
       response.status,
       result?.message ?? "The request failed.",
-    );
+    )
   }
-  if (unreadable) throw new CustomerAuthError(502, result.message);
-  if (result?.csrfToken) csrf = result.csrfToken;
-  return result;
+  if (unreadable) throw new CustomerAuthError(502, result.message)
+  if (result?.csrfToken && requestGeneration === authGeneration)
+    csrf = result.csrfToken
+  return result
+}
+const sessionStore = createCustomerSessionStore<any>({
+  read: () => customerApi("/session"),
+  isGuest: (error) =>
+    error instanceof CustomerAuthError && error.status === 401,
+  enabled: connectedAuth,
+})
+function refreshIdentity() {
+  authGeneration++
+  csrf = ""
+  sessionStore.invalidate()
+  void sessionStore.refresh()
+}
+if (connectedAuth && typeof window !== "undefined") {
+  window.addEventListener("mgtv-customer-auth", refreshIdentity)
+  window.addEventListener("focus", () => {
+    void sessionStore.refresh()
+  })
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "visible") void sessionStore.refresh()
+  })
+  // Share only an invalidation signal across tabs, never identity or CSRF data.
+  window.addEventListener("storage", (event) => {
+    if (event.key === "mgtv-customer-auth-change") refreshIdentity()
+  })
 }
 export function authChanged() {
-  window.dispatchEvent(new Event("mgtv-customer-auth"));
+  window.dispatchEvent(new Event("mgtv-customer-auth"))
+  try {
+    localStorage.setItem("mgtv-customer-auth-change", crypto.randomUUID())
+  } catch {
+    /* Authentication also works when browser storage is unavailable. */
+  }
+}
+export async function getCustomerSession() {
+  let generation: number
+  do {
+    generation = authGeneration
+    await sessionStore.refresh()
+  } while (generation !== authGeneration)
+  const snapshot = sessionStore.getSnapshot()
+  if (snapshot.error) throw new CustomerAuthError(503, snapshot.error)
+  return snapshot.session
 }
 export function useCustomerSession() {
-  const [session, setSession] = useState<any>(null),
-    [loading, setLoading] = useState(connectedAuth),
-    [error, setError] = useState("");
-  const location = useLocation();
+  const snapshot = useSyncExternalStore(
+    sessionStore.subscribe,
+    sessionStore.getSnapshot,
+    sessionStore.getSnapshot,
+  )
+  const location = useLocation()
   useEffect(() => {
-    if (!connectedAuth) return;
-    let active = true;
-    let generation = 0;
-    const refresh = () => {
-      const requestGeneration = ++generation;
-      void customerApi("/session")
-        .then((result) => {
-          if (active && requestGeneration === generation) {
-            setSession(result);
-            setError("");
-          }
-        })
-        .catch((e) => {
-          if (active && requestGeneration === generation) {
-            if (e instanceof CustomerAuthError && e.status === 401) {
-              setSession(null);
-              setError("");
-            } else
-              setError(
-                e instanceof Error
-                  ? e.message
-                  : "Your session could not be checked.",
-              );
-          }
-        })
-        .finally(() => {
-          if (active && requestGeneration === generation) setLoading(false);
-        });
-    };
-    refresh();
-    window.addEventListener("mgtv-customer-auth", refresh);
-    return () => {
-      active = false;
-      window.removeEventListener("mgtv-customer-auth", refresh);
-    };
-  }, [location.pathname]);
-  return { session, loading, error };
+    void sessionStore.refresh()
+  }, [location.pathname])
+  return snapshot
 }
