@@ -1,3 +1,4 @@
+import ProductGallery from "@/components/shop/ProductGallery";
 import {
   LoadingSkeleton,
   ErrorState,
@@ -301,7 +302,7 @@ export function ConnectedProduct() {
         )
       ) : (
         <div className="grid md:grid-cols-2 gap-12 lg:gap-20 mt-10">
-          <ProductArtwork key={p.id} p={p} eager className="self-start" />
+          <ProductGallery key={p.id+":"+(p.gallery_revision_id??p.image_version_id)} p={p}/>
           <div className="flex flex-col justify-center">
             <p className="text-gold text-xs uppercase tracking-[.3em] mb-4">
               {p.category}
