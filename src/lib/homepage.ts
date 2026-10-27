@@ -1,3 +1,4 @@
+import { releaseHomeStartup, waitForHomeStartup } from "./homeStartup";
 import { useEffect, useState } from "react";
 import { useCustomerSession, customerApi, connectedAuth } from "./customerAuth";
 import { movieItem } from "@/context/MovieContext";
@@ -64,6 +65,7 @@ export function useHomepage(surface: string) {
     setState({ scope, data: null, error: "", loading: true });
     setFeatured({ scope, data: null });
     if (auth.error || profileRequired) {
+      if (surface === "home") releaseHomeStartup();
       setState({ scope, data: null, error: auth.error ?? "", loading: false });
       return () => {
         active = false;
@@ -86,27 +88,37 @@ export function useHomepage(surface: string) {
           });
       void early
         .then((data) => {
-          if (active) setFeatured({ scope, data });
+          if (active) {
+            setFeatured({ scope, data });
+            if (!data.hero?.length) releaseHomeStartup();
+          }
         })
         .catch(() => {
+          if (active) releaseHomeStartup();
           /* The full response remains the authoritative fallback. */
         });
     }
-    const work = auth.session
-      ? customerApi("/homepage/" + surface)
-      : fetch("/api/v1/catalog/homepage/" + surface, {
-          credentials: "include",
-          cache: "no-store",
-          signal: abort.signal,
-        }).then(async (r) => {
-          const b = await r.json();
-          if (!r.ok)
-            throw Error(b.message ?? "Featured content could not be loaded.");
-          return b;
-        });
+    const work = (async () => {
+      if (surface === "home" && !(await waitForHomeStartup(abort.signal)))
+        return null;
+      if (!active) return null;
+      return auth.session
+        ? customerApi("/homepage/" + surface)
+        : fetch("/api/v1/catalog/homepage/" + surface, {
+            credentials: "include",
+            cache: "no-store",
+            signal: abort.signal,
+          }).then(async (r) => {
+            const b = await r.json();
+            if (!r.ok)
+              throw Error(b.message ?? "Featured content could not be loaded.");
+            return b;
+          });
+    })();
     void work
       .then((data) => {
-        if (active) setState({ scope, data, error: "", loading: false });
+        if (active && data)
+          setState({ scope, data, error: "", loading: false });
       })
       .catch((e) => {
         if (active && e.name !== "AbortError")

@@ -1,5 +1,17 @@
-import { AdaptiveVideo } from "@/components/player/AdaptiveVideo";
-import { useEffect, useRef, useState } from "react";
+import { homePosterReady } from "@/lib/homeStartup";
+const AdaptiveVideo = lazy(() =>
+  import("@/components/player/AdaptiveVideo").then((m) => ({
+    default: m.AdaptiveVideo,
+  })),
+);
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 /** Poster first. Public editorial clips run only under an actual mouse hover. */
 export function HeroBackdrop({
   poster,
@@ -17,6 +29,13 @@ export function HeroBackdrop({
     wanted = useRef(false),
     inside = useRef(false),
     visible = useRef(true);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(
+    null,
+  );
+  const attachVideo = useCallback((node: HTMLVideoElement | null) => {
+    video.current = node;
+    setVideoElement(node);
+  }, []);
   const [allowed, setAllowed] = useState(false),
     [hovered, setHovered] = useState(false),
     [playing, setPlaying] = useState(false),
@@ -68,7 +87,7 @@ export function HeroBackdrop({
     };
   }, [featureUrl, allowed]);
   useEffect(() => {
-    const element = video.current,
+    const element = videoElement,
       node = root.current;
     if (!element || !node || !allowed || !hovered || failed) return;
     const reconcile = () => {
@@ -97,7 +116,7 @@ export function HeroBackdrop({
       document.removeEventListener("visibilitychange", reconcile);
       element.pause();
     };
-  }, [featureUrl, allowed, hovered, failed]);
+  }, [featureUrl, allowed, hovered, failed, videoElement]);
   async function toggle() {
     const element = video.current;
     if (!element || !inside.current) return;
@@ -116,52 +135,67 @@ export function HeroBackdrop({
   return (
     <div ref={root} className="hero-backdrop absolute inset-0">
       <picture>
-      {portraitPoster&&<source media="(max-width: 767px)" srcSet={portraitPoster}/>}
-      <img
-        src={poster}
-        alt=""
-        fetchPriority="high"
-        loading="eager"
-        decoding="async"
-        className="absolute inset-0 h-full w-full object-cover"
-      />
+        {portraitPoster && (
+          <source media="(max-width: 767px)" srcSet={portraitPoster} />
+        )}
+        <img
+          src={poster}
+          onLoad={(event) => homePosterReady(event.currentTarget)}
+          onError={() => homePosterReady()}
+          alt=""
+          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
       </picture>
       {allowed && hovered && featureUrl && !failed && (
-        <AdaptiveVideo
-          ref={video}
-          key={featureUrl}
-          src={featureUrl}
-          poster={poster}
-          muted
-          loop
-          playsInline
-          preload="none"
-          aria-hidden="true"
-          tabIndex={-1}
-          className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready && playing ? "opacity-100" : "opacity-0"}`}
-          onLoadedData={() => {
-            setReady(true);
-            if (
-              inside.current &&
-              wanted.current &&
-              visible.current &&
-              !document.hidden
-            )
-              void video.current?.play().catch(() => setPlaying(false));
-          }}
-          onPlaying={() => {
-            if (!inside.current || !wanted.current) {
-              video.current?.pause();
-              return;
-            }
-            setPlaying(true);
-          }}
-          onPause={() => setPlaying(false)}
-          onError={() => {
-            setFailed(true);
-            setPlaying(false);
-          }}
-        />
+        <Suspense fallback={null}>
+          <AdaptiveVideo
+            ref={attachVideo}
+            key={featureUrl}
+            src={featureUrl}
+            poster={poster}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            tabIndex={-1}
+            className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-500 ${ready && playing ? "opacity-100" : "opacity-0"}`}
+            onLoadedMetadata={() => {
+              if (
+                inside.current &&
+                wanted.current &&
+                visible.current &&
+                !document.hidden
+              )
+                void video.current?.play().catch(() => setPlaying(false));
+            }}
+            onLoadedData={() => {
+              setReady(true);
+              if (
+                inside.current &&
+                wanted.current &&
+                visible.current &&
+                !document.hidden
+              )
+                void video.current?.play().catch(() => setPlaying(false));
+            }}
+            onPlaying={() => {
+              if (!inside.current || !wanted.current) {
+                video.current?.pause();
+                return;
+              }
+              setPlaying(true);
+            }}
+            onPause={() => setPlaying(false)}
+            onError={() => {
+              setFailed(true);
+              setPlaying(false);
+            }}
+          />
+        </Suspense>
       )}
       {sideGradient && (
         <div className="hero-side-gradient pointer-events-none absolute inset-0" />

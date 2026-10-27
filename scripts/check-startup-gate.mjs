@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {loadModule}from"./load-module.mjs";
+const {createStartupGate}=await loadModule('src/lib/startupGate.ts');
+let scheduled=0,cleared=0,callback,delay;
+const gate=createStartupGate((fn,ms)=>{scheduled++;callback=fn;delay=ms;return 1;},()=>{cleared++;});
+const abort=new AbortController();const cancelled=gate.wait(abort.signal);abort.abort();assert.equal(await cancelled,false);
+let updates=0;const stop=gate.subscribe(()=>updates++);
+const pending=Array.from({length:12},()=>gate.wait());assert.equal(scheduled,1);assert.equal(delay,5000);assert.equal(gate.getSnapshot(),false);
+gate.release();assert.deepEqual(await Promise.all(pending),Array(12).fill(true));assert.equal(cleared,1);assert.equal(updates,1);
+gate.release();assert.equal(updates,1);assert.equal(await gate.wait(),true);stop();
+const cold=createStartupGate((fn)=>{callback=fn;return 2;},()=>{});const fallback=cold.wait();callback();assert.equal(await fallback,true);assert.equal(cold.getSnapshot(),true);
+const preAborted=new AbortController();preAborted.abort();assert.equal(await createStartupGate().wait(preAborted.signal),false);
+console.log('Startup gate checks passed: shared waiters, cancellation, once-only release, bounded error fallback and ready fast path.');

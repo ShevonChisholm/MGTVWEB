@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
   useContext,
@@ -60,6 +61,7 @@ export function eventTime(e: ApiEvent) {
   }).format(new Date(e.startsAt));
 }
 function useEventsValue() {
+  const startupReady = useHomeStartupReady();
   const {
     session,
     loading: authLoading,
@@ -88,7 +90,7 @@ function useEventsValue() {
     [audience, authError, session],
   );
   useEffect(() => {
-    if (!connectedAuth || authLoading) return;
+    if (!connectedAuth || authLoading || !startupReady) return;
     let active = true;
     setItems([]);
     setError("");
@@ -118,7 +120,7 @@ function useEventsValue() {
     return () => {
       active = false;
     };
-  }, [request, revision, authLoading]);
+  }, [request, revision, authLoading, startupReady]);
   return {
     items,
     error: error || authError,

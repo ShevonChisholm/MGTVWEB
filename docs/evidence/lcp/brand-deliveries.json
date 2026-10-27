@@ -1,0 +1,29 @@
+{
+  "source": "public/brand/mgtv-logo-gold-v1.png",
+  "sourceBytes": 1140759,
+  "sourceSha256": "54c2d7de3b707644ba62bf357a3865b74955292bd6c168a4e7a16092f410d251",
+  "method": "Sharp 0.35.5 lossless WebP resized derivatives; approved master retained",
+  "entries": [
+    {
+      "file": "mgtv-logo-gold-v1-128.webp",
+      "width": 128,
+      "height": 63,
+      "bytes": 11438,
+      "sha256": "9f693edbcad42a2d23e2e1b0c84dc9a13eb4172359437e400b79e09943876751"
+    },
+    {
+      "file": "mgtv-logo-gold-v1-256.webp",
+      "width": 256,
+      "height": 127,
+      "bytes": 31296,
+      "sha256": "e1ba03b7fce3401ef0aeb1a8fe75e2f16512148d62c9abb4fbbe4e0d1034655d"
+    },
+    {
+      "file": "mgtv-logo-gold-v1-512.webp",
+      "width": 512,
+      "height": 254,
+      "bytes": 93462,
+      "sha256": "3cdc34b71d2adc6deca54493cd145a15ea161cdff813fbf0b8e742214b43f1a6"
+    }
+  ]
+}

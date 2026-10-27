@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
   useCallback,
@@ -68,6 +69,7 @@ export const musicItem = (music: ApiMusic): CatalogItem => ({
   duration: Math.max(1, Math.ceil(music.durationSeconds / 60)) + " min",
 });
 function useMusicValue() {
+  const startupReady = useHomeStartupReady();
   const {
     session,
     loading: authLoading,
@@ -77,7 +79,7 @@ function useMusicValue() {
   const [items, setItems] = useState<ApiMusic[]>([]),
     [cursor, setCursor] = useState<string | null>(null),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
+    [busy, setBusy] = useState(connectedAuth),
     [revision, setRevision] = useState(0);
   const profileRequired = !!session && !session.activeProfileId;
   const audience =
@@ -100,7 +102,7 @@ function useMusicValue() {
     [audience, authError, session],
   );
   useEffect(() => {
-    if (!connectedAuth || authLoading) return;
+    if (!connectedAuth || authLoading || !startupReady) return;
     let active = true;
     if (loadedAudienceRef.current !== audience) {
       setItems([]);
@@ -136,7 +138,7 @@ function useMusicValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision]);
+  }, [request, authLoading, revision, startupReady]);
   const [preferences, setPreferences] = useState<
     Record<string, MusicPreference>
   >({});

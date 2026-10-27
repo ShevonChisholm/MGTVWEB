@@ -1,73 +1,292 @@
-import CareersPage from "@/pages/CareersPage";
-import ComingSoonPage from "@/pages/ComingSoonPage";
+import { lazy, Suspense, type ComponentType } from "react";
+
+import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+
 import RouteErrorView from "@/components/shared/RouteErrorView";
-import {ConnectedContact} from "@/pages/ConnectedContact";
-import {NewsletterAction} from "@/pages/NewsletterAction";
-import {CommerceOrders} from "@/pages/CommerceOrders";
-import {SportsProvider} from "@/context/SportsContext";
-import {SportsWatchPage} from "@/pages/SportsWatchPage";
-import {ConnectedLibraryDetail} from "@/pages/ConnectedMusicLibrary";
+
+import { SportsProvider } from "@/context/SportsContext";
+
 import { EventsProvider } from "@/context/EventsContext";
+
 import { MusicAudioProvider } from "@/context/MusicAudioContext";
+
 import { MusicProvider } from "@/context/MusicContext";
+
 import { ShowsProvider } from "@/context/ShowsContext";
-import { EpisodeWatchPage } from "@/pages/EpisodeWatchPage";
-import ConnectedAuth from "@/pages/auth/ConnectedAuth";
+
 import { MovieProvider } from "@/context/MovieContext";
-import ConnectedAccount from "@/pages/auth/ConnectedAccount";
+
 import { connectedAuth } from "@/lib/customerAuth";
+
 import { createBrowserRouter, Outlet } from "react-router";
+
 import { Navbar } from "@/components/layout/Navbar";
+
 import { Footer } from "@/components/layout/Footer";
+
 import { AuthLayout } from "@/components/auth/AuthLayout";
+
 import { PlaybackLayout } from "@/components/player/AudioMiniPlayer";
-import { TrackDetailPage } from "@/pages/TrackDetailPage";
-import { EventWatchPage } from "@/pages/EventWatchPage";
+
 import { ContentBoundary } from "@/components/shared/ContentBoundary";
+
 import { PersonalActionNotice } from "@/components/shared/PersonalActionNotice";
 
 // Main app pages
 import { HomePage } from "@/pages/HomePage";
-import { ShowsPage } from "@/pages/ShowsPage";
-import { ShowDetailPage } from "@/pages/ShowDetailPage";
-import { MoviesPage } from "@/pages/MoviesPage";
-import { MovieDetailPage } from "@/pages/MovieDetailPage";
-import { MusicPage } from "@/pages/MusicPage";
-import { ArtistProfilePage } from "@/pages/ArtistProfilePage";
-import { MusicVideoPage } from "@/pages/MusicVideoPage";
-import { PlaylistPage } from "@/pages/PlaylistPage";
-import { SportsPage } from "@/pages/SportsPage";
-import { SportsDetailPage } from "@/pages/SportsDetailPage";
-import { LifestyleArticlePage } from "@/pages/LifestyleArticlePage";
-import { NewsPage } from "@/pages/NewsPage";
-import { NewsArticlePage } from "@/pages/NewsArticlePage";
-import { EventsPage } from "@/pages/EventsPage";
-import { EventDetailPage } from "@/pages/EventDetailPage";
-import { MGTVPlusPage } from "@/pages/MGTVPlusPage";
-import { AccountPage } from "@/pages/AccountPage";
-import { ProfilesPage } from "@/pages/ProfilesPage";
-import { ParentalControlsPage } from "@/pages/ParentalControlsPage";
-import { SearchPage } from "@/pages/SearchPage";
-import { WatchPage } from "@/pages/WatchPage";
-import { MyListPage } from "@/pages/MyListPage";
-import { AwardsPage } from "@/pages/AwardsPage";
-import { NotificationsPage } from "@/pages/NotificationsPage";
-import { ShopPage } from "@/pages/ShopPage";
-import { ProductDetailPage } from "@/pages/ProductDetailPage";
-import { LifestylePage } from "@/pages/LifestylePage";
-import { StaticPage } from "@/pages/StaticPage";
-import { NotFoundPage } from "@/pages/NotFoundPage";
+
+function deferredPage(load: () => Promise<{ default: ComponentType<any> }>) {
+  const Screen = lazy(load);
+  return function DeferredScreen(props: any) {
+    return (
+      <Suspense
+        fallback={
+          <div
+            className="min-h-[70vh] px-6 py-12"
+            role="status"
+            aria-label="Loading page"
+          >
+            <LoadingSkeleton variant="detail" />
+          </div>
+        }
+      >
+        <Screen {...props} />
+      </Suspense>
+    );
+  };
+}
+
+const CareersPage = deferredPage(() => import("@/pages/CareersPage"));
+
+const ComingSoonPage = deferredPage(() => import("@/pages/ComingSoonPage"));
+
+const ConnectedContact = deferredPage(() =>
+  import("@/pages/ConnectedContact").then((m) => ({
+    default: m.ConnectedContact,
+  })),
+);
+
+const NewsletterAction = deferredPage(() =>
+  import("@/pages/NewsletterAction").then((m) => ({
+    default: m.NewsletterAction,
+  })),
+);
+
+const CommerceOrders = deferredPage(() =>
+  import("@/pages/CommerceOrders").then((m) => ({ default: m.CommerceOrders })),
+);
+
+const SportsWatchPage = deferredPage(() =>
+  import("@/pages/SportsWatchPage").then((m) => ({
+    default: m.SportsWatchPage,
+  })),
+);
+
+const ConnectedLibraryDetail = deferredPage(() =>
+  import("@/pages/ConnectedMusicLibrary").then((m) => ({
+    default: m.ConnectedLibraryDetail,
+  })),
+);
+
+const EpisodeWatchPage = deferredPage(() =>
+  import("@/pages/EpisodeWatchPage").then((m) => ({
+    default: m.EpisodeWatchPage,
+  })),
+);
+
+const ConnectedAuth = deferredPage(() => import("@/pages/auth/ConnectedAuth"));
+
+const ConnectedAccount = deferredPage(
+  () => import("@/pages/auth/ConnectedAccount"),
+);
+
+const TrackDetailPage = deferredPage(() =>
+  import("@/pages/TrackDetailPage").then((m) => ({
+    default: m.TrackDetailPage,
+  })),
+);
+
+const EventWatchPage = deferredPage(() =>
+  import("@/pages/EventWatchPage").then((m) => ({ default: m.EventWatchPage })),
+);
+
+const ShowsPage = deferredPage(() =>
+  import("@/pages/ShowsPage").then((m) => ({ default: m.ShowsPage })),
+);
+
+const ShowDetailPage = deferredPage(() =>
+  import("@/pages/ShowDetailPage").then((m) => ({ default: m.ShowDetailPage })),
+);
+
+const MoviesPage = deferredPage(() =>
+  import("@/pages/MoviesPage").then((m) => ({ default: m.MoviesPage })),
+);
+
+const MovieDetailPage = deferredPage(() =>
+  import("@/pages/MovieDetailPage").then((m) => ({
+    default: m.MovieDetailPage,
+  })),
+);
+
+const MusicPage = deferredPage(() =>
+  import("@/pages/MusicPage").then((m) => ({ default: m.MusicPage })),
+);
+
+const ArtistProfilePage = deferredPage(() =>
+  import("@/pages/ArtistProfilePage").then((m) => ({
+    default: m.ArtistProfilePage,
+  })),
+);
+
+const MusicVideoPage = deferredPage(() =>
+  import("@/pages/MusicVideoPage").then((m) => ({ default: m.MusicVideoPage })),
+);
+
+const PlaylistPage = deferredPage(() =>
+  import("@/pages/PlaylistPage").then((m) => ({ default: m.PlaylistPage })),
+);
+
+const SportsPage = deferredPage(() =>
+  import("@/pages/SportsPage").then((m) => ({ default: m.SportsPage })),
+);
+
+const SportsDetailPage = deferredPage(() =>
+  import("@/pages/SportsDetailPage").then((m) => ({
+    default: m.SportsDetailPage,
+  })),
+);
+
+const LifestyleArticlePage = deferredPage(() =>
+  import("@/pages/LifestyleArticlePage").then((m) => ({
+    default: m.LifestyleArticlePage,
+  })),
+);
+
+const NewsPage = deferredPage(() =>
+  import("@/pages/NewsPage").then((m) => ({ default: m.NewsPage })),
+);
+
+const NewsArticlePage = deferredPage(() =>
+  import("@/pages/NewsArticlePage").then((m) => ({
+    default: m.NewsArticlePage,
+  })),
+);
+
+const EventsPage = deferredPage(() =>
+  import("@/pages/EventsPage").then((m) => ({ default: m.EventsPage })),
+);
+
+const EventDetailPage = deferredPage(() =>
+  import("@/pages/EventDetailPage").then((m) => ({
+    default: m.EventDetailPage,
+  })),
+);
+
+const MGTVPlusPage = deferredPage(() =>
+  import("@/pages/MGTVPlusPage").then((m) => ({ default: m.MGTVPlusPage })),
+);
+
+const AccountPage = deferredPage(() =>
+  import("@/pages/AccountPage").then((m) => ({ default: m.AccountPage })),
+);
+
+const ProfilesPage = deferredPage(() =>
+  import("@/pages/ProfilesPage").then((m) => ({ default: m.ProfilesPage })),
+);
+
+const ParentalControlsPage = deferredPage(() =>
+  import("@/pages/ParentalControlsPage").then((m) => ({
+    default: m.ParentalControlsPage,
+  })),
+);
+
+const SearchPage = deferredPage(() =>
+  import("@/pages/SearchPage").then((m) => ({ default: m.SearchPage })),
+);
+
+const WatchPage = deferredPage(() =>
+  import("@/pages/WatchPage").then((m) => ({ default: m.WatchPage })),
+);
+
+const MyListPage = deferredPage(() =>
+  import("@/pages/MyListPage").then((m) => ({ default: m.MyListPage })),
+);
+
+const AwardsPage = deferredPage(() =>
+  import("@/pages/AwardsPage").then((m) => ({ default: m.AwardsPage })),
+);
+
+const NotificationsPage = deferredPage(() =>
+  import("@/pages/NotificationsPage").then((m) => ({
+    default: m.NotificationsPage,
+  })),
+);
+
+const ShopPage = deferredPage(() =>
+  import("@/pages/ShopPage").then((m) => ({ default: m.ShopPage })),
+);
+
+const ProductDetailPage = deferredPage(() =>
+  import("@/pages/ProductDetailPage").then((m) => ({
+    default: m.ProductDetailPage,
+  })),
+);
+
+const LifestylePage = deferredPage(() =>
+  import("@/pages/LifestylePage").then((m) => ({ default: m.LifestylePage })),
+);
+
+const StaticPage = deferredPage(() =>
+  import("@/pages/StaticPage").then((m) => ({ default: m.StaticPage })),
+);
+
+const NotFoundPage = deferredPage(() =>
+  import("@/pages/NotFoundPage").then((m) => ({ default: m.NotFoundPage })),
+);
+
+const AuthLandingPage = deferredPage(() =>
+  import("@/pages/auth/AuthLandingPage").then((m) => ({
+    default: m.AuthLandingPage,
+  })),
+);
+
+const SignInPage = deferredPage(() =>
+  import("@/pages/auth/SignInPage").then((m) => ({ default: m.SignInPage })),
+);
+
+const RegisterPage = deferredPage(() =>
+  import("@/pages/auth/RegisterPage").then((m) => ({
+    default: m.RegisterPage,
+  })),
+);
+
+const VerifyEmailPage = deferredPage(() =>
+  import("@/pages/auth/VerifyEmailPage").then((m) => ({
+    default: m.VerifyEmailPage,
+  })),
+);
+
+const ForgotPasswordPage = deferredPage(() =>
+  import("@/pages/auth/ForgotPasswordPage").then((m) => ({
+    default: m.ForgotPasswordPage,
+  })),
+);
+
+const ResetPasswordPage = deferredPage(() =>
+  import("@/pages/auth/ResetPasswordPage").then((m) => ({
+    default: m.ResetPasswordPage,
+  })),
+);
+
+const CreateProfilePage = deferredPage(() =>
+  import("@/pages/profiles/CreateProfilePage").then((m) => ({
+    default: m.CreateProfilePage,
+  })),
+);
 
 // Auth pages
-import { AuthLandingPage } from "@/pages/auth/AuthLandingPage";
-import { SignInPage } from "@/pages/auth/SignInPage";
-import { RegisterPage } from "@/pages/auth/RegisterPage";
-import { VerifyEmailPage } from "@/pages/auth/VerifyEmailPage";
-import { ForgotPasswordPage } from "@/pages/auth/ForgotPasswordPage";
-import { ResetPasswordPage } from "@/pages/auth/ResetPasswordPage";
 
 // Profile creation
-import { CreateProfilePage } from "@/pages/profiles/CreateProfilePage";
 
 function MainLayout() {
   return (
@@ -84,20 +303,22 @@ function MainLayout() {
 
 export const router = createBrowserRouter([
   {
-    errorElement:<RouteErrorView/>,
+    errorElement: <RouteErrorView />,
 
     Component: () => (
-      <SportsProvider><MovieProvider>
-        <ShowsProvider>
-          <MusicProvider>
-            <EventsProvider>
-              <MusicAudioProvider>
-                <PlaybackLayout />
-              </MusicAudioProvider>
-            </EventsProvider>
-          </MusicProvider>
-        </ShowsProvider>
-      </MovieProvider></SportsProvider>
+      <SportsProvider>
+        <MovieProvider>
+          <ShowsProvider>
+            <MusicProvider>
+              <EventsProvider>
+                <MusicAudioProvider>
+                  <PlaybackLayout />
+                </MusicAudioProvider>
+              </EventsProvider>
+            </MusicProvider>
+          </ShowsProvider>
+        </MovieProvider>
+      </SportsProvider>
     ),
     children: [
       // Auth routes — cinematic split layout, no Navbar/Footer
@@ -164,7 +385,10 @@ export const router = createBrowserRouter([
           { path: "movies/:id", Component: MovieDetailPage },
           { path: "music", Component: MusicPage },
           { path: "music/artist/:id", Component: ArtistProfilePage },
-          { path: "music/album/:id", Component: ()=> <ConnectedLibraryDetail kind="albums"/> },
+          {
+            path: "music/album/:id",
+            Component: () => <ConnectedLibraryDetail kind="albums" />,
+          },
           { path: "music/video/:id", Component: MusicVideoPage },
           { path: "music/track/:id", Component: TrackDetailPage },
           { path: "music/playlist/:id", Component: PlaylistPage },
@@ -197,14 +421,20 @@ export const router = createBrowserRouter([
           },
           { path: "notifications", Component: NotificationsPage },
           { path: "shop", Component: ShopPage },
-          { path: "shop/orders", element: <CommerceOrders/> },
-      { path: "shop/:id", Component: ProductDetailPage },
+          { path: "shop/orders", element: <CommerceOrders /> },
+          { path: "shop/:id", Component: ProductDetailPage },
           { path: "lifestyle", Component: LifestylePage },
           { path: "lifestyle/:id", Component: LifestyleArticlePage },
           { path: "about", Component: StaticPage },
-          {path:"newsletter/confirm",Component:NewsletterAction},
-{path:"newsletter/unsubscribe",Component:NewsletterAction},
-{ path: "contact", Component: (import.meta.env.VITE_API_MODE === "connected" ? ConnectedContact : StaticPage) },
+          { path: "newsletter/confirm", Component: NewsletterAction },
+          { path: "newsletter/unsubscribe", Component: NewsletterAction },
+          {
+            path: "contact",
+            Component:
+              import.meta.env.VITE_API_MODE === "connected"
+                ? ConnectedContact
+                : StaticPage,
+          },
           { path: "privacy", Component: StaticPage },
           { path: "terms", Component: StaticPage },
           { path: "*", Component: NotFoundPage },

@@ -14,7 +14,8 @@
     "check:access": "node scripts/check-access.mjs",
     "check:discovery": "node scripts/check-discovery.mjs",
     "check:copy": "node scripts/check-copy.mjs",
-    "check:customer-session": "node scripts/check-customer-session.mjs"
+    "check:customer-session": "node scripts/check-customer-session.mjs",
+    "check:startup": "node scripts/check-startup-gate.mjs && node scripts/check-route-contract.mjs"
   },
   "dependencies": {
     "hls.js": "^1.7.3",

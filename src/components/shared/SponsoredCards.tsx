@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import { useEffect, useState } from "react";
 import {
   customerApi,
@@ -11,12 +12,13 @@ export function SponsoredCards({
   kind: string;
   targetId: string;
 }) {
+  const startupReady = useHomeStartupReady();
   const { session, loading } = useCustomerSession(),
     [items, setItems] = useState<any[]>([]);
   useEffect(() => {
     let active = true;
     setItems([]);
-    if (!connectedAuth || loading) return;
+    if (!connectedAuth || loading || !startupReady) return;
     const query = "?" + new URLSearchParams({ kind, targetId });
     const work = session
       ? customerApi("/advertising/cards" + query)
@@ -32,7 +34,7 @@ export function SponsoredCards({
     return () => {
       active = false;
     };
-  }, [kind, targetId, session?.activeProfileId, !!session, loading]);
+  }, [kind, targetId, session?.activeProfileId, !!session, loading, startupReady]);
   if (!connectedAuth || !items.length) return null;
   return (
     <section

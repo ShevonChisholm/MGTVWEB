@@ -78,12 +78,15 @@ export function ConnectedCommerceCart() {
   useEffect(() => {
     setCart(null);
     setOrder(null);
-    if (loading) return;
+    if (loading || !open) return;
     void refresh();
     const fn = () => void refresh();
     window.addEventListener("mgtv-commerce-cart", fn);
-    return () => window.removeEventListener("mgtv-commerce-cart", fn);
-  }, [session, loading]);
+    return () => {
+      refreshGeneration.current++;
+      window.removeEventListener("mgtv-commerce-cart", fn);
+    };
+  }, [session, loading, open]);
   async function run(fn: () => Promise<void>) {
     setBusy(true);
     setError("");

@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises"
 import { createHash } from "node:crypto"
 import ts from "typescript"
+import { routeContract } from "./route-contract.mjs"
 import { loadModule } from "./load-module.mjs"
 
 export async function source(path) {
@@ -112,7 +113,7 @@ export async function snapshot() {
         protectedFiles.map(async (path) => [
           path,
           createHash("sha256")
-            .update(await source(path))
+            .update(path === "src/app/routes.tsx" ? JSON.stringify(routeContract(await source(path))) : await source(path))
             .digest("hex"),
         ]),
       ),

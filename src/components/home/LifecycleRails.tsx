@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import { RailViewport } from "./RailViewport";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
@@ -13,6 +14,7 @@ import {
   ErrorState,
 } from "@/components/shared/LoadingSkeleton";
 export function useLifecycle(path: string) {
+  const startupReady = useHomeStartupReady();
   const auth = useCustomerSession(),
     scope =
       path +
@@ -27,7 +29,7 @@ export function useLifecycle(path: string) {
     }>({ scope: "", data: null, error: "", loading: true }),
     [revision, setRevision] = useState(0);
   useEffect(() => {
-    if (!connectedAuth || auth.loading) return;
+    if (!connectedAuth || auth.loading || !startupReady) return;
     let active = true;
     const abort = new AbortController();
     if (auth.error || (auth.session && !auth.session.activeProfileId)) {
@@ -72,7 +74,7 @@ export function useLifecycle(path: string) {
       abort.abort();
       clearInterval(timer);
     };
-  }, [scope, auth.loading, auth.error, revision]);
+  }, [scope, auth.loading, auth.error, revision, startupReady]);
   return {
     ...(state.scope === scope
       ? state

@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
   useCallback,
@@ -84,6 +85,7 @@ export const seriesItem = (movie: ApiSeries): CatalogItem => ({
       : Math.max(1, Math.ceil(movie.durationSeconds / 60)) + " min",
 });
 function useShowsValue() {
+  const startupReady = useHomeStartupReady();
   const {
     session,
     loading: authLoading,
@@ -93,7 +95,7 @@ function useShowsValue() {
   const [items, setItems] = useState<ApiSeries[]>([]),
     [cursor, setCursor] = useState<string | null>(null),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
+    [busy, setBusy] = useState(connectedAuth),
     [revision, setRevision] = useState(0);
   const profileRequired = !!session && !session.activeProfileId;
   const audience =
@@ -116,7 +118,7 @@ function useShowsValue() {
   );
   const loadedAudience = useRef("");
   useEffect(() => {
-    if (!connectedAuth || authLoading) return;
+    if (!connectedAuth || authLoading || !startupReady) return;
     let active = true;
     if (loadedAudience.current !== audience) {
       setItems([]);
@@ -152,7 +154,7 @@ function useShowsValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision]);
+  }, [request, authLoading, revision, startupReady]);
   const [preferences, setPreferences] = useState<
     Record<string, SeriesPreference>
   >({});

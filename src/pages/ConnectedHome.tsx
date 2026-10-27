@@ -10,7 +10,9 @@ import { MediaCard } from "@/components/home/MediaCard";
 import { LibraryCard } from "@/components/music/LibraryCard";
 
 import { SponsoredCards } from "@/components/shared/SponsoredCards";
-import { useCatalog } from "@/hooks/useCatalog";
+import { useMovies, movieItem } from "@/context/MovieContext";
+import { useShows, seriesItem } from "@/context/ShowsContext";
+import { useSports, sportsItem } from "@/context/SportsContext";
 import { useCustomerSession } from "@/lib/customerAuth";
 const destinations: Record<string, [string, string]> = {
   shows: ["/shows", "All shows"],
@@ -44,9 +46,17 @@ function CuratedCard({
   );
 }
 function EditorialSection({ section: s }: { section: any }) {
-  const playlistRail=s.items?.length>0&&s.items.every((entry:HomepageEntry)=>entry.kind==="playlist");
-  const artistRail=s.items?.length>0&&s.items.every((entry:HomepageEntry)=>entry.kind==="artist");
-  const destination = artistRail ? ["/music?view=artists","All artists"] : playlistRail ? ["/music?view=playlists","All playlists"] : destinations[s.destination];
+  const playlistRail =
+    s.items?.length > 0 &&
+    s.items.every((entry: HomepageEntry) => entry.kind === "playlist");
+  const artistRail =
+    s.items?.length > 0 &&
+    s.items.every((entry: HomepageEntry) => entry.kind === "artist");
+  const destination = artistRail
+    ? ["/music?view=artists", "All artists"]
+    : playlistRail
+      ? ["/music?view=playlists", "All playlists"]
+      : destinations[s.destination];
   if (
     s.layout === "rail" &&
     !s.items.some((r: HomepageEntry) =>
@@ -191,8 +201,15 @@ function EditorialSection({ section: s }: { section: any }) {
 }
 export default function ConnectedHome() {
   const page = useHomepage("home"),
-    { continueWatching } = useCatalog(),
+    movies = useMovies(),
+    shows = useShows(),
+    sports = useSports(),
     auth = useCustomerSession();
+  const continueWatching = [
+    ...movies.continuing.map(movieItem),
+    ...sports.continuing.map(sportsItem),
+    ...shows.continuing.map(seriesItem),
+  ];
   return (
     <main className="pt-16">
       <FeaturedStatus page={page} />

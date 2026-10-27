@@ -1,5 +1,7 @@
-import { AdaptiveAudio } from "@/components/player/AdaptiveVideo";
+const AdaptiveAudio = lazy(() => import("@/components/player/AdaptiveVideo").then(m => ({default:m.AdaptiveAudio})));
 import {
+  lazy,
+  Suspense,
   createContext,
   useContext,
   useEffect,
@@ -175,7 +177,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
                 {playing.item.artist}
               </span>
             </Link>
-            <AdaptiveAudio
+            <Suspense fallback={null}><AdaptiveAudio
               key={playing.url + playing.audience}
               ref={element}
               src={playing.url}
@@ -197,7 +199,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
                   "Audio is unavailable. Close the player and reopen the track to check access.",
                 )
               }
-            />
+            /></Suspense>
             <Button size="sm" variant="ghost" onClick={() => {persist(true);stop();}}>
               Close player
             </Button>

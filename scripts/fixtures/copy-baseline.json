@@ -3116,7 +3116,7 @@
     ]
   },
   "protectedFiles": {
-    "src/app/routes.tsx": "fe226beeae0ca1797f6b6c4a03b1b929a537e1804eb9fae4c8f066cd7c824b46",
+    "src/app/routes.tsx": "71e3058d4d3f87d1320415fc32a2ea300174e4ab98f4559ead65695edb2f0b65",
     "src/lib/appState.ts": "84e0f97f89657ed7e3bf52120e12d89ffcd792ba27b9b1f3eaecf5fced4cf5ff",
     "src/lib/accessPolicy.ts": "14522982e84716c4f1bd45d7a53e606cc5bff3801ff1d9b8aef4c5f19af050b7",
     "src/lib/playbackAccess.ts": "dc40fd5695c256e421bc4e4a72f4c518eb3dbfcaef36dfe92225669172f76cee",

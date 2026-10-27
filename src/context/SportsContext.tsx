@@ -1,3 +1,4 @@
+import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
   useCallback,
@@ -70,6 +71,7 @@ export const sportsItem = (sports: ApiSports): CatalogItem => ({
   duration: Math.max(1, Math.ceil(sports.durationSeconds / 60)) + " min",
 });
 function useSportsValue() {
+  const startupReady = useHomeStartupReady();
   const {
     session,
     loading: authLoading,
@@ -79,7 +81,7 @@ function useSportsValue() {
   const [items, setItems] = useState<ApiSports[]>([]),
     [cursor, setCursor] = useState<string | null>(null),
     [error, setError] = useState(""),
-    [busy, setBusy] = useState(false),
+    [busy, setBusy] = useState(connectedAuth),
     [revision, setRevision] = useState(0);
   const profileRequired = !!session && !session.activeProfileId;
   const audience =
@@ -101,7 +103,7 @@ function useSportsValue() {
     [audience, authError, session],
   );
   useEffect(() => {
-    if (!connectedAuth || authLoading) return;
+    if (!connectedAuth || authLoading || !startupReady) return;
     let active = true;
     setItems([]);
     setContinuing([]);
@@ -134,7 +136,7 @@ function useSportsValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision]);
+  }, [request, authLoading, revision, startupReady]);
   const [preferences, setPreferences] = useState<
     Record<string, SportsPreference>
   >({});
