@@ -194,6 +194,9 @@ await test("actual auth adapter shares hook reads, refreshes identity, preserves
     localStorage: globalThis.localStorage,
     fetch: globalThis.fetch,
   }
+  const oldNow = Date.now
+  let adapterTime = 0
+  Date.now = () => adapterTime
   const windowTarget = new EventTarget(),
     documentTarget = new EventTarget()
   documentTarget.visibilityState = "visible"
@@ -270,6 +273,10 @@ await test("actual auth adapter shares hook reads, refreshes identity, preserves
       auth.useCustomerSession().session.activeProfileId,
       "main-profile",
     )
+    const stableSnapshot = auth.useCustomerSession()
+    adapterTime += 30000
+    await auth.getCustomerSession()
+    assert.equal(auth.useCustomerSession(), stableSnapshot, "real adapter must retain an equivalent refreshed identity")
     delayed = deferred()
     const older = auth.customerApi("/delayed")
     identity = { ...identity, csrfToken: "latest-csrf" }
@@ -293,7 +300,19 @@ await test("actual auth adapter shares hook reads, refreshes identity, preserves
     await auth.customerApi("/mutation", "POST", {})
     assert.equal(calls.at(-1).options.headers["X-CSRF-Token"], "")
   } finally {
+    Date.now = oldNow
     Object.assign(globalThis, old)
   }
+})
+await test("equivalent session revalidation preserves the active player identity, while changes and revocation publish", async () => {
+  let time = 0, identity = {audience:"customer",account:{id:"one",displayName:"Household"},activeProfileId:"adult",csrfToken:"test",parentVerifiedUntil:null}, calls = 0, revoked = false
+  const store = createCustomerSessionStore({read:async()=>{calls++;if(revoked)throw guestError;return structuredClone(identity)},isGuest:e=>e?.status===401,now:()=>time,sameSession:(a,b)=>JSON.stringify(a)===JSON.stringify(b)})
+  let changes=0;store.subscribe(()=>changes++)
+  await store.refresh();const first=store.getSnapshot();const firstSession=first.session
+  time+=30000;await Promise.all(Array.from({length:12},()=>store.refresh()))
+  assert.equal(calls,2);assert.equal(changes,1);assert.equal(store.getSnapshot(),first);assert.equal(store.getSnapshot().session,firstSession)
+  identity={...identity,activeProfileId:"teen"};time+=30000;await store.refresh();assert.equal(changes,2);assert.equal(store.getSnapshot().session.activeProfileId,"teen")
+  identity={...identity,csrfToken:"rotated"};time+=30000;await store.refresh();assert.equal(changes,3);assert.equal(store.getSnapshot().session.csrfToken,"rotated")
+  revoked=true;time+=30000;await store.refresh();assert.equal(changes,4);assert.equal(store.getSnapshot().session,null)
 })
 console.log(`${passed} total customer session checks passed`)

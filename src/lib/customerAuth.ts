@@ -66,6 +66,7 @@ export async function customerApi(
 }
 const sessionStore = createCustomerSessionStore<any>({
   read: () => customerApi("/session"),
+  sameSession: (current, next) => JSON.stringify(current) === JSON.stringify(next),
   isGuest: (error) =>
     error instanceof CustomerAuthError && error.status === 401,
   enabled: connectedAuth,

@@ -7,6 +7,7 @@ export type SessionSnapshot<T,> = {
 export function createCustomerSessionStore<T>(options: {
   read: () => Promise<T>
   isGuest: (error: unknown) => boolean
+  sameSession?: (current: T, next: T) => boolean
   now?: () => number
   maxAge?: number
   enabled?: boolean
@@ -51,6 +52,10 @@ export function createCustomerSessionStore<T>(options: {
         (session) => {
           if (generation !== requestGeneration) return
           checkedAt = now()
+          // Revalidation must not restart active players when identity is unchanged.
+          // Changed identity and failed authorization still publish immediately.
+          if (!snapshot.loading && !snapshot.error && snapshot.session !== null &&
+              (options.sameSession?.(snapshot.session, session) ?? Object.is(snapshot.session, session))) return
           publish({ session, loading: false, error: "" })
         },
         (error: unknown) => {
