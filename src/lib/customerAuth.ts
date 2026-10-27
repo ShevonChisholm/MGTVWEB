@@ -21,6 +21,15 @@ export async function customerApi(
 ): Promise<any> {
   const requestGeneration = authGeneration
   const headers: Record<string, string> = { ...extraHeaders }
+  // Keep application version checks out of the proxy's HTTP cache preconditions.
+  for (const name of Object.keys(headers)) {
+    if (name.toLowerCase() === "if-match") {
+      if (Object.keys(headers).some((key) => key.toLowerCase() === "x-mgtv-if-match"))
+        throw new CustomerAuthError(400, "Supply one version precondition.")
+      headers["X-MGTV-If-Match"] = headers[name]
+      delete headers[name]
+    }
+  }
   if (body !== undefined) headers["Content-Type"] = "application/json"
   if (method !== "GET") headers["X-CSRF-Token"] = csrf
   const response = await fetch("/api/v1/customer" + path, {

@@ -286,6 +286,16 @@ await test("actual auth adapter shares hook reads, refreshes identity, preserves
     await older
     await auth.customerApi("/mutation", "POST", {})
     assert.equal(calls.at(-1).options.headers["X-CSRF-Token"], "latest-csrf")
+    const versionHeaders = {"if-match": '"v3"', "X-Profile-Context": "main-profile"}
+    await auth.customerApi("/mutation", "PATCH", {}, versionHeaders)
+    assert.equal(calls.at(-1).options.headers["X-MGTV-If-Match"], '"v3"')
+    assert.equal(calls.at(-1).options.headers["if-match"], undefined)
+    assert.equal(calls.at(-1).options.headers["X-Profile-Context"], "main-profile")
+    assert.equal(calls.at(-1).options.headers["X-CSRF-Token"], "latest-csrf")
+    assert.equal(versionHeaders["if-match"], '"v3"', "caller headers remain unchanged")
+    const beforeConflict = calls.length
+    await assert.rejects(auth.customerApi("/mutation", "PATCH", {}, {"If-Match": '"v3"', "X-MGTV-If-Match": '"v4"'}), /one version/)
+    assert.equal(calls.length, beforeConflict, "ambiguous version never reaches transport")
     await assert.rejects(auth.customerApi("/protected"), /Expired/)
     assert.equal(auth.useCustomerSession().session, null)
     assert.equal(await auth.getCustomerSession(), null)
