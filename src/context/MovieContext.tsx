@@ -1,3 +1,4 @@
+import { musicDuration as filmDuration } from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
@@ -62,7 +63,7 @@ export const movieItem = (movie: ApiMovie): CatalogItem => ({
   year: movie.releaseYear,
   classification: movie.classification,
   durationSeconds: movie.durationSeconds,
-  duration: Math.max(1, Math.ceil(movie.durationSeconds / 60)) + " min",
+  duration: filmDuration(movie.durationSeconds),
 });
 function useMovieValue() {
   const startupReady = useHomeStartupReady();

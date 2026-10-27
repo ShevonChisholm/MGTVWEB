@@ -1,5 +1,5 @@
+import { MovieGridSkeleton } from "@/components/movies/MovieArtwork";
 import LifecycleRails from "@/components/home/LifecycleRails";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useHomepage, homepageItem } from "@/lib/homepage";
 import { FeaturedStatus } from "@/components/home/FeaturedStatus";
 import { HeroBackdrop } from "@/components/shared/HeroBackdrop";
@@ -31,7 +31,7 @@ export function MoviesPage() {
       <main className="min-h-screen bg-bg-base pt-16">
         <FeaturedStatus page={featuredPage} />
         <div className="mx-auto max-w-[1760px] px-6 md:px-8">
-          <LoadingSkeleton label="Loading the collection…" columns={3} />
+          <MovieGridSkeleton/>
         </div>
       </main>
     );

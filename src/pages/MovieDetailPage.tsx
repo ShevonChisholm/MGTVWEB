@@ -1,5 +1,5 @@
+import { MovieArtwork, MovieDetailSkeleton } from "@/components/movies/MovieArtwork";
 import {OriginalLabel} from "@/components/shared/OriginalLabel";
-import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ReportContent } from "@/components/moderation/ReportContent";
 import { SponsoredCards } from "@/components/shared/SponsoredCards";
 import { useEffect, useState } from "react";
@@ -79,12 +79,7 @@ function RemoteMovieDetail() {
         </div>
       </main>
     );
-  if (!movie)
-    return (
-      <main className="min-h-screen px-6 py-28">
-        <LoadingSkeleton label="Loading film…" variant="detail" />
-      </main>
-    );
+  if (!movie) return <MovieDetailSkeleton/>;
   const item = movieItem(movie);
   const view: MovieDetail = {
     id: movie.id,
@@ -158,18 +153,14 @@ function MovieDetailView({
   }
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <div className="min-h-screen bg-[#0A0A0A] pt-24">
       {/* Banner */}
-      <div className="relative w-full h-[60vh] min-h-[420px] overflow-hidden">
-        <img
-          src={movie.banner}
-          alt={movie.title}
-          className="w-full h-full object-cover object-center"
-        />
+      <div className="movie-detail-hero">
+        <MovieArtwork key={movie.banner} src={movie.banner} landscape priority/>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/80 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 px-6 md:px-8 pb-10 max-w-[1760px] mx-auto">
-          <div className="flex items-center gap-3 mb-3">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mb-3">
             <Badge variant={movie.badge} />
             <span className="text-[#A3A3A3] text-xs tracking-widest uppercase">
               {movie.genre}
