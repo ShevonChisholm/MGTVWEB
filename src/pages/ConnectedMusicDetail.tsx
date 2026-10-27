@@ -1,3 +1,4 @@
+import {CommentsSection} from "@/components/comments/CommentsSection";
 import {
   MusicArtwork,
   MusicReleaseSkeleton,
@@ -239,6 +240,7 @@ export function ConnectedMusicDetail() {
           <MusicCollectionCredits musicId={music.id} />
           <ConnectedPlaylistMenu musicId={music.id} format="audio" />
           <ReportContent kind="music" contentId={music.id} />
+          <CommentsSection kind="music" contentId={music.id}/>
           <SponsoredCards kind="music" targetId={music.id} />
           <Text as="h2" className="mb-6 mt-14 font-display text-3xl">
             More tracks to discover
@@ -384,6 +386,7 @@ export function ConnectedMusicDetail() {
         <CollectionVideoNavigation currentId={id!} />
         <ConnectedPlaylistMenu musicId={id!} format="video" />
         <ReportContent kind="music" contentId={music?.id ?? id!} />
+          <CommentsSection kind="music" contentId={music?.id??id!}/>
         <SponsoredCards kind="music" targetId={music?.id ?? id!} />
       </div>
     </main>

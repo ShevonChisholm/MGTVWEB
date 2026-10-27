@@ -8,6 +8,7 @@ export class CustomerAuthError extends Error {
   constructor(
     public status: number,
     message: string,
+    public code?: string,
   ) {
     super(message)
   }
@@ -57,6 +58,7 @@ export async function customerApi(
     throw new CustomerAuthError(
       response.status,
       result?.message ?? "The request failed.",
+      result?.code,
     )
   }
   if (unreadable) throw new CustomerAuthError(502, result.message)

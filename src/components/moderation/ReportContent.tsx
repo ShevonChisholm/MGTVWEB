@@ -13,15 +13,40 @@ const categories = [
 export function ReportContent({
   kind,
   contentId,
+  buttonLabel = "Report this item",
+  compact = false,
 }: {
   kind: string;
   contentId: string;
+  buttonLabel?: string;
+  compact?: boolean;
 }) {
   const context = useCustomerSession();
-  return <ReportContentForm key={[kind, contentId, context.session?.activeProfileId].join(":")} kind={kind} contentId={contentId} context={context}/>;
+  return (
+    <ReportContentForm
+      key={[kind, contentId, context.session?.activeProfileId].join(":")}
+      kind={kind}
+      contentId={contentId}
+      context={context}
+      buttonLabel={buttonLabel}
+      compact={compact}
+    />
+  );
 }
-function ReportContentForm({kind, contentId, context}: {kind:string;contentId:string;context:ReturnType<typeof useCustomerSession>}) {
-  const {session,loading}=context;
+function ReportContentForm({
+  kind,
+  contentId,
+  context,
+  buttonLabel,
+  compact,
+}: {
+  kind: string;
+  contentId: string;
+  context: ReturnType<typeof useCustomerSession>;
+  buttonLabel: string;
+  compact: boolean;
+}) {
+  const { session, loading } = context;
   const [open, setOpen] = useState(false),
     [category, setCategory] = useState("Other"),
     [note, setNote] = useState(""),
@@ -51,7 +76,7 @@ function ReportContentForm({kind, contentId, context}: {kind:string;contentId:st
     }
   }
   return (
-    <div className="mt-5">
+    <div className={compact ? "" : "mt-5"}>
       <Button
         variant="ghost"
         size="sm"
@@ -61,7 +86,7 @@ function ReportContentForm({kind, contentId, context}: {kind:string;contentId:st
           setOpen(true);
         }}
       >
-        Report this item
+        {buttonLabel}
       </Button>
       {open && (
         <SessionDialog

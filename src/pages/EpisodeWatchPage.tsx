@@ -1,3 +1,4 @@
+import {CommentsSection} from "@/components/comments/CommentsSection";
 import { musicDuration as episodeDuration } from "@/lib/musicPresentation";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
@@ -290,6 +291,7 @@ export function EpisodeWatchPage() {
               {movie?.synopsis}
             </Text>
             {movie && <ReportContent kind="episode" contentId={movie.id} />}
+          {movie&&<CommentsSection kind="episode" contentId={movie.id}/>}
             {movie?.showId && (
               <SponsorStrip
                 key={movie.showId}

@@ -1,3 +1,4 @@
+import {CommentsSection} from "@/components/comments/CommentsSection";
 import { MovieArtwork, MovieDetailSkeleton } from "@/components/movies/MovieArtwork";
 import {OriginalLabel} from "@/components/shared/OriginalLabel";
 import { ReportContent } from "@/components/moderation/ReportContent";
@@ -103,6 +104,7 @@ function RemoteMovieDetail() {
       />
       <div className="mx-auto max-w-[1760px] px-6 pb-8 md:px-8">
         <ReportContent kind="movie" contentId={id!} />
+        <CommentsSection kind="movie" contentId={id!}/>
       </div>
       <SponsoredCards kind="movie" targetId={id!} />
     </>
