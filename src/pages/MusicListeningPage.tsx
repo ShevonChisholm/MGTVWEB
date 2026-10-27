@@ -23,6 +23,7 @@ export default function MusicListeningPage() {
   }
   const saved = audio.saved,
     current = saved?.current;
+  const listeningNow=audio.isPlaying&&audio.activeTrackId===current?.id;
   return (
     <main className="mx-auto min-h-screen max-w-[1440px] px-6 pb-40 pt-28 md:px-8">
       <Link className="text-sm text-gold" to="/music">
@@ -87,7 +88,7 @@ export default function MusicListeningPage() {
             )}
             <p className="mt-5 text-sm text-text-secondary">
               Track {saved.index + 1} of {saved.queueIds.length}
-              {current?.progress
+              {current?.progress?.completed?" · Ready to replay":current?.progress
                 ? ` · ${Math.floor(current.progress.seconds / 60)}:${String(Math.floor(current.progress.seconds % 60)).padStart(2, "0")} saved`
                 : ""}
             </p>
@@ -100,7 +101,7 @@ export default function MusicListeningPage() {
             <div className="mt-7 flex flex-wrap gap-3">
               {current && (
                 <Button
-                  disabled={busy || audio.isPlaying}
+                  disabled={busy || listeningNow}
                   onClick={() =>
                     void act(() =>
                       audio.resumeListening(
@@ -109,7 +110,7 @@ export default function MusicListeningPage() {
                     )
                   }
                 >
-                  {audio.isPlaying
+                  {listeningNow
                     ? "Listening now"
                     : saved.otherSession || audio.handoff
                       ? "Continue here"

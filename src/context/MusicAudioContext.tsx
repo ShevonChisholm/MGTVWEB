@@ -46,6 +46,7 @@ const AudioContext = createContext<{
   skipListening: () => Promise<void>;
   handoff: boolean;
   isPlaying: boolean;
+  activeTrackId:string|null;
   restorationError: string;
 } | null>(null);
 export function MusicAudioProvider({ children }: { children: ReactNode }) {
@@ -439,6 +440,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
         skipListening,
         handoff,
         isPlaying,
+        activeTrackId:playing&&!playing.preview?playing.item.id:null,
         restorationError,
       }}
     >
