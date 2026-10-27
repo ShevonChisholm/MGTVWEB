@@ -260,3 +260,34 @@ html {
 
 .mgtv-rail:has(.playlist-card) .mgtv-rail-track {position:relative;isolation:isolate;}
 .playlist-artwork {contain:paint;}
+
+/* Artist identities: consistent editorial group portraits, MGTV gold/charcoal. */
+.artist-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1.5rem; }
+.artist-card { min-width:0; overflow:hidden; border:1px solid #c9a84c26; border-radius:1.4rem 0 1.4rem 0; background:#111310; }
+.artist-card__link { display:flex; height:100%; flex-direction:column; text-decoration:none; }
+.artist-card__link:focus-visible { outline:2px solid #c9a84c; outline-offset:-3px; }
+.artist-artwork { position:relative; aspect-ratio:3/2; overflow:hidden; background:#191d19; }
+.artist-artwork img { display:block; width:100%; height:100%; object-fit:cover; object-position:center 38%; }
+.artist-artwork__fallback { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:.5rem; color:#babdb6; font-size:.75rem; }
+.artist-artwork__fallback>span:first-child { font-size:2.5rem; color:#c9a84c; }
+.artist-card__label { position:absolute; bottom:.8rem; left:.9rem; padding:.25rem .5rem; background:#080a09d9; color:#d5b75e; font-size:.65rem; text-transform:uppercase; letter-spacing:.14em; }
+.artist-card__body { padding:1rem; display:flex; flex:1; flex-direction:column; min-width:0; }
+.artist-card__title { min-height:3rem; font-size:1.1rem; font-weight:600; line-height:1.5rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; overflow-wrap:anywhere; }
+.artist-card__genre,.artist-card__origin { margin-top:.5rem; font-size:.8rem; line-height:1.3rem; color:#b6b9b4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.artist-card__origin { color:#90978e; }
+.artist-card__action { display:flex; justify-content:space-between; gap:.5rem; margin-top:1.3rem; padding-top:.8rem; border-top:1px solid #c9a84c26; color:#d5b75e; font-size:.8rem; }
+.artist-card__link:hover .artist-card__title { color:#d5b75e; }
+.artist-profile__banner { position:relative; max-width:1696px; margin:1.5rem auto 0; overflow:hidden; border:1px solid #c9a84c26; border-radius:2rem 0 2rem 0; }
+.artist-artwork--hero { aspect-ratio:auto; height:clamp(260px,35vw,460px); }
+.artist-artwork--hero img { object-position:center 35%; }
+.artist-artwork__shade { position:absolute; inset:0; background:linear-gradient(0deg,#080a09d9,transparent 65%); }
+.artist-profile__identity { padding-top:1.5rem; }
+@media (max-width:639px) { .artist-grid { grid-template-columns:minmax(0,1fr); } .artist-profile__banner { margin:1rem 1.5rem 0; } }
+@media (min-width:640px) { .artist-profile__banner { margin-left:2rem; margin-right:2rem; } }
+@media (min-width:1760px) { .artist-profile__banner { margin-left:auto; margin-right:auto; } }
+@media (min-width:1100px) { .artist-grid { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media (max-width:639px) { .artist-artwork--hero { height:auto; aspect-ratio:3/2; } }
+.artist-card .mgtv-skeleton { border:0; }
+
+nav[aria-label="Music formats"] { scrollbar-width:none; }
+nav[aria-label="Music formats"]::-webkit-scrollbar { display:none; }

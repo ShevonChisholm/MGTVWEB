@@ -1,3 +1,4 @@
+import { ArtistArtwork, ArtistCardSkeletons } from "@/components/music/ArtistArtwork";
 import PlaylistArtwork from "@/components/music/PlaylistArtwork";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useEffect, useState, useRef } from "react";
@@ -106,7 +107,7 @@ export function ConnectedLibraryCollection({ kind }: { kind: string }) {
           </Button>
         </p>
       )}
-      {view.loading && (
+      {view.loading && (kind === "artists" ? <ArtistCardSkeletons/> :
         <LoadingSkeleton
           label={<>Loading {kind}…</>}
           variant="products"
@@ -128,7 +129,7 @@ export function ConnectedLibraryCollection({ kind }: { kind: string }) {
           </Text>
         </>
       )}
-      <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+      <div className={kind === "artists" ? "artist-grid" : "grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4"}>
         {[...(view.data?.items ?? []), ...more].map((p) => (
           <LibraryCard key={p.id} item={p} kind={kind} />
         ))}
@@ -285,14 +286,9 @@ function LibraryDetail({
     image = r.coverUrl ?? r.items?.[0]?.artwork?.portraitUrl;
   return (
     <main className="min-h-screen bg-bg-base pt-16">
-      {artist && image && (
-        <div className="relative h-72 overflow-hidden md:h-96">
-          <img
-            className="h-full w-full object-cover object-top"
-            src={image}
-            alt=""
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/30 to-transparent" />
+      {artist && (
+        <div className="artist-profile__banner">
+          <ArtistArtwork key={image} src={image} hero/>
           <ButtonLink
             className="absolute left-6 top-6 z-10 bg-black/70 md:left-8"
             variant="ghost"
@@ -320,10 +316,10 @@ function LibraryDetail({
         <section
           className={
             "relative flex flex-col gap-8 md:flex-row md:items-end " +
-            (artist ? "-mt-20" : "")
+            (artist ? "artist-profile__identity" : "")
           }
         >
-          {kind === "playlists" ? <div className="w-52 max-w-full shrink-0 md:w-72"><PlaylistArtwork item={r}/></div> : image ? (
+          {artist ? null : kind === "playlists" ? <div className="w-52 max-w-full shrink-0 md:w-72"><PlaylistArtwork item={r}/></div> : image ? (
             <img
               src={image}
               alt=""
@@ -363,7 +359,7 @@ function LibraryDetail({
                 {r.description}
               </p>
             )}
-            <div className="flex flex-wrap gap-3">
+            <div className={"flex flex-wrap gap-3 " + (artist ? "mt-5" : "")}>
               {artist ? (
                 view.session?.activeProfileId ? (
                   <Button
@@ -446,7 +442,7 @@ function LibraryDetail({
         {artist && (
           <section className="mt-8 max-w-2xl">
             <Text as="h2" className="mb-4 font-display text-3xl">
-              About
+              Behind the sound
             </Text>
             <p className="leading-relaxed text-text-secondary">
               {r.description}

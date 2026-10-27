@@ -52,18 +52,45 @@ export function useHomepage(surface: string) {
       loading: boolean;
     }>({ scope: "", data: null, error: "", loading: true }),
     [revision, setRevision] = useState(0);
+  const [featured, setFeatured] = useState<{ scope: string; data: any }>({
+    scope: "",
+    data: null,
+  });
   const profileRequired = !!auth.session && !auth.session.activeProfileId;
   useEffect(() => {
     if (!connectedAuth || auth.loading) return;
     const abort = new AbortController();
     let active = true;
     setState({ scope, data: null, error: "", loading: true });
+    setFeatured({ scope, data: null });
     if (auth.error || profileRequired) {
       setState({ scope, data: null, error: auth.error ?? "", loading: false });
       return () => {
         active = false;
         abort.abort();
       };
+    }
+    // The home hero must not wait for every below-the-fold editorial rail.
+    // Use the same audience endpoint; never substitute guest picks for a profile.
+    if (surface === "home") {
+      const early = auth.session
+        ? customerApi("/homepage/home/featured")
+        : fetch("/api/v1/catalog/homepage/home/featured", {
+            credentials: "include",
+            cache: "no-store",
+            signal: abort.signal,
+          }).then(async (response) => {
+            if (!response.ok)
+              throw Error("Featured content could not be loaded.");
+            return response.json();
+          });
+      void early
+        .then((data) => {
+          if (active) setFeatured({ scope, data });
+        })
+        .catch(() => {
+          /* The full response remains the authoritative fallback. */
+        });
     }
     const work = auth.session
       ? customerApi("/homepage/" + surface)
@@ -99,6 +126,8 @@ export function useHomepage(surface: string) {
     surface,
     profileRequired,
     retry: () => setRevision((x) => x + 1),
-    hero: (current.data?.hero ?? []) as HomepageEntry[],
+    hero: (current.data?.hero ??
+      (featured.scope === scope ? featured.data?.hero : null) ??
+      []) as HomepageEntry[],
   };
 }

@@ -35,7 +35,7 @@ function CuratedCard({
       event={entry.content}
       fluid={fluid}
     />
-  ) : ["album", "playlist"].includes(entry.kind) ? (
+  ) : ["album", "playlist", "artist"].includes(entry.kind) ? (
     <div className={fluid ? "min-w-0" : "w-44 shrink-0 md:w-52"}>
       <LibraryCard item={entry.content} kind={entry.kind + "s"} />
     </div>
@@ -45,11 +45,12 @@ function CuratedCard({
 }
 function EditorialSection({ section: s }: { section: any }) {
   const playlistRail=s.items?.length>0&&s.items.every((entry:HomepageEntry)=>entry.kind==="playlist");
-  const destination = playlistRail ? ["/music?view=playlists","All playlists"] : destinations[s.destination];
+  const artistRail=s.items?.length>0&&s.items.every((entry:HomepageEntry)=>entry.kind==="artist");
+  const destination = artistRail ? ["/music?view=artists","All artists"] : playlistRail ? ["/music?view=playlists","All playlists"] : destinations[s.destination];
   if (
     s.layout === "rail" &&
     !s.items.some((r: HomepageEntry) =>
-      ["album", "playlist", "event"].includes(r.kind),
+      ["album", "playlist", "artist", "event"].includes(r.kind),
     )
   )
     return (
