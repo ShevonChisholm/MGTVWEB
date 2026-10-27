@@ -49,14 +49,19 @@ function EditorialSection({ section: s }: { section: any }) {
   const playlistRail =
     s.items?.length > 0 &&
     s.items.every((entry: HomepageEntry) => entry.kind === "playlist");
+  const albumRail =
+    s.items?.length > 0 &&
+    s.items.every((entry: HomepageEntry) => entry.kind === "album");
   const artistRail =
     s.items?.length > 0 &&
     s.items.every((entry: HomepageEntry) => entry.kind === "artist");
-  const destination = artistRail
-    ? ["/music?view=artists", "All artists"]
-    : playlistRail
-      ? ["/music?view=playlists", "All playlists"]
-      : destinations[s.destination];
+  const destination = albumRail
+    ? ["/music?view=albums", "All albums"]
+    : artistRail
+      ? ["/music?view=artists", "All artists"]
+      : playlistRail
+        ? ["/music?view=playlists", "All playlists"]
+        : destinations[s.destination];
   if (
     s.layout === "rail" &&
     !s.items.some((r: HomepageEntry) =>

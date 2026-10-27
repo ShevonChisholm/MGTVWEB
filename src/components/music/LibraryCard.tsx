@@ -1,8 +1,33 @@
+import { AlbumArtwork } from "./AlbumArtwork";
 import { ArtistArtwork } from "./ArtistArtwork";
 import PlaylistArtwork from "./PlaylistArtwork";
 import { Link } from "react-router";
 import { libraryPath } from "@/lib/musicLibrary";
 export function LibraryCard({ item, kind }: { item: any; kind: string }) {
+  if (kind === "albums")
+    return (
+      <article className="album-card min-w-0">
+        <Link
+          className="album-card__link group"
+          to={libraryPath(kind, item.id)}
+        >
+          <AlbumArtwork key={item.coverUrl} src={item.coverUrl} />
+          <div className="album-card__body">
+            <span className="album-card__label">Album</span>
+            <h3 className="album-card__title">{item.title}</h3>
+            <p className="album-card__meta">
+              {item.releaseYear || ""}
+              {typeof item.itemCount === "number"
+                ? ` · ${item.itemCount} available ${item.itemCount === 1 ? "track" : "tracks"}`
+                : ""}
+            </p>
+            <span className="album-card__action">
+              Explore album <span aria-hidden="true">↗</span>
+            </span>
+          </div>
+        </Link>
+      </article>
+    );
   if (kind === "artists")
     return (
       <article className="artist-card min-w-0">

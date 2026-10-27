@@ -1,4 +1,13 @@
-import { ArtistArtwork, ArtistCardSkeletons } from "@/components/music/ArtistArtwork";
+import {
+  AlbumArtwork,
+  AlbumCardSkeletons,
+  AlbumDetailSkeleton,
+} from "@/components/music/AlbumArtwork";
+import { AlbumTracks } from "@/components/music/AlbumTracks";
+import {
+  ArtistArtwork,
+  ArtistCardSkeletons,
+} from "@/components/music/ArtistArtwork";
 import PlaylistArtwork from "@/components/music/PlaylistArtwork";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useEffect, useState, useRef } from "react";
@@ -107,13 +116,18 @@ export function ConnectedLibraryCollection({ kind }: { kind: string }) {
           </Button>
         </p>
       )}
-      {view.loading && (kind === "artists" ? <ArtistCardSkeletons/> :
-        <LoadingSkeleton
-          label={<>Loading {kind}…</>}
-          variant="products"
-          columns={4}
-        />
-      )}
+      {view.loading &&
+        (kind === "artists" ? (
+          <ArtistCardSkeletons />
+        ) : kind === "albums" ? (
+          <AlbumCardSkeletons />
+        ) : (
+          <LoadingSkeleton
+            label={<>Loading {kind}…</>}
+            variant="products"
+            columns={4}
+          />
+        ))}
       {kind === "playlists" && own.length > 0 && (
         <>
           <Text as="h3" className="mb-5 font-display text-2xl">
@@ -129,7 +143,15 @@ export function ConnectedLibraryCollection({ kind }: { kind: string }) {
           </Text>
         </>
       )}
-      <div className={kind === "artists" ? "artist-grid" : "grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4"}>
+      <div
+        className={
+          kind === "artists"
+            ? "artist-grid"
+            : kind === "albums"
+              ? "album-grid"
+              : "grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3 lg:grid-cols-4"
+        }
+      >
         {[...(view.data?.items ?? []), ...more].map((p) => (
           <LibraryCard key={p.id} item={p} kind={kind} />
         ))}
@@ -258,6 +280,7 @@ function LibraryDetail({
     [ids[index], ids[index + delta]] = [ids[index + delta], ids[index]];
     void mutate(() => update({ musicIds: ids }));
   }
+  if (view.loading && kind === "albums") return <AlbumDetailSkeleton />;
   if (view.loading)
     return (
       <main className="min-h-screen px-6 py-28">
@@ -288,7 +311,7 @@ function LibraryDetail({
     <main className="min-h-screen bg-bg-base pt-16">
       {artist && (
         <div className="artist-profile__banner">
-          <ArtistArtwork key={image} src={image} hero/>
+          <ArtistArtwork key={image} src={image} hero />
           <ButtonLink
             className="absolute left-6 top-6 z-10 bg-black/70 md:left-8"
             variant="ghost"
@@ -316,10 +339,22 @@ function LibraryDetail({
         <section
           className={
             "relative flex flex-col gap-8 md:flex-row md:items-end " +
-            (artist ? "artist-profile__identity" : "")
+            (artist
+              ? "artist-profile__identity"
+              : kind === "albums"
+                ? "album-detail__identity"
+                : "")
           }
         >
-          {artist ? null : kind === "playlists" ? <div className="w-52 max-w-full shrink-0 md:w-72"><PlaylistArtwork item={r}/></div> : image ? (
+          {artist ? null : kind === "albums" ? (
+            <div className="album-detail__cover">
+              <AlbumArtwork key={image} src={image} hero />
+            </div>
+          ) : kind === "playlists" ? (
+            <div className="w-52 max-w-full shrink-0 md:w-72">
+              <PlaylistArtwork item={r} />
+            </div>
+          ) : image ? (
             <img
               src={image}
               alt=""
@@ -484,90 +519,104 @@ function LibraryDetail({
         )}
         <section className="mt-10">
           <Text as="h2" className="mb-6 font-display text-3xl">
-            {artist ? "Releases" : "In this collection"}
+            {artist
+              ? "Releases"
+              : kind === "albums"
+                ? "Track by track"
+                : "In this collection"}
           </Text>
           {!r.items.length && (
             <p className="mb-6 text-text-secondary">
               No music is available in this collection yet.
             </p>
           )}
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {r.items.map((item: any, index: number) => (
-              <div key={item.id} className="min-w-0">
-                <ApiMusicCard item={musicItem(item)} fluid />
-                {kind !== "artists" && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="text-sm text-text-secondary">
-                      {index + 1}
-                    </span>
-                    {r.playlistKind === "video" ? (
-                      <ButtonLink
-                        size="sm"
-                        to={
-                          "/music/video/" +
-                          item.id +
-                          "?collection=" +
-                          id +
-                          (own ? "&own=1" : "") +
-                          "&autoplay=1"
-                        }
-                      >
-                        Watch here
-                      </ButtonLink>
-                    ) : (
-                      <Button
-                        size="sm"
-                        disabled={busy}
-                        onClick={() =>
-                          void mutate(() => audio.startQueue(r.items, index))
-                        }
-                      >
-                        Play here
-                      </Button>
-                    )}
-                    {own && (
-                      <>
-                        <Button
+          {kind === "albums" ? (
+            <AlbumTracks
+              items={r.items}
+              busy={busy}
+              onPlay={(index) =>
+                void mutate(() => audio.startQueue(r.items, index))
+              }
+            />
+          ) : (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {r.items.map((item: any, index: number) => (
+                <div key={item.id} className="min-w-0">
+                  <ApiMusicCard item={musicItem(item)} fluid />
+                  {kind !== "artists" && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <span className="text-sm text-text-secondary">
+                        {index + 1}
+                      </span>
+                      {r.playlistKind === "video" ? (
+                        <ButtonLink
                           size="sm"
-                          variant="ghost"
-                          disabled={busy || index === 0}
-                          onClick={() => move(index, -1)}
-                          aria-label={"Move " + item.title + " up"}
-                        >
-                          Up
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busy || index === r.items.length - 1}
-                          onClick={() => move(index, 1)}
-                          aria-label={"Move " + item.title + " down"}
-                        >
-                          Down
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          disabled={busy}
-                          onClick={() =>
-                            void mutate(() =>
-                              update({
-                                musicIds: r.musicIds.filter(
-                                  (x: string) => x !== item.id,
-                                ),
-                              }),
-                            )
+                          to={
+                            "/music/video/" +
+                            item.id +
+                            "?collection=" +
+                            id +
+                            (own ? "&own=1" : "") +
+                            "&autoplay=1"
                           }
                         >
-                          Remove
+                          Watch here
+                        </ButtonLink>
+                      ) : (
+                        <Button
+                          size="sm"
+                          disabled={busy}
+                          onClick={() =>
+                            void mutate(() => audio.startQueue(r.items, index))
+                          }
+                        >
+                          Play here
                         </Button>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
+                      )}
+                      {own && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={busy || index === 0}
+                            onClick={() => move(index, -1)}
+                            aria-label={"Move " + item.title + " up"}
+                          >
+                            Up
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={busy || index === r.items.length - 1}
+                            onClick={() => move(index, 1)}
+                            aria-label={"Move " + item.title + " down"}
+                          >
+                            Down
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            disabled={busy}
+                            onClick={() =>
+                              void mutate(() =>
+                                update({
+                                  musicIds: r.musicIds.filter(
+                                    (x: string) => x !== item.id,
+                                  ),
+                                }),
+                              )
+                            }
+                          >
+                            Remove
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
         {own && <PlaylistAddReleases playlist={r} onSaved={view.reload} />}
         {artist && <ArtistAlbums artistId={id} />}
