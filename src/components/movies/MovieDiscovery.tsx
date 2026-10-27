@@ -1,3 +1,4 @@
+import {MusicCardSkeletons} from "@/components/music/MusicArtwork";
 import {LoadingSkeleton} from "@/components/shared/LoadingSkeleton";
 import {useSports,sportsItem,type ApiSports} from "@/context/SportsContext";
 import { useMusic, musicItem, type ApiMusic } from "@/context/MusicContext";
@@ -223,7 +224,7 @@ export function MovieDiscovery({
               )}
             </div>
           ) : (busy || movies.busy) && !items.length ? (
-            <LoadingSkeleton label={<>Loading {noun}…</>} columns={3}/>
+            collection === "music" ? <MusicCardSkeletons kind={musicKind??"music-video"}/> : <LoadingSkeleton label={<>Loading {noun}…</>} columns={3}/>
           ) : !items.length ? (
             <div className="space-y-4 rounded-xl bg-bg-surface p-8">
               <Text as="h3" className="font-display text-3xl">
@@ -249,7 +250,7 @@ export function MovieDiscovery({
               {children && !discovery.active ? (
                 children(data)
               ) : (
-                <div className="grid items-start gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3">
+                <div className={collection==="music"?"music-results-grid":"grid items-start gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3"}>
                   {data.map((item) => (
                     <MediaCard key={item.id} item={item} fluid />
                   ))}

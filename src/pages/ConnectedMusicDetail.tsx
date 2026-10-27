@@ -1,4 +1,9 @@
-import {OriginalLabel} from "@/components/shared/OriginalLabel";
+import {
+  MusicArtwork,
+  MusicReleaseSkeleton,
+} from "@/components/music/MusicArtwork";
+import { musicDuration } from "@/lib/musicPresentation";
+import { OriginalLabel } from "@/components/shared/OriginalLabel";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { MusicCollectionCredits } from "@/components/music/MusicCollectionCredits";
@@ -11,12 +16,13 @@ import { ShareBar } from "@/components/shared/ShareBar";
 import { ApiMusicCard } from "@/components/home/ApiMusicCard";
 import { useMusicAudio } from "@/context/MusicAudioContext";
 import { useEffect, useRef, useState } from "react";
-import { useParams, useSearchParams } from "react-router";
+import { useLocation, useParams, useSearchParams } from "react-router";
 import { customerApi } from "@/lib/customerAuth";
 import { useMusic, musicItem, type ApiMusic } from "@/context/MusicContext";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Text } from "@/components/ui/Text";
 export function ConnectedMusicDetail() {
+  const { pathname } = useLocation();
   const { id } = useParams(),
     [params] = useSearchParams(),
     library = useMusic();
@@ -141,6 +147,27 @@ export function ConnectedMusicDetail() {
       progressState.current = null;
     };
   }, [id, preview, library.audience, library.busy, revision]);
+  if (loading)
+    return <MusicReleaseSkeleton audio={pathname.includes("/track/")} />;
+  if (!music && error)
+    return (
+      <main className="min-h-screen bg-bg-base px-6 pb-16 pt-28 md:px-8">
+        <div className="mx-auto max-w-3xl">
+          <Text as="h1" className="font-display text-4xl">
+            This release is out of reach
+          </Text>
+          <p role="alert" className="my-6 text-text-secondary">
+            {error}
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => setRevision((x) => x + 1)}>Try again</Button>
+            <ButtonLink variant="outline" to="/music">
+              Back to music
+            </ButtonLink>
+          </div>
+        </div>
+      </main>
+    );
   if (music?.kind === "track")
     return (
       <main className="min-h-screen bg-bg-base pt-24">
@@ -148,15 +175,17 @@ export function ConnectedMusicDetail() {
           <ButtonLink to="/music?view=tracks" variant="ghost" className="mb-8">
             Back to tracks
           </ButtonLink>
-          <div className="grid items-center gap-10 md:grid-cols-[1fr_2fr]">
-            <img
-              src={music.artwork.portraitUrl}
-              alt={`${music.title} artwork`}
-              className="aspect-square w-full rounded-xl object-cover"
-            />
+          <div className="track-release__identity">
+            <div className="track-release__sleeve">
+              <MusicArtwork
+                key={music.artwork.portraitUrl}
+                src={music.artwork.portraitUrl}
+                hero
+              />
+            </div>
             <div>
               <Text className="mb-4 text-xs font-semibold uppercase tracking-widest text-gold">
-                Audio track · {Math.ceil(music.durationSeconds)} sec ·{" "}
+                Audio track · {musicDuration(music.durationSeconds)} ·{" "}
                 {music.genreNames.join(" · ")}
               </Text>
               <Text
@@ -173,22 +202,20 @@ export function ConnectedMusicDetail() {
               </Text>
               <div className="flex flex-wrap items-center gap-3">
                 <Button
-                  onClick={() =>
-                    void audio
-                      .start(music, preview)
-                      .catch((e) => setError(e.message))
-                  }
+                  onClick={() => {
+                    setError("");
+                    void audio.start(music, preview).catch((e) => setError(e.message));
+                  }}
                 >
                   {preview ? "Play preview" : "Play track"}
                 </Button>
                 {music.previewAvailable && !preview && (
                   <Button
                     variant="outline"
-                    onClick={() =>
-                      void audio
-                        .start(music, true)
-                        .catch((e) => setError(e.message))
-                    }
+                    onClick={() => {
+                      setError("");
+                      void audio.start(music, true).catch((e) => setError(e.message));
+                    }}
                   >
                     Play free preview
                   </Button>
@@ -331,10 +358,10 @@ export function ConnectedMusicDetail() {
               {music ? music.title : "Music playback"}
               {preview ? " · Preview" : ""}
             </Text>
-            <OriginalLabel label={music?.originalLabel}/>
+            <OriginalLabel label={music?.originalLabel} />
             <Text className="mt-3 text-sm text-text-secondary">
               {music
-                ? `${music.classification} · ${preview ? "Free preview" : Math.max(1, Math.ceil(music.durationSeconds / 60)) + " min"}`
+                ? `${music.classification} · ${preview ? "Free preview" : musicDuration(music.durationSeconds)}`
                 : ""}
             </Text>
             <Text className="mt-4 text-sm leading-relaxed text-text-secondary">

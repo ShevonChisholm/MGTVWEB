@@ -1,3 +1,5 @@
+import { MusicArtwork } from "@/components/music/MusicArtwork";
+import { musicDuration } from "@/lib/musicPresentation";
 import { ConnectedPlaylistMenu } from "@/components/music/ConnectedPlaylistMenu";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -22,13 +24,15 @@ export function ApiMusicCard({
     release = { id: item.id, preference: item.moviePreference };
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
-  const horizontal = !railFormat || railFormat === "music";
+  const track = item.type === "track";
+  const horizontal = track || (railFormat === "music" && !continuing);
   const saved = library.preference(release).saved;
   return (
     <article
       data-content-id={item.id}
       data-content-type={item.type}
-      className={`mgtv-music-card group flex shrink-0 min-w-0 ${horizontal ? "h-48 flex-row items-stretch gap-4 rounded-xl border border-white/10 bg-bg-surface p-3" : "flex-1 flex-col"} ${fluid ? "w-full" : "w-80 md:w-[380px]"}`}
+      data-music-layout={horizontal ? "row" : "video"}
+      className={`mgtv-music-card ${track ? "mgtv-track-card" : "mgtv-video-card"} music-release-card group ${fluid ? "w-full" : "w-80 md:w-[380px]"}`}
     >
       <Link
         to={
@@ -37,49 +41,51 @@ export function ApiMusicCard({
             : `/music/video/${item.id}`
         }
         aria-label={`Open ${item.title}`}
-        className={`rail-artwork relative block shrink-0 overflow-hidden bg-bg-elevated rounded-lg ${horizontal ? "h-28 w-28 self-center sm:h-32 sm:w-32" : "aspect-video w-full"}`}
+        className="rail-artwork music-card__art"
       >
-        <img
+        <MusicArtwork
+          key={continuing ? item.landscapeThumbnail : item.thumbnail}
           src={continuing ? item.landscapeThumbnail : item.thumbnail}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 ease-out motion-safe:group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base/70 via-transparent to-transparent" />
+        {!track && (
+          <span className="music-card__play" aria-hidden="true">
+            ▷
+          </span>
+        )}
+        <span className="music-card__clock">
+          {musicDuration(item.durationSeconds, item.duration)}
+        </span>
         {item.badge && (
           <Badge variant={item.badge} className="absolute left-2 top-2" />
         )}
       </Link>
       {continuing && (
         <progress
-          className="media-progress mt-2"
+          className="media-progress music-card__progress"
           max={100}
           value={item.progress ?? 0}
           aria-label={`${item.title}: ${Math.round(item.progress ?? 0)}% watched`}
         />
       )}
-      <div
-        className={`min-w-0 flex flex-1 flex-col gap-1.5 ${horizontal ? "py-1" : "pt-3"}`}
-      >
+      <div className="music-card__body">
+        <span className="music-card__format">
+          {track ? "Audio track" : "Music video"}
+        </span>
         <Link
           to={
             item.type === "track"
               ? `/music/track/${item.id}`
               : `/music/video/${item.id}`
           }
-          className="line-clamp-2 text-sm font-semibold leading-snug text-text-primary hover:text-gold"
+          className="music-card__title"
         >
           {item.title}
         </Link>
-        <div className="space-y-1 text-xs text-text-secondary">
-          <Text className="truncate">{item.artist}</Text>
-          <Text className="flex flex-wrap gap-x-2">
-            <span>{item.genre}</span>
-            <span>{item.year}</span>
-            <span>{item.duration}</span>
-          </Text>
-        </div>
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
+        <Text className="music-card__artist">{item.artist}</Text>
+        <Text className="music-card__meta">
+          {[item.genre, item.year].filter(Boolean).join(" · ")}
+        </Text>
+        <div className="music-card__actions">
           {!horizontal && (
             <Link
               to={
@@ -93,7 +99,7 @@ export function ApiMusicCard({
               }
               className="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-gold hover:text-gold-light"
             >
-              {continuing ? "Resume" : "View release"}{" "}
+              {continuing ? "Resume" : track ? "Open track" : "View video"}{" "}
               <span aria-hidden="true">›</span>
             </Link>
           )}

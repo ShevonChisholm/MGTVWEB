@@ -1,3 +1,4 @@
+import {musicDuration} from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
@@ -66,7 +67,7 @@ export const musicItem = (music: ApiMusic): CatalogItem => ({
   year: music.releaseYear,
   classification: music.classification,
   durationSeconds: music.durationSeconds,
-  duration: Math.max(1, Math.ceil(music.durationSeconds / 60)) + " min",
+  duration: musicDuration(music.durationSeconds),
 });
 function useMusicValue() {
   const startupReady = useHomeStartupReady();

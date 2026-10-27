@@ -332,3 +332,38 @@ nav[aria-label="Music formats"]::-webkit-scrollbar { display:none; }
 .album-track__actions .album-track__duration { display:block;margin-right:auto;padding-left:2.2rem; }
 @media(min-width:640px){.album-track{grid-template-columns:minmax(0,1fr) auto;gap:1.5rem}.album-track__actions .album-track__duration{padding-left:0;margin-right:.75rem}}
 .album-card .mgtv-skeleton { border:0; }
+
+/* Music releases: square listening sleeves, landscape screening artwork. */
+.music-results-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:2.5rem 1.25rem;align-items:start}
+.music-release-card,.music-card-skeleton{position:relative;min-width:0;flex-shrink:0;display:flex;background:#121211;border:1px solid #ffffff14;border-radius:16px 0 16px 0;overflow:hidden}
+.music-release-card[data-music-layout="row"],.music-card-skeleton--track{height:192px;flex-direction:row;gap:1rem;padding:12px;align-items:stretch}
+.music-release-card[data-music-layout="video"],.music-card-skeleton--video{flex-direction:column}
+.music-card__art{position:relative;display:block;flex-shrink:0;overflow:hidden;background:#24231e;outline-offset:-3px}
+.music-release-card[data-music-layout="row"] .music-card__art,.music-card-skeleton--track .music-card-skeleton__art{width:112px;height:112px;aspect-ratio:1;align-self:center;border-radius:10px 0 10px 0}
+.music-release-card[data-music-layout="row"].mgtv-video-card .music-card__art{width:148px;height:auto;aspect-ratio:16/9}
+.music-release-card[data-music-layout="video"] .music-card__art,.music-card-skeleton--video .music-card-skeleton__art{width:100%;height:auto;aspect-ratio:16/9}
+.music-artwork{width:100%;height:100%;overflow:hidden;background:#24231e}
+.music-artwork img{width:100%;height:100%;object-fit:cover}
+.music-artwork__fallback{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:8px;color:#cbb16a;text-align:center;font-size:10px}
+.music-artwork__fallback>span:first-child{font-size:28px}
+.music-card__body,.music-card-skeleton__body{min-width:0;display:flex;flex:1;flex-direction:column;gap:4px}
+.music-release-card[data-music-layout="video"] .music-card__body,.music-card-skeleton--video .music-card-skeleton__body{padding:14px 14px 10px;min-height:172px}
+.music-card__format{color:#bda45b;font-size:10px;line-height:15px;letter-spacing:.12em;text-transform:uppercase}
+.music-card__title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;min-height:40px;font-size:14px;font-weight:650;line-height:20px}
+.music-card__title:hover{color:#d1b25b}
+.music-card__artist{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#c0bbb1;font-size:12px;line-height:18px}
+.music-card__meta{color:#98958c;font-size:11px;line-height:16px;min-height:16px}
+.music-card__actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;min-height:44px;margin-top:auto}
+.music-card__clock{position:absolute;right:6px;bottom:6px;padding:2px 5px;border-radius:3px;background:#090909d9;color:#eee6d4;font-size:10px;font-variant-numeric:tabular-nums}
+.music-card__play{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;place-items:center;width:38px;height:38px;border:1px solid #fff6;border-radius:50%;background:#0008;color:#fff;font-size:22px}
+.music-card__progress{position:absolute;bottom:0;left:0;right:0;width:100%;height:3px}
+.music-card-skeleton .mgtv-skeleton{border:0;border-radius:4px}
+.mgtv-rail[data-rail-format="music"] .mgtv-video-card .rail-artwork{aspect-ratio:16/9}
+.mgtv-rail-item .music-release-card[data-music-layout="video"] .music-card__art{aspect-ratio:16/9}
+.mgtv-rail-item .music-release-card .music-card__title{min-height:40px}
+.track-release__identity{display:grid;grid-template-columns:minmax(0,1fr);align-items:center;gap:2rem}
+.track-release__sleeve{width:min(100%,420px);aspect-ratio:1;overflow:hidden;box-shadow:0 15px 45px #0008;border:1px solid #d4af3724;border-radius:24px 0 24px 0}
+@media(min-width:640px){.music-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1280px){.music-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(min-width:768px){.track-release__identity{grid-template-columns:minmax(240px,420px) minmax(0,1fr);gap:3rem}}
+@media(max-width:359px){.music-release-card[data-music-layout="row"] .music-card__art,.music-card-skeleton--track .music-card-skeleton__art{width:96px;height:96px}.music-release-card[data-music-layout="row"].mgtv-video-card .music-card__art{width:120px;height:auto}}

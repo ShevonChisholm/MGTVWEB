@@ -35,7 +35,7 @@ export function ContentRail({
     items = visibleItems(provided);
   if (!items.length) return null;
   const format: RailFormat =
-    cardType === "continueWatching"
+    cardType === "continueWatching" || items.every(item=>item.type==="musicVideo")
       ? "landscape"
       : items.every((item) => ["movie", "show"].includes(item.type ?? ""))
         ? "poster"
