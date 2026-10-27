@@ -61,6 +61,10 @@ export const sportsItem = (sports: ApiSports): CatalogItem => ({
     ? Math.min(100, (sports.progress.seconds / sports.durationSeconds) * 100)
     : 0,
   sportsPreference: sports.preference,
+  sportsCoverage: sports.coverage,
+  sport: sports.sport,
+  competition: sports.competition,
+  occurredAt: sports.occurredAt,
   badge: sports.accessTier === "premium" ? "premium" : "free",
   title: sports.title,
   description: sports.synopsis,
@@ -69,7 +73,7 @@ export const sportsItem = (sports: ApiSports): CatalogItem => ({
   year: sports.releaseYear,
   classification: sports.classification,
   durationSeconds: sports.durationSeconds,
-  duration: Math.max(1, Math.ceil(sports.durationSeconds / 60)) + " min",
+  duration: sports.durationSeconds < 60 ? Math.round(sports.durationSeconds) + " sec" : Math.ceil(sports.durationSeconds / 60) + " min",
 });
 function useSportsValue() {
   const startupReady = useHomeStartupReady();

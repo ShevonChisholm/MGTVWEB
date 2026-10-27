@@ -1,6 +1,7 @@
+import SportsSkeleton from "@/components/sports/SportsSkeleton";
 import LifecycleRails from "@/components/home/LifecycleRails";
-import {useHomepage,homepageItem} from "@/lib/homepage";
-import {FeaturedStatus} from "@/components/home/FeaturedStatus";
+import { useHomepage, homepageItem } from "@/lib/homepage";
+import { FeaturedStatus } from "@/components/home/FeaturedStatus";
 import { MovieDiscovery } from "@/components/movies/MovieDiscovery";
 import { useSports } from "@/context/SportsContext";
 import { HeroBackdrop } from "@/components/shared/HeroBackdrop";
@@ -16,8 +17,15 @@ export function SportsPage() {
   const connected = import.meta.env.VITE_API_MODE === "connected";
   const { sportsHighlights } = useCatalog();
   const filtered = sportsHighlights;
-  const featuredPage=useHomepage("sports");
-  const featured = import.meta.env.VITE_API_MODE === "connected" ? (featuredPage.hero[0]?homepageItem(featuredPage.hero[0]):undefined) : sportsHighlights[0];
+  const featuredPage = useHomepage("sports");
+  const featured =
+    import.meta.env.VITE_API_MODE === "connected"
+      ? featuredPage.hero[0]
+        ? homepageItem(featuredPage.hero[0])
+        : undefined
+      : sportsHighlights[0];
+  if (connected && remote.busy && !remote.error && !remote.profileRequired)
+    return <SportsSkeleton page />;
   if (connected && (remote.error || remote.busy || remote.profileRequired))
     return (
       <main className="min-h-screen px-6 py-28">
@@ -46,18 +54,22 @@ export function SportsPage() {
         <Text as="h1" className="font-display text-5xl">
           MGTV Sports
         </Text>
-        <FeaturedStatus page={featuredPage}/><p className="mt-6">
+        <FeaturedStatus page={featuredPage} />
+        <p className="mt-6">
           The next sporting moment belongs here. Published coverage will appear
           when available.
-        </p><LifecycleRails surface="sports"/><MovieDiscovery collection="sports" title="Explore sports"/>
+        </p>
+        <LifecycleRails surface="sports" />
+        <MovieDiscovery collection="sports" title="Explore sports" />
       </main>
     );
   return (
-    <main className="min-h-screen bg-bg-base pt-16"><FeaturedStatus page={featuredPage}/>
-      <section className="relative isolate grid overflow-hidden md:grid-cols-5">
+    <main className="min-h-screen bg-bg-base pt-16">
+      <FeaturedStatus page={featuredPage} />
+      <section className="sports-feature relative isolate grid overflow-hidden md:grid-cols-5">
         <div className="relative min-h-64 md:col-span-3">
           <HeroBackdrop
-            poster={featured.thumbnail}
+            poster={featured.landscapeThumbnail ?? featured.thumbnail}
             featureUrl={featured.featureUrl}
             sideGradient={false}
           />
@@ -68,7 +80,9 @@ export function SportsPage() {
         </div>
         <div className="relative flex flex-col justify-center px-6 pb-12 pt-6 md:col-span-2 md:py-20 md:pr-12">
           <Text className="mb-4 text-xs font-semibold uppercase tracking-widest text-gold">
-            Featured replay
+            {featured.sportsCoverage === "highlight"
+              ? "In the spotlight · Highlights"
+              : "In the spotlight · Full replay"}
           </Text>
           <Text
             as="h1"
@@ -83,22 +97,31 @@ export function SportsPage() {
             {featured.description}
           </Text>
           <div className="flex flex-wrap gap-3">
-            <ButtonLink to={watchPath(featured)!}>Watch replay</ButtonLink>
+            <ButtonLink to={watchPath(featured)!}>
+              {featured.sportsCoverage === "highlight"
+                ? "Watch highlights"
+                : "Watch replay"}
+            </ButtonLink>
             <ButtonLink variant="outline" to={contentPath(featured)}>
-              About this replay
+              Explore this coverage
             </ButtonLink>
           </div>
         </div>
       </section>
-      <LifecycleRails surface="sports"/>
+      <LifecycleRails surface="sports" />
       {connected ? (
         <MovieDiscovery collection="sports" title="Explore the sports archive">
           {(items) => (
             <>
               <ContentRail
                 layout="contained"
-                title="Sports Highlights"
+                title="The moments worth replaying"
                 items={items}
+              />
+              <ContentRail
+                layout="contained"
+                title="Back to the full action"
+                items={items.filter((x) => x.sportsCoverage === "replay")}
               />
               <ContentRail
                 layout="contained"
@@ -126,7 +149,7 @@ export function SportsPage() {
           <div>
             <ContentRail
               layout="contained"
-              title="Sports Highlights"
+              title="The moments worth replaying"
               items={filtered}
             />
             <ContentRail

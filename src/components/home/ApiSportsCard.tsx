@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/Button";
-import { Text } from "@/components/ui/Text";
+import SportsArtwork from "@/components/sports/SportsArtwork";
 import { Badge } from "@/components/ui/Badge";
 import { useSports } from "@/context/SportsContext";
 import type { ContentItem } from "@/data/mockContent";
@@ -24,18 +24,16 @@ export function ApiSportsCard({
     <article
       data-content-id={item.id}
       data-content-type="sports"
-      className={`group flex flex-1 shrink-0 flex-col min-w-0 ${fluid ? "w-full" : continuing ? "w-64 md:w-72" : "w-64 md:w-72"}`}
+      className={`group sports-card ${fluid ? "w-full" : "w-64 md:w-72"}`}
     >
       <Link
         to={`/sports/${item.id}`}
         aria-label={`Open ${item.title}`}
-        className={`relative block overflow-hidden bg-bg-elevated rounded-xl ${continuing ? "aspect-video" : "aspect-video"}`}
+        className="relative block overflow-hidden bg-bg-elevated aspect-video sports-card__art"
       >
-        <img
-          src={continuing ? item.landscapeThumbnail : item.thumbnail}
-          alt=""
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 ease-out motion-safe:group-hover:scale-105"
+        <SportsArtwork
+          key={item.landscapeThumbnail ?? item.thumbnail}
+          src={item.landscapeThumbnail ?? item.thumbnail}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-base/70 via-transparent to-transparent" />
         {item.badge && (
@@ -50,27 +48,36 @@ export function ApiSportsCard({
           aria-label={`${item.title}: ${Math.round(item.progress ?? 0)}% watched`}
         />
       )}
-      <div className="flex flex-1 flex-col gap-2 pt-3">
-        <Link
-          to={`/sports/${item.id}`}
-          className="text-sm font-semibold leading-snug text-text-primary hover:text-gold"
-        >
+      <div className="sports-card__body">
+        <p className="sports-card__format">
+          {item.sport ?? item.genre ?? "MGTV Sports"}{" "}
+          <span aria-hidden="true">/</span>{" "}
+          {item.sportsCoverage === "highlight"
+            ? "Highlights"
+            : item.sportsCoverage === "replay"
+              ? "Full replay"
+              : "Archive"}
+        </p>
+        <Link to={`/sports/${item.id}`} className="sports-card__title">
           {item.title}
         </Link>
-        <div className="space-y-1 text-xs text-text-secondary">
-          <Text>
-            {item.year} · {item.duration}
-          </Text>
-          <Text>
-            {item.classification} · {item.genre}
-          </Text>
+        <div className="sports-card__meta">
+          <p title={item.competition}>{item.competition ?? item.genre}</p>
+          <p>
+            {item.duration} · {item.classification}
+            {item.year ? ` · ${item.year}` : ""}
+          </p>
         </div>
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 pt-2">
           <Link
             to={continuing ? `/sports/${item.id}/watch` : `/sports/${item.id}`}
             className="inline-flex min-h-11 items-center gap-1 text-xs font-semibold text-gold hover:text-gold-light"
           >
-            {continuing ? "Resume" : "View replay"}{" "}
+            {continuing
+              ? "Resume"
+              : item.sportsCoverage === "highlight"
+                ? "View highlights"
+                : "View replay"}{" "}
             <span aria-hidden="true">›</span>
           </Link>
           {sports.session && coverage ? (

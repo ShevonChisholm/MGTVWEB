@@ -17,6 +17,9 @@ export interface ContentItem {
   source?: "api"
   landscapeThumbnail?:string
   moviePreference?: { saved:boolean;liked:boolean;rating:number|null;version:number }
+  sportsCoverage?: "highlight" | "replay"
+  sport?: string
+  occurredAt?: string
   sportsPreference?: { saved:boolean;liked:boolean;rating:number|null;version:number }
   id: string
   title: string

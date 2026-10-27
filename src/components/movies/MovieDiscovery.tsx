@@ -1,3 +1,4 @@
+import SportsSkeleton from "@/components/sports/SportsSkeleton";
 import { MovieGridSkeleton } from "@/components/movies/MovieArtwork";
 import { ShowGridSkeleton } from "@/components/shows/ShowArtwork";
 import {MusicCardSkeletons} from "@/components/music/MusicArtwork";
@@ -226,7 +227,7 @@ export function MovieDiscovery({
               )}
             </div>
           ) : (busy || movies.busy) && !items.length ? (
-            collection === "shows" ? <ShowGridSkeleton/> : collection === "music" ? <MusicCardSkeletons kind={musicKind??"music-video"}/> : collection === "movies" ? <MovieGridSkeleton/> : <LoadingSkeleton label={<>Loading {noun}…</>} columns={3}/>
+            collection === "sports" ? <SportsSkeleton/> : collection === "shows" ? <ShowGridSkeleton/> : collection === "music" ? <MusicCardSkeletons kind={musicKind??"music-video"}/> : collection === "movies" ? <MovieGridSkeleton/> : <LoadingSkeleton label={<>Loading {noun}…</>} columns={3}/>
           ) : !items.length ? (
             <div className="space-y-4 rounded-xl bg-bg-surface p-8">
               <Text as="h3" className="font-display text-3xl">
@@ -252,7 +253,7 @@ export function MovieDiscovery({
               {children && !discovery.active ? (
                 children(data)
               ) : (
-                <div className={collection==="shows"?"show-results-grid":collection==="music"?"music-results-grid":collection==="movies"?"movie-results-grid":"grid items-start gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3"}>
+                <div className={collection==="sports"?"sports-results-grid":collection==="shows"?"show-results-grid":collection==="music"?"music-results-grid":collection==="movies"?"movie-results-grid":"grid items-start gap-x-5 gap-y-10 sm:grid-cols-2 xl:grid-cols-3"}>
                   {data.map((item) => (
                     <MediaCard key={item.id} item={item} fluid />
                   ))}

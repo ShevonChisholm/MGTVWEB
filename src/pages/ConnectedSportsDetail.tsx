@@ -1,4 +1,5 @@
-import {OriginalLabel} from "@/components/shared/OriginalLabel";
+import SportsArtwork from "@/components/sports/SportsArtwork";
+import { OriginalLabel } from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
@@ -61,15 +62,15 @@ export function ConnectedSportsDetail() {
     );
   const pref = sports.preference(item);
   return (
-    <main className="bg-bg-base pt-16">
-      <section className="relative isolate overflow-hidden">
-        <img
+    <main className="bg-bg-base pt-20">
+      <section className="sports-detail-hero relative isolate overflow-hidden">
+        <SportsArtwork
+          key={item.artwork.landscapeUrl}
           src={item.artwork.landscapeUrl}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-50"
+          priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/60 to-transparent" />
-        <div className="relative max-w-4xl px-6 py-24 md:px-8">
+        <div className="absolute inset-0 bg-gradient-to-r from-bg-base/95 via-bg-base/70 to-bg-base/10" />
+        <div className="relative max-w-3xl px-6 py-12 md:px-10 md:py-16">
           <Text className="mb-4 text-xs font-semibold uppercase tracking-widest text-gold">
             Sports archive ·{" "}
             {item.coverage === "replay" ? "Full replay" : "Highlights"}
@@ -80,10 +81,12 @@ export function ConnectedSportsDetail() {
           >
             {item.title}
           </Text>
-          <OriginalLabel label={item?.originalLabel}/>
+          <OriginalLabel label={item?.originalLabel} />
           <Text className="mb-4 text-sm text-text-secondary">
             {item.sport} · {item.competition} · {item.classification} ·{" "}
-            {Math.ceil(item.durationSeconds / 60)} min
+            {item.durationSeconds < 60
+              ? Math.round(item.durationSeconds) + " sec"
+              : Math.ceil(item.durationSeconds / 60) + " min"}
           </Text>
           <Text className="mb-4 text-sm text-text-secondary">
             {item.participants.join(" · ")} · {item.venue} ·{" "}
@@ -96,7 +99,9 @@ export function ConnectedSportsDetail() {
             <ButtonLink to={"/sports/" + id + "/watch"}>
               {item.accessTier === "premium"
                 ? "Watch with MGTV+"
-                : "Watch replay"}
+                : item.coverage === "highlight"
+                  ? "Watch highlights"
+                  : "Watch replay"}
             </ButtonLink>
             {item.previewAvailable && (
               <ButtonLink
@@ -139,7 +144,7 @@ export function ConnectedSportsDetail() {
         </div>
       </section>
       <ContentRail
-        title="More Sports"
+        title="More from the touchline"
         items={sports.items.filter((x) => x.id !== id).map(sportsItem)}
         seeAllHref="/sports"
         seeAllLabel="All sports"
