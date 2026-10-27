@@ -47,7 +47,7 @@ export const lifestyleArticle = (
   featured: index === 0,
   excerpt: a.summary,
 });
-export function useLifestyle(path = "/lifestyle?limit=24", personal = false) {
+export function useLifestyle(path = "/lifestyle?limit=24", personal = false, enabled = true) {
   const music = useMusic();
   const [data, setData] = useState<any>(null),
     [error, setError] = useState(""),
@@ -60,7 +60,7 @@ export function useLifestyle(path = "/lifestyle?limit=24", personal = false) {
     setError("");
     setLoading(true);
     if (
-      import.meta.env.VITE_API_MODE !== "connected" ||
+      !enabled || import.meta.env.VITE_API_MODE !== "connected" ||
       (personal && !music.session?.activeProfileId)
     ) {
       setLoading(false);
@@ -92,7 +92,7 @@ export function useLifestyle(path = "/lifestyle?limit=24", personal = false) {
       active = false;
       controller.abort();
     };
-  }, [path, personal, music.audience, attempt]);
+  }, [path, personal, music.audience, attempt, enabled]);
   return {
     data,
     error,

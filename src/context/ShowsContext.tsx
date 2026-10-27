@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import { musicDuration as episodeDuration } from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
@@ -88,6 +89,7 @@ export const seriesItem = (movie: ApiSeries): CatalogItem => ({
 });
 function useShowsValue() {
   const startupReady = useHomeStartupReady();
+  const demand = useCatalogDemand("shows");
   const {
     session,
     loading: authLoading,
@@ -121,6 +123,9 @@ function useShowsValue() {
   const loadedAudience = useRef("");
   useEffect(() => {
     if (!connectedAuth || authLoading || !startupReady) return;
+    if(demand==="none"||(demand==="history"&&!session)){
+      setItems([]);setContinuing([]);setCursor(null);setError("");setBusy(false);return;
+    }
     let active = true;
     if (loadedAudience.current !== audience) {
       setItems([]);
@@ -135,7 +140,7 @@ function useShowsValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=50"),
+      demand==="full"?request("?limit=50"):Promise.resolve({items:[],nextCursor:null}),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),
@@ -156,7 +161,7 @@ function useShowsValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision, startupReady]);
+  }, [request, authLoading, revision, startupReady, demand]);
   const [preferences, setPreferences] = useState<
     Record<string, SeriesPreference>
   >({});

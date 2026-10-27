@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import { musicDuration as filmDuration } from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
@@ -67,6 +68,7 @@ export const movieItem = (movie: ApiMovie): CatalogItem => ({
 });
 function useMovieValue() {
   const startupReady = useHomeStartupReady();
+  const demand = useCatalogDemand("movies");
   const {
     session,
     loading: authLoading,
@@ -99,6 +101,9 @@ function useMovieValue() {
   );
   useEffect(() => {
     if (!connectedAuth || authLoading || !startupReady) return;
+    if(demand==="none"||(demand==="history"&&!session)){
+      setItems([]);setContinuing([]);setCursor(null);setError("");setBusy(false);return;
+    }
     let active = true;
     setItems([]);
     setContinuing([]);
@@ -110,7 +115,7 @@ function useMovieValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=100"),
+      demand==="full"?request("?limit=100"):Promise.resolve({items:[],nextCursor:null}),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),
@@ -131,7 +136,7 @@ function useMovieValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision, startupReady]);
+  }, [request, authLoading, revision, startupReady, demand]);
   const [preferences, setPreferences] = useState<
     Record<string, MoviePreference>
   >({});

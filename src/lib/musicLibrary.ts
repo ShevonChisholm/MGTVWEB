@@ -28,7 +28,7 @@ export async function libraryRequest(
     throw Error(result.message ?? "This music collection is unavailable.");
   return result;
 }
-export function useLibraryPage(path: string) {
+export function useLibraryPage(path: string, enabled = true) {
   const music = useMusic();
   const [data, setData] = useState<any>(null),
     [error, setError] = useState(""),
@@ -39,7 +39,7 @@ export function useLibraryPage(path: string) {
     setData(null);
     setError("");
     setLoading(true);
-    if (import.meta.env.VITE_API_MODE !== "connected") {
+    if (!enabled || import.meta.env.VITE_API_MODE !== "connected") {
       setLoading(false);
       return;
     }
@@ -56,7 +56,7 @@ export function useLibraryPage(path: string) {
     return () => {
       active = false;
     };
-  }, [path, music.audience, revision]);
+  }, [path, music.audience, revision, enabled]);
   return {
     data,
     error,

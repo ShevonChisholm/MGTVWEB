@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import {musicDuration} from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
@@ -71,6 +72,7 @@ export const musicItem = (music: ApiMusic): CatalogItem => ({
 });
 function useMusicValue() {
   const startupReady = useHomeStartupReady();
+  const demand = useCatalogDemand("music");
   const {
     session,
     loading: authLoading,
@@ -104,6 +106,9 @@ function useMusicValue() {
   );
   useEffect(() => {
     if (!connectedAuth || authLoading || !startupReady) return;
+    if(demand==="none"||(demand==="history"&&!session)){
+      setItems([]);setContinuing([]);setCursor(null);setError("");setBusy(false);return;
+    }
     let active = true;
     if (loadedAudienceRef.current !== audience) {
       setItems([]);
@@ -118,7 +123,7 @@ function useMusicValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=100"),
+      demand==="full"?request("?limit=100"):Promise.resolve({items:[],nextCursor:null}),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),
@@ -139,7 +144,7 @@ function useMusicValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision, startupReady]);
+  }, [request, authLoading, revision, startupReady, demand]);
   const [preferences, setPreferences] = useState<
     Record<string, MusicPreference>
   >({});

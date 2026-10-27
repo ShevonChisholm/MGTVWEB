@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
@@ -72,6 +73,7 @@ export const sportsItem = (sports: ApiSports): CatalogItem => ({
 });
 function useSportsValue() {
   const startupReady = useHomeStartupReady();
+  const demand = useCatalogDemand("sports");
   const {
     session,
     loading: authLoading,
@@ -104,6 +106,9 @@ function useSportsValue() {
   );
   useEffect(() => {
     if (!connectedAuth || authLoading || !startupReady) return;
+    if(demand==="none"||(demand==="history"&&!session)){
+      setItems([]);setContinuing([]);setCursor(null);setError("");setBusy(false);return;
+    }
     let active = true;
     setItems([]);
     setContinuing([]);
@@ -115,7 +120,7 @@ function useSportsValue() {
     }
     setBusy(true);
     void Promise.all([
-      request("?limit=24"),
+      demand==="full"?request("?limit=24"):Promise.resolve({items:[],nextCursor:null}),
       session
         ? request("?limit=24&continuing=true")
         : Promise.resolve({ items: [] }),
@@ -136,7 +141,7 @@ function useSportsValue() {
     return () => {
       active = false;
     };
-  }, [request, authLoading, revision, startupReady]);
+  }, [request, authLoading, revision, startupReady, demand]);
   const [preferences, setPreferences] = useState<
     Record<string, SportsPreference>
   >({});

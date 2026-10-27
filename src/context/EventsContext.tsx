@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
@@ -62,6 +63,7 @@ export function eventTime(e: ApiEvent) {
 }
 function useEventsValue() {
   const startupReady = useHomeStartupReady();
+  const demand=useCatalogDemand("events");
   const {
     session,
     loading: authLoading,
@@ -91,6 +93,7 @@ function useEventsValue() {
   );
   useEffect(() => {
     if (!connectedAuth || authLoading || !startupReady) return;
+    if(demand!=="full"){setItems([]);setError("");setBusy(false);return;}
     let active = true;
     setItems([]);
     setError("");
@@ -120,7 +123,7 @@ function useEventsValue() {
     return () => {
       active = false;
     };
-  }, [request, revision, authLoading, startupReady]);
+  }, [request, revision, authLoading, startupReady, demand]);
   return {
     items,
     error: error || authError,

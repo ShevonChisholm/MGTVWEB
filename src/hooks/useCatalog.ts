@@ -1,3 +1,4 @@
+import { useCatalogDemand } from "@/hooks/useCatalogDemand";
 import {useSports,sportsItem} from "@/context/SportsContext";
 import {useLifestyle,lifestyleItem,lifestyleArticle} from "@/lib/lifestyle";
 import {useNews,newsItem} from "@/lib/news";
@@ -12,8 +13,8 @@ import { movieItem, useMovies } from "@/context/MovieContext";
 export function useCatalog() {
   const app = useAppState();
   const sports=useSports();
-  const news=useNews();
-  const lifestyle=useLifestyle();
+  const news=useNews(undefined,useCatalogDemand("news")==="full");
+  const lifestyle=useLifestyle(undefined,false,useCatalogDemand("lifestyle")==="full");
   const lifestyleItems:fixtures.CatalogItem[]=(lifestyle.data?.items??[]).map(lifestyleItem);
   const lifestyleStories:fixtures.LifestyleArticle[]=(lifestyle.data?.items??[]).map(lifestyleArticle);
   const newsItems:fixtures.CatalogItem[]=(news.data?.items??[]).map(newsItem);
@@ -22,7 +23,7 @@ export function useCatalog() {
     series = useShows(),
     music = useMusic();
   const events=useEvents();
-  const artistLibrary=useLibraryPage("/artists?limit=24");
+  const artistLibrary=useLibraryPage("/artists?limit=24",useCatalogDemand("artists")==="full");
   const artists:fixtures.CatalogItem[]=(artistLibrary.data?.items??[]).map((a:any)=>({id:a.id,type:"artist" as const,source:"api" as const,title:a.title,thumbnail:a.coverUrl,description:a.description,genre:a.genre}));
   const connected = import.meta.env.VITE_API_MODE === "connected";
   const movies = remote.items.map(movieItem);

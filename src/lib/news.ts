@@ -30,7 +30,7 @@ export function newsItem(a: NewsArticle): CatalogItem {
     readTime: a.readMinutes + " min read",
   };
 }
-export function useNews(path = "/news?limit=24") {
+export function useNews(path = "/news?limit=24", enabled = true) {
   const [data, setData] = useState<any>(null),
     [error, setError] = useState(""),
     [loading, setLoading] = useState(true),
@@ -40,7 +40,7 @@ export function useNews(path = "/news?limit=24") {
     setData(null);
     setError("");
     setLoading(true);
-    if (import.meta.env.VITE_API_MODE !== "connected") {
+    if (!enabled || import.meta.env.VITE_API_MODE !== "connected") {
       setLoading(false);
       return;
     }
@@ -58,6 +58,6 @@ export function useNews(path = "/news?limit=24") {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [path, attempt]);
+  }, [path, attempt, enabled]);
   return { data, error, loading, retry: () => setAttempt((n) => n + 1) };
 }
