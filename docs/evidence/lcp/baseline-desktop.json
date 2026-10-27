@@ -1,0 +1,216 @@
+[
+  {
+    "lcpMs": 1036,
+    "element": "BUTTON",
+    "size": 857,
+    "viewport": 1280,
+    "ttfbMs": 256.8,
+    "image": null,
+    "scripts": [
+      {
+        "start": 483.2,
+        "end": 727.8,
+        "bytes": 211437
+      },
+      {
+        "start": 875,
+        "end": 978.6,
+        "bytes": 1160
+      }
+    ],
+    "api": []
+  },
+  {
+    "lcpMs": 1104,
+    "element": "IMG",
+    "size": 3200,
+    "viewport": 1280,
+    "ttfbMs": 256.8,
+    "image": {
+      "start": 941.8,
+      "end": 1063.9,
+      "duration": 122.1,
+      "transferBytes": 300,
+      "encodedBytes": 1140759,
+      "loadDelayMs": 685,
+      "renderDelayMs": 40.1,
+      "width": 1782,
+      "height": 883
+    },
+    "scripts": [
+      {
+        "start": 483.2,
+        "end": 727.8,
+        "bytes": 211437
+      },
+      {
+        "start": 875,
+        "end": 978.6,
+        "bytes": 1160
+      }
+    ],
+    "api": []
+  },
+  {
+    "lcpMs": 2968,
+    "element": "H1",
+    "size": 40856,
+    "viewport": 1280,
+    "ttfbMs": 256.8,
+    "image": null,
+    "scripts": [
+      {
+        "start": 483.2,
+        "end": 727.8,
+        "bytes": 211437
+      },
+      {
+        "start": 875,
+        "end": 978.6,
+        "bytes": 1160
+      }
+    ],
+    "api": [
+      {
+        "family": "news",
+        "start": 1006.1,
+        "end": 1244.4,
+        "duration": 238.3
+      },
+      {
+        "family": "lifestyle",
+        "start": 1006.6,
+        "end": 1203.2,
+        "duration": 196.6
+      },
+      {
+        "family": "session",
+        "start": 1010.9,
+        "end": 1204.6,
+        "duration": 193.7
+      },
+      {
+        "family": "commerce",
+        "start": 1253.8,
+        "end": 2873.3,
+        "duration": 1619.5
+      },
+      {
+        "family": "advertising",
+        "start": 1257.2,
+        "end": 1580.8,
+        "duration": 323.6
+      },
+      {
+        "family": "featured",
+        "start": 1257.7,
+        "end": 2884.3,
+        "duration": 1626.6
+      }
+    ]
+  },
+  {
+    "lcpMs": 3904,
+    "element": "IMG",
+    "size": 724973,
+    "viewport": 1280,
+    "ttfbMs": 256.8,
+    "image": {
+      "start": 2924.4,
+      "end": 3787.2,
+      "duration": 862.8,
+      "transferBytes": 0,
+      "encodedBytes": 0,
+      "loadDelayMs": 2667.6,
+      "renderDelayMs": 116.8,
+      "width": 1600,
+      "height": 900
+    },
+    "scripts": [
+      {
+        "start": 483.2,
+        "end": 727.8,
+        "bytes": 211437
+      },
+      {
+        "start": 875,
+        "end": 978.6,
+        "bytes": 1160
+      }
+    ],
+    "api": [
+      {
+        "family": "news",
+        "start": 1006.1,
+        "end": 1244.4,
+        "duration": 238.3
+      },
+      {
+        "family": "lifestyle",
+        "start": 1006.6,
+        "end": 1203.2,
+        "duration": 196.6
+      },
+      {
+        "family": "platform-settings",
+        "start": 1007.8,
+        "end": 2986.2,
+        "duration": 1978.4
+      },
+      {
+        "family": "session",
+        "start": 1010.9,
+        "end": 1204.6,
+        "duration": 193.7
+      },
+      {
+        "family": "commerce",
+        "start": 1253.8,
+        "end": 2873.3,
+        "duration": 1619.5
+      },
+      {
+        "family": "advertising",
+        "start": 1257.2,
+        "end": 1580.8,
+        "duration": 323.6
+      },
+      {
+        "family": "featured",
+        "start": 1257.7,
+        "end": 2884.3,
+        "duration": 1626.6
+      },
+      {
+        "family": "events",
+        "start": 1258.6,
+        "end": 3872.5,
+        "duration": 2613.9
+      },
+      {
+        "family": "advertising",
+        "start": 1586.6,
+        "end": 3320.9,
+        "duration": 1734.3
+      },
+      {
+        "family": "commerce",
+        "start": 2910,
+        "end": 3097.6,
+        "duration": 187.6
+      },
+      {
+        "family": "series-artwork",
+        "start": 2924.4,
+        "end": 3787.2,
+        "duration": 862.8
+      },
+      {
+        "family": "sponsors",
+        "start": 2944.6,
+        "end": 3771.1,
+        "duration": 826.5
+      }
+    ]
+  }
+]

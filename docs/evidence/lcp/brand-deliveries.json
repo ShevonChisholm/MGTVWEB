@@ -25,5 +25,12 @@
       "bytes": 93462,
       "sha256": "3cdc34b71d2adc6deca54493cd145a15ea161cdff813fbf0b8e742214b43f1a6"
     }
-  ]
+  ],
+  "favicon": {
+    "file": "mgtv-favicon-v1.png",
+    "width": 64,
+    "height": 64,
+    "bytes": 4533,
+    "sha256": "9957a33e5a187cb01ff53ae8140bdb05f586ced3e1511de75c1787bc6b5ebcd1"
+  }
 }
