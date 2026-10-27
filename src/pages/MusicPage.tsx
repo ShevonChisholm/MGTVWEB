@@ -171,6 +171,7 @@ export function MusicPage() {
           );
         })}
       </nav>
+      {connected&&<div className="mx-auto max-w-[1760px] px-6 py-4 md:px-8"><ButtonLink variant="outline" to="/music/player">Open your music player</ButtonLink></div>}
       {import.meta.env.VITE_API_MODE === "connected" ? (
         <ConnectedMusicCollection key={view+libraryAudience} view={view} />
       ) : playlistView ? (

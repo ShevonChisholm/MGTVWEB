@@ -442,7 +442,18 @@ function LibraryDetail({
                 ) : (
                   <Button
                     disabled={busy}
-                    onClick={() => void mutate(() => audio.startQueue(r.items))}
+                    onClick={() =>
+                      void mutate(() =>
+                        audio.startQueue(r.items, 0, {
+                          kind: own
+                            ? "personal-playlist"
+                            : kind === "albums"
+                              ? "album"
+                              : "playlist",
+                          id: r.id,
+                        }),
+                      )
+                    }
                   >
                     Play in order
                   </Button>
@@ -535,7 +546,16 @@ function LibraryDetail({
               items={r.items}
               busy={busy}
               onPlay={(index) =>
-                void mutate(() => audio.startQueue(r.items, index))
+                void mutate(() =>
+                  audio.startQueue(r.items, index, {
+                    kind: own
+                      ? "personal-playlist"
+                      : kind === "albums"
+                        ? "album"
+                        : "playlist",
+                    id: r.id,
+                  }),
+                )
               }
             />
           ) : (
@@ -567,7 +587,16 @@ function LibraryDetail({
                           size="sm"
                           disabled={busy}
                           onClick={() =>
-                            void mutate(() => audio.startQueue(r.items, index))
+                            void mutate(() =>
+                              audio.startQueue(r.items, index, {
+                                kind: own
+                                  ? "personal-playlist"
+                                  : kind === "albums"
+                                    ? "album"
+                                    : "playlist",
+                                id: r.id,
+                              }),
+                            )
                           }
                         >
                           Play here

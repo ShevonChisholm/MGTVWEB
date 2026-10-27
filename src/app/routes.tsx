@@ -128,6 +128,7 @@ const MovieDetailPage = deferredPage(() =>
   })),
 );
 
+const MusicListeningPage=deferredPage(()=>import("@/pages/MusicListeningPage"));
 const MusicPage = deferredPage(() =>
   import("@/pages/MusicPage").then((m) => ({ default: m.MusicPage })),
 );
@@ -384,6 +385,7 @@ export const router = createBrowserRouter([
           { path: "movies", Component: MoviesPage },
           { path: "movies/:id", Component: MovieDetailPage },
           { path: "music", Component: MusicPage },
+          {path:"music/player",Component:MusicListeningPage},
           { path: "music/artist/:id", Component: ArtistProfilePage },
           {
             path: "music/album/:id",

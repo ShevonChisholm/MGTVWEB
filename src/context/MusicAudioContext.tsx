@@ -1,4 +1,8 @@
-const AdaptiveAudio = lazy(() => import("@/components/player/AdaptiveVideo").then(m => ({default:m.AdaptiveAudio})));
+const AdaptiveAudio = lazy(() =>
+  import("@/components/player/AdaptiveVideo").then((m) => ({
+    default: m.AdaptiveAudio,
+  })),
+);
 import {
   lazy,
   Suspense,
@@ -9,21 +13,57 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useMusic, type ApiMusic } from "./MusicContext";
 import { customerApi } from "@/lib/customerAuth";
 import { Button } from "@/components/ui/Button";
+export type ListeningSource = {
+  kind: "manual" | "album" | "playlist" | "personal-playlist";
+  id?: string;
+};
+export type SavedListening = {
+  version: number;
+  queueIds: string[];
+  index: number;
+  current: ApiMusic | null;
+  source: { kind: string; id: string; title: string } | null;
+  otherSession: boolean;
+  unavailable: boolean;
+};
 const AudioContext = createContext<{
   start: (item: ApiMusic, preview?: boolean) => Promise<void>;
   stop: () => void;
-  startQueue: (items:ApiMusic[],index?:number)=>Promise<void>;
+  startQueue: (
+    items: ApiMusic[],
+    index?: number,
+    source?: ListeningSource,
+  ) => Promise<void>;
+  saved: SavedListening | null;
+  restoring: boolean;
+  notice: string;
+  refreshListening: () => Promise<void>;
+  resumeListening: (takeover?: boolean) => Promise<void>;
+  skipListening: () => Promise<void>;
+  handoff: boolean;
+  isPlaying: boolean;
+  restorationError: string;
 } | null>(null);
 export function MusicAudioProvider({ children }: { children: ReactNode }) {
+  const location = useLocation();
   const library = useMusic(),
     element = useRef<HTMLAudioElement>(null),
     cursor = useRef<any>(null),
-    requestSerial=useRef(0),
-    queue = useRef<{items:ApiMusic[];index:number}|null>(null),
+    requestSerial = useRef(0),
+    queue = useRef<{
+      ids: string[];
+      index: number;
+      source: ListeningSource;
+    } | null>(null),
+    lease = useRef<{ version: number; profileId: string } | null>(null),
+    pendingHandoff = useRef<{
+      item: ApiMusic;
+      queue: { ids: string[]; index: number; source: ListeningSource };
+    } | null>(null),
     bar = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState<{
       item: ApiMusic;
@@ -32,6 +72,188 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
       audience: string;
     } | null>(null),
     [notice, setNotice] = useState("");
+  const [restorationError, setRestorationError] = useState("");
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [savedAudience, setSavedAudience] = useState("");
+  const [saved, setSaved] = useState<SavedListening | null>(null),
+    [restoring, setRestoring] = useState(false),
+    [handoff, setHandoff] = useState(false);
+  const scopeRef = useRef(library.audience);
+  scopeRef.current = library.audience;
+  const restoredScope = useRef("");
+  function listeningHeaders(version?: number) {
+    return {
+      "X-Profile-Context": library.session?.activeProfileId ?? "",
+      ...(version === undefined ? {} : { "If-Match": `"v${version}"` }),
+    };
+  }
+  async function refreshListening() {
+    if (!library.session || library.profileRequired) return;
+    const scope = library.audience;
+    setRestoring(true);
+    setRestorationError("");
+    try {
+      const result = await customerApi(
+        "/listening",
+        "GET",
+        undefined,
+        listeningHeaders(),
+      );
+      if (scopeRef.current === scope) {
+        setSaved(result);
+        setSavedAudience(scope);
+        restoredScope.current = scope;
+      }
+    } catch (e) {
+      if (scopeRef.current === scope) setRestorationError((e as Error).message);
+    } finally {
+      if (scopeRef.current === scope) setRestoring(false);
+    }
+  }
+  useEffect(() => {
+    if (
+      location.pathname.startsWith("/music") &&
+      !library.busy &&
+      library.session &&
+      !library.profileRequired &&
+      restoredScope.current !== library.audience
+    )
+      void refreshListening();
+  }, [location.pathname, library.audience, library.busy]);
+  useEffect(() => {
+    const tick = setInterval(() => {
+      const active = lease.current;
+      if (!active || !element.current || element.current.paused) return;
+      void customerApi(
+        "/listening/heartbeat",
+        "POST",
+        {},
+        {
+          "X-Profile-Context": active.profileId,
+          "If-Match": `"v${active.version}"`,
+        },
+      ).catch((e) => {
+        if (lease.current === active) {
+          element.current?.pause();
+          lease.current = null;
+          setNotice((e as Error).message);
+          setHandoff(true);
+          void refreshListening();
+        }
+      });
+    }, 15000);
+    return () => clearInterval(tick);
+  }, [library.audience]);
+  async function claim(
+    item: ApiMusic,
+    snapshot: { ids: string[]; index: number; source: ListeningSource },
+    takeover = false,
+  ) {
+    const scope = library.audience;
+    const latest = await customerApi(
+      "/listening",
+      "GET",
+      undefined,
+      listeningHeaders(),
+    );
+    if (scopeRef.current !== scope) return false;
+    if (latest.otherSession && !takeover) {
+      setSaved(latest);
+      setSavedAudience(scope);
+      pendingHandoff.current = { item, queue: snapshot };
+      setHandoff(true);
+      setNotice(
+        "Your soundtrack is playing in another session. Continue here when you’re ready.",
+      );
+      return false;
+    }
+    const result = await customerApi(
+      "/listening",
+      "PUT",
+      {
+        queueIds: snapshot.ids,
+        index: snapshot.index,
+        sourceKind: snapshot.source.kind,
+        ...(snapshot.source.id ? { sourceId: snapshot.source.id } : {}),
+        takeover,
+      },
+      listeningHeaders(latest.version),
+    );
+    if (scopeRef.current !== scope) return false;
+    lease.current = {
+      version: result.version,
+      profileId: library.session!.activeProfileId!,
+    };
+    setSaved(result);
+    setSavedAudience(scope);
+    setHandoff(false);
+    pendingHandoff.current = null;
+    return true;
+  }
+  async function resumeListening(takeover = false) {
+    const scope = library.audience;
+    const pending = pendingHandoff.current;
+    if (pending) {
+      if (await claim(pending.item, pending.queue, takeover)) {
+        queue.current = pending.queue;
+        await start(pending.item, false, true, true);
+      }
+      return;
+    }
+    const latest = await customerApi(
+      "/listening",
+      "GET",
+      undefined,
+      listeningHeaders(),
+    );
+    if (scopeRef.current !== scope) return;
+    setSaved(latest);
+    setSavedAudience(scope);
+    if (!latest.current) {
+      setNotice(
+        "This track is no longer available. Try the next track in your queue.",
+      );
+      return;
+    }
+    const snapshot = {
+      ids: latest.queueIds,
+      index: latest.index,
+      source: latest.source
+        ? { kind: latest.source.kind, id: latest.source.id }
+        : { kind: "manual" },
+    } as { ids: string[]; index: number; source: ListeningSource };
+    if (await claim(latest.current, snapshot, takeover)) {
+      queue.current = snapshot;
+      await start(latest.current, false, true, true);
+    }
+  }
+  async function skipListening() {
+    const scope = library.audience;
+    const { candidate } = await customerApi(
+      "/listening/next",
+      "GET",
+      undefined,
+      listeningHeaders(),
+    );
+    if (scopeRef.current !== scope) return;
+    if (!candidate?.current) {
+      setNotice(
+        "There are no more available tracks in this queue. Find your next sound in Music.",
+      );
+      return;
+    }
+    const snapshot = {
+      ids: candidate.queueIds,
+      index: candidate.index,
+      source: candidate.source
+        ? { kind: candidate.source.kind, id: candidate.source.id }
+        : { kind: "manual" },
+    } as { ids: string[]; index: number; source: ListeningSource };
+    if (await claim(candidate.current, snapshot)) {
+      queue.current = snapshot;
+      await start(candidate.current, false, true, true);
+    }
+  }
   useEffect(() => {
     const node = bar.current;
     if (!node) return;
@@ -48,21 +270,63 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
       document.documentElement.style.removeProperty("--music-player-height");
     };
   }, [!!playing]);
-  function stop() {
+  function stop(release = true) {
+    const active = lease.current;
+    if (release && active) {
+      lease.current = null;
+      void customerApi(
+        "/listening/release",
+        "POST",
+        {},
+        {
+          "X-Profile-Context": active.profileId,
+          "If-Match": `"v${active.version}"`,
+        },
+      ).catch(() => {});
+    }
     requestSerial.current++;
-    queue.current=null;
+    queue.current = null;
     element.current?.pause();
     cursor.current = null;
     setPlaying(null);
+    setIsPlaying(false);
   }
   useEffect(() => {
     stop();
+    setSaved(null);
+    setRestorationError("");
+    setNotice("");
+    setHandoff(false);
+    pendingHandoff.current = null;
+    restoredScope.current = "";
   }, [library.audience]);
-  async function start(item: ApiMusic, preview = false, keepQueue = false) {
-    const snapshot=keepQueue?queue.current:null;
-    stop();
-    queue.current=snapshot;
-    const serial=requestSerial.current;
+  async function start(
+    item: ApiMusic,
+    preview = false,
+    keepQueue = false,
+    claimed = false,
+  ) {
+    if (!preview && !claimed) {
+      const snapshot =
+        keepQueue && queue.current
+          ? queue.current
+          : {
+              ids: [item.id],
+              index: 0,
+              source: { kind: "manual" } as ListeningSource,
+            };
+      if (!library.session)
+        throw Error("Sign in with a customer account to listen.");
+      if (library.profileRequired)
+        throw Error("Choose your profile before listening.");
+      if (!(await claim(item, snapshot))) return;
+      queue.current = snapshot;
+      keepQueue = true;
+    }
+    const snapshot = keepQueue ? queue.current : null;
+    stop(preview);
+    queue.current = snapshot;
+    const serial = requestSerial.current;
     setNotice("");
     const audience = library.audience;
     if (preview) {
@@ -80,7 +344,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
     if (library.profileRequired)
       throw Error("Choose your profile before listening.");
     const result = await customerApi("/music/" + item.id + "/playback");
-    if(serial!==requestSerial.current)return;
+    if (serial !== requestSerial.current) return;
     cursor.current = {
       id: item.id,
       mediaVersionId: result.mediaVersionId,
@@ -92,17 +356,23 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
     };
     setPlaying({ item, url: result.url, preview: false, audience });
   }
-  async function startQueue(items:ApiMusic[],index=0) {
-    if(!items.length||items.some(m=>m.kind!=='track')||!items[index])throw Error('Choose an available track to start.');
-    queue.current={items:[...items],index};
-    await start(items[index],false,true);
+  async function startQueue(
+    items: ApiMusic[],
+    index = 0,
+    source: ListeningSource = { kind: "manual" },
+  ) {
+    if (!items.length || items.some((m) => m.kind !== "track") || !items[index])
+      throw Error("Choose an available track to start.");
+    queue.current = { ids: items.map((m) => m.id), index, source };
+    await start(items[index], false, true);
   }
   async function advance() {
-    const snapshot=queue.current;
-    if(!snapshot||!snapshot.items[snapshot.index+1])return;
-    snapshot.index++;
-    try {await start(snapshot.items[snapshot.index],false,true)}
-    catch(e){setNotice((e as Error).message);}
+    if (!queue.current) return;
+    try {
+      await skipListening();
+    } catch (e) {
+      setNotice((e as Error).message);
+    }
   }
   function persist(force = false) {
     const state = cursor.current,
@@ -137,6 +407,11 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
           state.last = seconds;
           if (cursor.current === state) {
             library.recordProgress(playing.item, saved, state.profileId);
+            setSaved((old) =>
+              old?.current?.id === playing.item.id
+                ? { ...old, current: { ...old.current, progress: saved } }
+                : old,
+            );
             setNotice("Listening position saved.");
           }
         }
@@ -151,9 +426,49 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
     })();
   }
   return (
-    <AudioContext.Provider value={{ start, stop, startQueue }}>
+    <AudioContext.Provider
+      value={{
+        start,
+        stop: () => stop(),
+        startQueue,
+        saved: savedAudience === library.audience ? saved : null,
+        restoring,
+        notice,
+        refreshListening,
+        resumeListening,
+        skipListening,
+        handoff,
+        isPlaying,
+        restorationError,
+      }}
+    >
       {children}
-      {!playing&&notice&&<div role="alert" className="fixed inset-x-0 bottom-0 z-50 border-t border-gold/40 bg-bg-surface p-4 text-sm"><div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-4"><span>{notice}</span>{queue.current&&<Button size="sm" onClick={()=>{const q=queue.current;if(q)void start(q.items[q.index],false,true).catch(e=>setNotice(e.message));}}>Retry track</Button>}<Button size="sm" variant="ghost" onClick={()=>{stop();setNotice('')}}>Dismiss</Button></div></div>}
+      {notice && !playing && location.pathname !== "/music/player" && (
+        <div
+          role="status"
+          className="fixed inset-x-0 bottom-0 z-50 border-t border-gold/40 bg-bg-surface p-4 text-sm"
+        >
+          <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-4">
+            <span>{notice}</span>
+            {handoff && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  void resumeListening(true).catch((e) => setNotice(e.message))
+                }
+              >
+                Continue here
+              </Button>
+            )}
+            <Link className="text-gold" to="/music/player">
+              Open music player
+            </Link>
+            <Button size="sm" variant="ghost" onClick={() => setNotice("")}>
+              Dismiss
+            </Button>
+          </div>
+        </div>
+      )}
       {playing && playing.audience === library.audience && (
         <div
           ref={bar}
@@ -177,30 +492,80 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
                 {playing.item.artist}
               </span>
             </Link>
-            <Suspense fallback={null}><AdaptiveAudio
-              key={playing.url + playing.audience}
-              ref={element}
-              src={playing.url}
-              controls
-              autoPlay
-              preload="metadata"
-              aria-label={playing.item.title}
-              className="max-w-full"
-              onLoadedMetadata={() => {
-                if (element.current && cursor.current)
-                  element.current.currentTime = cursor.current.last;
+            <Suspense fallback={null}>
+              <AdaptiveAudio
+                key={playing.url + playing.audience}
+                ref={element}
+                src={playing.url}
+                controls
+                autoPlay
+                preload="metadata"
+                aria-label={playing.item.title}
+                className="max-w-full"
+                onLoadedMetadata={() => {
+                  if (element.current && cursor.current)
+                    element.current.currentTime = cursor.current.last;
+                }}
+                onTimeUpdate={() => persist()}
+                onPlay={() => {
+                  setIsPlaying(true);
+                  const active = lease.current;
+                  if (active)
+                    void customerApi(
+                      "/listening/heartbeat",
+                      "POST",
+                      {},
+                      {
+                        "X-Profile-Context": active.profileId,
+                        "If-Match": `"v${active.version}"`,
+                      },
+                    ).catch((e) => {
+                      if (lease.current === active) {
+                        element.current?.pause();
+                        lease.current = null;
+                        setHandoff(true);
+                        setNotice(e.message);
+                        void refreshListening();
+                      }
+                    });
+                }}
+                onPause={() => {
+                  setIsPlaying(false);
+                  persist(true);
+                }}
+                onSeeked={() => persist(true)}
+                onEnded={() => {
+                  persist(true);
+                  void advance();
+                }}
+                onError={() =>
+                  setNotice(
+                    "Audio is unavailable. Close the player and reopen the track to check access.",
+                  )
+                }
+              />
+            </Suspense>
+            {handoff && (
+              <Button
+                size="sm"
+                onClick={() =>
+                  void resumeListening(true).catch((e) => setNotice(e.message))
+                }
+              >
+                Continue here
+              </Button>
+            )}
+            <Link className="text-sm text-gold" to="/music/player">
+              Queue
+            </Link>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => {
+                persist(true);
+                stop();
               }}
-              onTimeUpdate={() => persist()}
-              onPause={() => persist(true)}
-              onSeeked={() => persist(true)}
-              onEnded={() => {persist(true);void advance();}}
-              onError={() =>
-                setNotice(
-                  "Audio is unavailable. Close the player and reopen the track to check access.",
-                )
-              }
-            /></Suspense>
-            <Button size="sm" variant="ghost" onClick={() => {persist(true);stop();}}>
+            >
               Close player
             </Button>
             <p role="status" className="w-full text-xs text-text-secondary">
