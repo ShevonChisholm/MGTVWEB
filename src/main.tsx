@@ -28,3 +28,8 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     </ToastProvider>
   </React.StrictMode>,
 )
+
+// Explicit performance review mode writes aggregate timings to this browser console only.
+if (new URLSearchParams(window.location.search).get("mgtvPerf") === "1") {
+  void import("./lib/performanceReview").then(({ startPerformanceReview }) => startPerformanceReview());
+}
