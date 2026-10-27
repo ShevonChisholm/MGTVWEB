@@ -147,3 +147,7 @@
 
 # Bundle the approved UI logo directly for frontend hosting.
 /public/brand/mgtv-logo-gold-v1.png -filter -diff -merge -text
+/public/brand/mgtv-logo-gold-v1-128.webp -filter -diff -merge -text
+/public/brand/mgtv-logo-gold-v1-256.webp -filter -diff -merge -text
+/public/brand/mgtv-logo-gold-v1-512.webp -filter -diff -merge -text
+/public/brand/mgtv-favicon-v1.png -filter -diff -merge -text
