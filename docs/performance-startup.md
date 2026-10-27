@@ -48,3 +48,5 @@ Stop: Albums remains unstarted; DRM, real-footage acceptance and production emai
 
 
 Final visual verification found that broad repository LFS rules caused Vercel to serve pointers for four new UI assets. Exact path exceptions and re-normalized binary blobs fix the delivery without changing the source artwork or other LFS objects. Final release `37184e374668a3978363c4670a32fb3dffb8d5a6`, deployment `dpl_7iCHFgV8ehBVAEWumXYhEC4suae8`. The eight above runs precede that image-delivery correction; repeat final-release checks below before treating the visual result as accepted.
+
+Final-release acceptance: all three WebP deliveries and favicon returned 200 with exact expected byte lengths and SHA256 hashes. Browser logos have nonzero natural dimensions. Guest desktop LCP 1256ms; phone 956ms. Poster loaded, no horizontal overflow, no pre-hover video. See final-release.json separately from earlier observations. Temporary local review servers stopped; private configuration unchanged; customer review session signed out.
