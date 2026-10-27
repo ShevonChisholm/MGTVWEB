@@ -1,3 +1,8 @@
+import LifestyleArtwork from "@/components/lifestyle/LifestyleArtwork";
+import LifestyleCard from "@/components/lifestyle/LifestyleCard";
+import LifestyleSkeleton from "@/components/lifestyle/LifestyleSkeleton";
+import { SessionDialog } from "@/components/shared/SessionDialog";
+import { lifestyleItem } from "@/lib/lifestyle";
 import {
   LoadingSkeleton,
   ErrorState,
@@ -22,53 +27,17 @@ const colors = {
   wellness: "bg-[#4ADE80]/15 text-[#4ADE80]",
 };
 export function LifestyleStoryCard({
-  story: a,
+  story,
   fluid = true,
 }: {
   story: LifestyleStory;
   fluid?: boolean;
 }) {
-  return (
-    <Link
-      to={"/lifestyle/" + a.id}
-      className={
-        (fluid ? "w-full" : "w-72 shrink-0 md:w-80") +
-        " group block overflow-hidden rounded-xl border border-white/5 bg-bg-surface hover:border-gold/30"
-      }
-    >
-      <div className="relative aspect-video overflow-hidden">
-        <img
-          src={a.coverUrl}
-          alt={a.imageAlt}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-500 motion-safe:group-hover:scale-105"
-        />
-        <span
-          className={
-            "absolute left-4 top-4 px-2.5 py-1.5 text-xs font-bold uppercase tracking-widest " +
-            colors[a.category]
-          }
-        >
-          {lifestyleCategories[a.category]}
-        </span>
-      </div>
-      <div className="p-5">
-        <h3 className="font-display text-2xl leading-tight text-text-primary group-hover:text-gold">
-          {a.title}
-        </h3>
-        <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-text-secondary">
-          {a.summary}
-        </p>
-        <p className="mt-4 text-xs text-text-secondary">
-          {new Date(a.publishedAt).toLocaleDateString("en-JM")} ·{" "}
-          {a.readMinutes} min read
-        </p>
-      </div>
-    </Link>
-  );
+  return <LifestyleCard item={lifestyleItem(story)} />;
 }
 export function ConnectedLifestyleEditorial() {
   const featuredPage = useHomepage("lifestyle");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [params, setParams] = useSearchParams();
   const category = params.get("category") ?? "",
     query = params.get("q") ?? "";
@@ -89,6 +58,7 @@ export function ConnectedLifestyleEditorial() {
     setCursor(null);
     setSearch(query);
     setMoreError("");
+    setBusy(false);
     requestSerial.current++;
   }, [path]);
   function filter(nextCategory: string, nextQuery = query) {
@@ -119,7 +89,7 @@ export function ConnectedLifestyleEditorial() {
     } catch (e) {
       if (serial === requestSerial.current) setMoreError((e as Error).message);
     } finally {
-      setBusy(false);
+      if (serial === requestSerial.current) setBusy(false);
     }
   }
   const stories: LifestyleStory[] = [...(page.data?.items ?? []), ...extra],
@@ -149,14 +119,17 @@ export function ConnectedLifestyleEditorial() {
         <div className="mx-auto max-w-[1760px] px-6 md:px-8">
           <Link
             to={"/lifestyle/" + featured.id}
-            className="group relative block overflow-hidden rounded-xl"
+            className="lifestyle-feature group relative block overflow-hidden"
           >
-            <img
-              src={featured.coverUrl}
-              alt={featured.imageAlt}
-              className="absolute inset-0 h-full w-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-bg-base via-bg-base/80 to-bg-base/20" />
+            <div className="lifestyle-feature__art">
+              <LifestyleArtwork
+                key={featured.coverUrl}
+                src={featured.coverUrl}
+                alt={featured.imageAlt}
+                priority
+              />
+            </div>
+            <div className="lifestyle-feature__shade" aria-hidden="true" />
             <span
               className={
                 "absolute left-4 top-4 px-2.5 py-1.5 text-xs font-black uppercase tracking-widest " +
@@ -165,7 +138,7 @@ export function ConnectedLifestyleEditorial() {
             >
               {lifestyleCategories[featured.category]}
             </span>
-            <div className="relative px-6 pb-8 pt-40 md:max-w-3xl md:px-10 md:pt-52">
+            <div className="lifestyle-feature__copy relative px-6 pb-8 pt-40 md:max-w-3xl md:px-10 md:pt-52">
               <p className="mb-3 text-xs font-black uppercase tracking-[0.3em] text-gold">
                 Featured Story
               </p>
@@ -192,32 +165,68 @@ export function ConnectedLifestyleEditorial() {
         <h2 className="mb-8 font-display text-3xl text-text-primary">
           Explore lifestyle
         </h2>
-        <div className="flex flex-col gap-8 lg:flex-row">
-          <aside
-            aria-label="Lifestyle categories"
-            className="shrink-0 space-y-2 lg:w-52"
-          >
-            <h3 className="mb-3 text-sm font-semibold text-text-primary">
-              Category
-            </h3>
-            {[["", "All stories"], ...Object.entries(lifestyleCategories)].map(
-              ([v, label]) => (
+        <div className="flex min-w-0 flex-col gap-5">
+          <div className="discovery-filter-trigger">
+            <button
+              type="button"
+              aria-expanded={filtersOpen}
+              onClick={() => setFiltersOpen(true)}
+              className="min-h-11 rounded-lg border border-white/50 px-6 text-sm text-text-primary"
+            >
+              Filters{category ? " · 1" : ""}
+            </button>
+          </div>
+          {filtersOpen && (
+            <SessionDialog
+              title="Lifestyle filters"
+              placement="drawer"
+              onClose={() => setFiltersOpen(false)}
+            >
+              <p className="mb-5 text-sm text-text-secondary">
+                Find a story for your kind of day. Category changes apply
+                immediately.
+              </p>
+              <h3 className="mb-3 text-xs uppercase tracking-widest text-gold">
+                Category
+              </h3>
+              <div className="space-y-2">
+                {[
+                  ["", "All stories"],
+                  ...Object.entries(lifestyleCategories),
+                ].map(([v, label]) => (
+                  <button
+                    key={v}
+                    aria-pressed={category === v}
+                    className={
+                      "block min-h-11 w-full rounded-lg border px-4 text-left text-sm " +
+                      (category === v
+                        ? "border-gold bg-gold/10 text-gold"
+                        : "border-white/10 text-text-secondary hover:text-gold")
+                    }
+                    onClick={() => filter(v)}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="mt-8 flex flex-wrap gap-4">
                 <button
-                  key={v}
-                  aria-pressed={category === v}
-                  className={
-                    "block min-h-11 w-full rounded-lg border px-4 text-left text-sm " +
-                    (category === v
-                      ? "border-gold bg-gold/10 text-gold"
-                      : "border-white/10 text-text-secondary hover:text-gold")
-                  }
-                  onClick={() => filter(v)}
+                  type="button"
+                  className="min-h-11 rounded-lg bg-gold px-6 text-bg-base"
+                  onClick={() => setFiltersOpen(false)}
                 >
-                  {label}
+                  Done
                 </button>
-              ),
-            )}
-          </aside>
+                <button
+                  type="button"
+                  className="min-h-11 text-gold"
+                  onClick={() => filter("", "")}
+                >
+                  Clear filters
+                </button>
+              </div>
+            </SessionDialog>
+          )}
           <div className="min-w-0 flex-1">
             <form
               className="mb-6 flex flex-wrap items-end gap-3"
@@ -249,10 +258,7 @@ export function ConnectedLifestyleEditorial() {
               )}
             </form>
             {page.loading ? (
-              <LoadingSkeleton
-                label={<>Loading lifestyle stories…</>}
-                variant="cards"
-              />
+              <LifestyleSkeleton />
             ) : page.error ? (
               <div role="alert" className="text-text-primary">
                 <p>{page.error}</p>
@@ -270,7 +276,7 @@ export function ConnectedLifestyleEditorial() {
                   : "The next story is on its way. No lifestyle stories have been published yet."}
               </p>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="lifestyle-results-grid">
                 {stories.map((a) => (
                   <LifestyleStoryCard key={a.id} story={a} />
                 ))}
@@ -404,12 +410,15 @@ export function ConnectedLifestyleArticle() {
     );
   return (
     <main className="bg-bg-base pt-16">
-      <figure>
-        <img
-          src={a.coverUrl}
-          alt={a.imageAlt}
-          className="aspect-video max-h-96 w-full object-cover"
-        />
+      <figure className="lifestyle-article-figure">
+        <div className="aspect-video max-h-96 overflow-hidden">
+          <LifestyleArtwork
+            key={a.coverUrl}
+            src={a.coverUrl}
+            alt={a.imageAlt}
+            priority
+          />
+        </div>
         {a.imageCaption && (
           <figcaption className="mx-auto max-w-3xl px-6 pt-3 text-xs text-text-secondary">
             {a.imageCaption}
@@ -470,7 +479,7 @@ export function ConnectedLifestyleArticle() {
           <h2 className="mb-8 font-display text-3xl text-text-primary">
             More Stories
           </h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="lifestyle-results-grid">
             {related.data.items
               .filter((s: LifestyleStory) => s.id !== id)
               .slice(0, 3)
@@ -537,7 +546,7 @@ function ProfileSavedStories() {
           </button>
         </p>
       ) : stories.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="lifestyle-results-grid">
           {stories.map((s) => (
             <LifestyleStoryCard key={s.id} story={s} />
           ))}

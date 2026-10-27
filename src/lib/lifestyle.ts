@@ -28,6 +28,7 @@ export const lifestyleItem = (a: LifestyleStory): CatalogItem => ({
   source: "api",
   title: a.title,
   thumbnail: a.coverUrl,
+  imageAlt:a.imageAlt,
   description: a.summary,
   genre: lifestyleCategories[a.category],
   date: new Date(a.publishedAt).toLocaleDateString("en-JM"),

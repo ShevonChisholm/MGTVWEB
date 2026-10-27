@@ -1,3 +1,4 @@
+import LifestyleCard from "@/components/lifestyle/LifestyleCard";
 import ArticleCard from "@/components/news/ArticleCard";
 import { ApiSportsCard } from "./ApiSportsCard";
 import { LibraryCard } from "@/components/music/LibraryCard";
@@ -37,8 +38,8 @@ export function MediaCard(props: MediaCardProps) {
         continuing={props.mode === "continue"}
       />
     );
-  return props.item.source === "api" &&
-    ["news", "lifestyle"].includes(props.item.type ?? "") ? (
+  return props.item.source === "api" && props.item.type === "lifestyle" ? <LifestyleCard item={props.item}/> : props.item.source === "api" &&
+    ["news"].includes(props.item.type ?? "") ? (
     <Link
       to={"/" + props.item.type + "/" + props.item.id}
       className={
