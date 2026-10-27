@@ -10,10 +10,12 @@ export function ApiMovieCard({
   item,
   fluid = false,
   continuing = false,
+  railFormat,
 }: {
   item: ContentItem;
   fluid?: boolean;
   continuing?: boolean;
+  railFormat?: string;
 }) {
   const movies = useMovies(),
     movie = { id: item.id, preference: item.moviePreference };
@@ -29,12 +31,12 @@ export function ApiMovieCard({
       <Link
         to={`/movies/${item.id}`}
         aria-label={`Open ${item.title}`}
-        className={`relative block overflow-hidden bg-bg-elevated movie-card__art ${continuing ? "aspect-video" : "aspect-[2/3]"}`}
+        className={`relative block overflow-hidden bg-bg-elevated movie-card__art ${continuing || railFormat === "landscape" ? "aspect-video" : "aspect-[2/3]"}`}
       >
         <MovieArtwork
-          key={continuing ? item.landscapeThumbnail : item.thumbnail}
-          src={continuing ? item.landscapeThumbnail : item.thumbnail}
-          landscape={continuing}
+          key={continuing || railFormat === "landscape" ? item.landscapeThumbnail : item.thumbnail}
+          src={continuing || railFormat === "landscape" ? item.landscapeThumbnail : item.thumbnail}
+          landscape={continuing || railFormat === "landscape"}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-base/70 via-transparent to-transparent" />
         {item.badge && (

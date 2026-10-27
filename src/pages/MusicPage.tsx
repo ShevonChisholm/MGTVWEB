@@ -297,7 +297,7 @@ function PlaylistDiscovery() {
           </ButtonLink>
         )}
       </div>
-      <div className="flex flex-col gap-8 lg:flex-row">
+      <div className="flex min-w-0 flex-col gap-5">
         <FilterSidebar discovery={discovery} count={filtered.length} />
         <div className="min-w-0 flex-1">
           <ActiveFilters discovery={discovery} count={filtered.length} />

@@ -9,10 +9,12 @@ export function ApiShowCard({
   item,
   fluid = false,
   continuing = false,
+  railFormat,
 }: {
   item: ContentItem;
   fluid?: boolean;
   continuing?: boolean;
+  railFormat?: string;
 }) {
   const shows = useShows(),
     node = {
@@ -25,14 +27,17 @@ export function ApiShowCard({
   const [busy, setBusy] = useState(false),
     [error, setError] = useState("");
   const href = episode ? `/watch/episodes/${item.id}` : `/shows/${item.id}`,
-    src = continuing || episode ? item.landscapeThumbnail : item.thumbnail;
+    landscape = continuing || episode || railFormat === "landscape",
+    src = landscape
+      ? (item.landscapeThumbnail ?? item.thumbnail)
+      : item.thumbnail;
   return (
     <article
       data-content-id={item.id}
       data-content-type={item.type}
       className={`group show-card ${
-        episode ? "show-card--episode" : "show-card--series"
-      } ${continuing ? "show-card--continuing" : ""} ${
+        episode && !railFormat ? "show-card--episode" : "show-card--series"
+      } ${continuing ? "show-card--continuing" : ""} ${railFormat ? "show-card--rail" : ""} ${
         fluid ? "w-full" : continuing ? "w-64 md:w-72" : "w-44 md:w-52"
       }`}
     >
@@ -40,10 +45,10 @@ export function ApiShowCard({
         to={href}
         aria-label={`Open ${item.title}`}
         className={`show-card__art relative block overflow-hidden bg-bg-elevated ${
-          continuing || episode ? "aspect-video" : "aspect-[2/3]"
+          landscape ? "aspect-video" : "aspect-[2/3]"
         }`}
       >
-        <ShowArtwork key={src} src={src} landscape={continuing || episode} />
+        <ShowArtwork key={src} src={src} landscape={landscape} />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-base/60 via-transparent to-transparent" />
         {item.badge && (
           <Badge variant={item.badge} className="absolute left-2 top-2" />
@@ -53,7 +58,9 @@ export function ApiShowCard({
             <span className="show-card__play" aria-hidden="true">
               ▷
             </span>
-            <span className="show-card__duration">{item.classification} · {item.duration}</span>
+            <span className="show-card__duration">
+              {item.classification} · {item.duration}
+            </span>
           </>
         )}
       </Link>
@@ -81,7 +88,7 @@ export function ApiShowCard({
         <p className="show-card__meta">
           {item.classification} · {item.genre}
         </p>
-        {episode && item.description && (
+        {episode && !railFormat && item.description && (
           <p className="show-card__synopsis">{item.description}</p>
         )}
         <div className="show-card__actions">

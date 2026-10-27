@@ -1,3 +1,4 @@
+import type { ApiEvent } from "@/context/EventsContext"
 export type ContentBadge = "premium" | "free" | "new" | "live" | "exclusive"
 
 export interface Playlist {
@@ -12,6 +13,8 @@ export interface Playlist {
 }
 
 export interface ContentItem {
+  imageAlt?: string
+  eventRecord?: ApiEvent
   previewAvailable?: boolean
   featureUrl?: string | null
   source?: "api"

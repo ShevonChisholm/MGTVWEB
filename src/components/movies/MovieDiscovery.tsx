@@ -187,7 +187,7 @@ export function MovieDiscovery({
       <Text as="h2" className="mb-8 font-display text-3xl">
         {title}
       </Text>
-      <div className="flex flex-col gap-8 lg:flex-row">
+      <div className="flex min-w-0 flex-col gap-5">
         <FilterSidebar discovery={discovery} />
         <div className="min-w-0 flex-1">
           <ActiveFilters discovery={discovery} count={data.length} />

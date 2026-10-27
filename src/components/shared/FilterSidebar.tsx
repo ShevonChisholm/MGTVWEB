@@ -1,16 +1,16 @@
-import { useState } from "react"
-import { Button } from "@/components/ui/Button"
-import { Text } from "@/components/ui/Text"
-import { SessionDialog } from "./SessionDialog"
-import type { DiscoveryState } from "@/hooks/useDiscoveryFilters"
+import { useState } from "react";
+import { Button } from "@/components/ui/Button";
+import { Text } from "@/components/ui/Text";
+import { SessionDialog } from "./SessionDialog";
+import type { DiscoveryState } from "@/hooks/useDiscoveryFilters";
 export function FilterSidebar({
   discovery,
   count = discovery.filtered.length,
 }: {
-  discovery: DiscoveryState
-  count?: number
+  discovery: DiscoveryState;
+  count?: number;
 }) {
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
   const groups = (
     <div className="space-y-7">
       {discovery.groups.map((group) => (
@@ -50,16 +50,10 @@ export function FilterSidebar({
         </fieldset>
       ))}
     </div>
-  )
+  );
   return (
     <>
-      <aside
-        aria-label="Discovery filters"
-        className="hidden w-48 shrink-0 lg:block"
-      >
-        {groups}
-      </aside>
-      <div className="lg:hidden">
+      <div className="discovery-filter-trigger">
         <Button
           variant="outline"
           aria-expanded={open}
@@ -72,7 +66,11 @@ export function FilterSidebar({
         </Button>
       </div>
       {open && (
-        <SessionDialog title="Discovery filters" onClose={() => setOpen(false)}>
+        <SessionDialog
+          title="Discovery filters"
+          placement="drawer"
+          onClose={() => setOpen(false)}
+        >
           <Text className="mb-3 text-sm text-text-secondary">
             Selections combine. Changes apply immediately; choose more than one
             group.
@@ -90,5 +88,5 @@ export function FilterSidebar({
         </SessionDialog>
       )}
     </>
-  )
+  );
 }

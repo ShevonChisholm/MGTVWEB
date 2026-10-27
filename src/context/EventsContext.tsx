@@ -42,6 +42,7 @@ export type ApiEvent = {
   interest?: { interested: boolean; version: number };
 };
 export const eventItem = (e: ApiEvent): CatalogItem => ({
+  eventRecord: e,
   id: e.id,
   type: "event",
   source: "api",

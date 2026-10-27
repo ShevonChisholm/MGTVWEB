@@ -406,3 +406,18 @@ nav[aria-label="Music formats"]::-webkit-scrollbar { display:none; }
 .sports-results-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:stretch}
 @media(min-width:640px){.sports-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(min-width:1280px){.sports-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* Discovery controls overlay the page instead of reserving a filter column. */
+html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:center;justify-content:flex-end;min-width:0}
+/* Rail cards use a column; detail episode lists retain their horizontal rows. */
+.show-card--rail{display:flex;flex-direction:column}.show-card--rail .show-card__art{margin:0;border-radius:0;align-self:stretch;flex-shrink:0}.show-card--rail .show-card__body{min-height:224px}.show-card--rail .show-card__meta{display:block}.show-card--rail .show-card__actions{min-height:44px}
+.lifecycle-teaser-card .rail-artwork{flex-shrink:0}.lifecycle-teaser-card h3{line-height:1.25;min-height:2.5em}
+
+/* The Current: original editorial photography, readable headlines and aligned cards. */
+.news-card{display:flex;flex:1;flex-direction:column;min-width:0;overflow:hidden;background:#111110;border:1px solid #ffffff10;border-radius:22px 0 22px 0}.news-card__art{display:block;aspect-ratio:16/9;overflow:hidden;flex-shrink:0}.news-artwork{width:100%;height:100%;overflow:hidden}.news-artwork img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .3s ease-out}.news-card:hover .news-artwork img{transform:scale(1.035)}.news-artwork__fallback{display:flex;height:100%;align-items:center;justify-content:center;flex-direction:column;gap:12px;background:#1c1b16;color:#aaa;font-size:12px}.news-artwork__fallback>span:first-child{color:#c9a84c;font-size:32px}
+.news-card__body{display:flex;flex:1;flex-direction:column;gap:10px;padding:20px;min-height:268px}.news-card__category{font-size:10px;line-height:16px;text-transform:uppercase;letter-spacing:.12em;color:#c9a84c}.news-card__title{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:52px;font-family:var(--font-display);font-size:22px;line-height:26px;color:#f5f5f5}.news-card__title a:hover{color:#c9a84c}.news-card__summary{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:60px;font-size:13px;line-height:20px;color:#a3a3a3}.news-card__meta{margin-top:auto;font-size:11px;line-height:18px;color:#a3a3a3}.news-card__action{display:flex;min-height:44px;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:600;color:#c9a84c}
+.news-results-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:24px;align-items:stretch}.news-feature{margin:24px 0;overflow:hidden;border:1px solid #c9a84c26;border-radius:32px 0 32px 0;box-shadow:0 18px 42px #0004}.news-feature>div:first-child{padding-left:24px;padding-right:24px}.news-feature__art{width:100%;min-width:0;min-height:240px;order:-1;aspect-ratio:16/9}.news-article-figure{margin:24px 24px 0}.news-article-figure>div{border-radius:32px 0 32px 0;border:1px solid #c9a84c26}
+@media(min-width:640px){.news-results-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.news-article-figure{margin-left:32px;margin-right:32px}}
+@media(min-width:1024px){.news-feature__art{order:0;aspect-ratio:auto;min-height:480px}.news-feature>div:first-child{padding-left:32px;padding-right:32px}}
+@media(min-width:1280px){.news-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.news-artwork img{transition:none}.news-card:hover .news-artwork img{transform:none}}

@@ -1,3 +1,4 @@
+import ArticleCard from "@/components/news/ArticleCard";
 import { ApiSportsCard } from "./ApiSportsCard";
 import { LibraryCard } from "@/components/music/LibraryCard";
 import { ApiEventCard } from "./ApiEventCard";
@@ -27,6 +28,7 @@ export interface MediaCardProps {
 }
 
 export function MediaCard(props: MediaCardProps) {
+  if(props.item.source === "api" && props.item.type === "news") return <ArticleCard item={props.item}/>;
   if (props.item.source === "api" && props.item.type === "sports")
     return (
       <ApiSportsCard
@@ -73,7 +75,7 @@ export function MediaCard(props: MediaCardProps) {
       />
     </div>
   ) : props.item.source === "api" && props.item.type === "event" ? (
-    <ApiEventCard item={props.item} fluid={props.fluid} />
+    <ApiEventCard item={props.item} event={props.item.eventRecord} fluid={props.fluid} />
   ) : props.item.source === "api" &&
     ["track", "musicVideo"].includes(props.item.type ?? "") ? (
     <ApiMusicCard
@@ -86,11 +88,13 @@ export function MediaCard(props: MediaCardProps) {
     <ApiShowCard
       item={props.item}
       fluid={props.fluid}
+      railFormat={props.railFormat}
       continuing={props.mode === "continue"}
     />
   ) : props.item.source === "api" ? (
     <ApiMovieCard
       item={props.item}
+      railFormat={props.railFormat}
       fluid={props.fluid}
       continuing={props.mode === "continue"}
     />

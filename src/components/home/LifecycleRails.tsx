@@ -112,12 +112,15 @@ function LifecycleRail({ section }: { section: any }) {
           {entry.content.teaser ? (
             <Link
               to={entry.destination}
-              className="group w-44 overflow-hidden rounded-xl border border-white/5 bg-bg-surface md:w-52"
+              className="lifecycle-teaser-card group flex flex-1 flex-col overflow-hidden rounded-[22px_0_22px_0] border border-white/5 bg-bg-surface"
             >
               <div className="rail-artwork relative aspect-video">
                 <img
                   className="h-full w-full object-cover"
-                  src={entry.content.artwork.portraitUrl}
+                  src={
+                    entry.content.artwork.landscapeUrl ??
+                    entry.content.artwork.portraitUrl
+                  }
                   alt=""
                   loading="lazy"
                 />
@@ -125,14 +128,16 @@ function LifecycleRail({ section }: { section: any }) {
                   Coming Soon
                 </span>
               </div>
-              <div className="p-4">
-                <h3 className="font-display text-xl group-hover:text-gold">
+              <div className="flex min-h-48 flex-1 flex-col gap-3 p-4">
+                <h3 className="font-display text-xl leading-tight group-hover:text-gold">
                   {entry.content.title}
                 </h3>
                 <p className="mt-2 text-xs text-text-secondary">
                   Arrives {day(entry.content.releaseAt)}
                 </p>
-                <p className="mt-3 text-sm text-gold">Take a first look ›</p>
+                <p className="mt-auto inline-flex min-h-11 items-center text-sm text-gold">
+                  Take a first look ›
+                </p>
               </div>
             </Link>
           ) : (

@@ -22,6 +22,7 @@ export function newsItem(a: NewsArticle): CatalogItem {
     description: a.summary,
     genre: a.category,
     thumbnail: a.coverUrl,
+    imageAlt: a.imageAlt,
     date: new Date(a.publishedAt).toLocaleDateString("en-JM", {
       year: "numeric",
       month: "short",
@@ -50,7 +51,7 @@ export function useNews(path = "/news?limit=24", enabled = true) {
         if (!r.ok) throw Error(b.message ?? "Stories are unavailable.");
         return b;
       })
-      .then((b) => setData(b))
+      .then((b) => {if(!controller.signal.aborted)setData(b)})
       .catch((e) => {
         if (e.name !== "AbortError") setError(e.message);
       })

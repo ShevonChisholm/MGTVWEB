@@ -1,3 +1,7 @@
+import ArticleCard from "@/components/news/ArticleCard";
+import NewsArtwork from "@/components/news/NewsArtwork";
+import NewsSkeleton from "@/components/news/NewsSkeleton";
+import { newsItem } from "@/lib/news";
 import {
   LoadingSkeleton,
   ErrorState,
@@ -23,11 +27,11 @@ function Status({
     <main className="min-h-screen bg-bg-base px-6 pt-28 text-text-primary">
       <h1 className="font-display text-4xl">The Current</h1>
       {loading ? (
-        <LoadingSkeleton
-          label="Loading stories…"
-          variant={detail ? "article" : "landscape"}
-          columns={3}
-        />
+        detail ? (
+          <LoadingSkeleton label="Loading story…" variant="article" />
+        ) : (
+          <NewsSkeleton />
+        )
       ) : error ? (
         <ErrorState message={error} onRetry={retry} />
       ) : (
@@ -44,36 +48,7 @@ function Status({
   );
 }
 export function StoryCard({ a }: { a: NewsArticle }) {
-  return (
-    <Link
-      to={"/news/" + a.id}
-      className="group overflow-hidden rounded-xl border border-white/5 bg-bg-surface hover:border-gold/30"
-    >
-      <div className="aspect-video overflow-hidden">
-        <img
-          src={a.coverUrl}
-          alt={a.imageAlt}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform motion-safe:group-hover:scale-105"
-        />
-      </div>
-      <div className="p-5">
-        <p className="text-xs uppercase tracking-widest text-gold">
-          {a.category}
-        </p>
-        <h2 className="mt-2 font-display text-2xl text-text-primary group-hover:text-gold">
-          {a.title}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-text-secondary">
-          {a.summary}
-        </p>
-        <p className="mt-4 text-xs text-text-secondary">
-          {new Date(a.publishedAt).toLocaleDateString("en-JM")} ·{" "}
-          {a.readMinutes} min read
-        </p>
-      </div>
-    </Link>
-  );
+  return <ArticleCard item={newsItem(a)} headingLevel={2} />;
 }
 export function ConnectedNewsPage() {
   const featuredPage = useHomepage("news");
@@ -145,7 +120,7 @@ export function ConnectedNewsPage() {
             </p>
           </div>
           {featured && (
-            <div className="grid lg:grid-cols-2">
+            <div className="news-feature grid lg:grid-cols-2">
               <div className="flex flex-col justify-center py-10 md:py-14 lg:pr-10">
                 <p className="mb-4 text-sm font-semibold uppercase tracking-widest text-gold">
                   Featured · {featured.category}
@@ -181,11 +156,12 @@ export function ConnectedNewsPage() {
                     ))}
                 </div>
               </div>
-              <div className="relative min-h-64 overflow-hidden">
-                <img
+              <div className="news-feature__art relative overflow-hidden">
+                <NewsArtwork
+                  key={featured.coverUrl}
                   src={featured.coverUrl}
                   alt={featured.imageAlt}
-                  className="absolute inset-0 h-full w-full object-cover"
+                  priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-bg-surface/60 to-transparent" />
               </div>
@@ -199,7 +175,7 @@ export function ConnectedNewsPage() {
             Stories worth your time
           </h2>
           <form
-            className="flex gap-3"
+            className="flex min-w-0 flex-wrap items-end gap-3"
             onSubmit={(e) => {
               e.preventDefault();
               setExtra([]);
@@ -207,10 +183,10 @@ export function ConnectedNewsPage() {
               setFilter(q.trim());
             }}
           >
-            <label className="text-sm text-text-secondary">
+            <label className="flex min-w-0 flex-col gap-2 text-sm text-text-secondary">
               Search stories
               <input
-                className="ml-3 rounded border border-white/20 bg-bg-surface p-2 text-text-primary"
+                className="w-full min-w-0 rounded border border-white/20 bg-bg-surface p-2 text-text-primary"
                 value={q}
                 maxLength={180}
                 onChange={(e) => setQ(e.target.value)}
@@ -219,7 +195,7 @@ export function ConnectedNewsPage() {
             <button className="min-h-11 text-gold">Search</button>
           </form>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="news-results-grid">
           {articles.map((a) => (
             <StoryCard key={a.id} a={a} />
           ))}
@@ -251,12 +227,13 @@ export function ConnectedNewsArticle() {
   const a = article.data as NewsArticle;
   return (
     <main className="min-h-screen bg-bg-base pt-16">
-      <figure>
+      <figure className="news-article-figure">
         <div className="relative h-64 overflow-hidden md:h-96">
-          <img
+          <NewsArtwork
+            key={a.coverUrl}
             src={a.coverUrl}
             alt={a.imageAlt}
-            className="h-full w-full object-cover"
+            priority
           />
           <div className="absolute inset-0 bg-gradient-to-t from-bg-base to-transparent" />
         </div>
