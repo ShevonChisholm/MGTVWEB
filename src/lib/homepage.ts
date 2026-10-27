@@ -103,8 +103,8 @@ export function useHomepage(surface: string) {
         return null;
       if (!active) return null;
       return auth.session
-        ? customerApi("/homepage/" + surface)
-        : fetch("/api/v1/catalog/homepage/" + surface, {
+        ? customerApi("/homepage/" + surface + (surface === "home" ? "/structure" : ""))
+        : fetch("/api/v1/catalog/homepage/" + surface + (surface === "home" ? "/structure" : ""), {
             credentials: "include",
             cache: "no-store",
             signal: abort.signal,

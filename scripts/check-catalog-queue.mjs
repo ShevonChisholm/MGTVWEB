@@ -1,0 +1,13 @@
+import assert from "node:assert/strict";
+import {loadModule} from "./load-module.mjs";
+const {createCatalogReadQueue}=await loadModule("src/lib/catalogReadQueue.ts");
+assert.throws(()=>createCatalogReadQueue(0),RangeError);
+const queue=createCatalogReadQueue(2),release=[];let active=0,max=0;
+const jobs=Array.from({length:5},(_,i)=>queue(async()=>{active++;max=Math.max(max,active);await new Promise(r=>release.push(r));active--;return i;}));
+const tick=()=>new Promise(r=>setImmediate(r));await tick();assert.equal(release.length,2);
+for(let i=0;i<5;i++){release[i]();await tick();}assert.deepEqual(await Promise.all(jobs),[0,1,2,3,4]);assert.equal(max,2);
+const serial=createCatalogReadQueue(1);let unblock,ran=false;const first=serial(()=>new Promise(r=>unblock=r));await tick();
+const controller=new AbortController();const cancelled=serial(async()=>{ran=true;},controller.signal);const rejection=assert.rejects(cancelled,{name:"AbortError"});controller.abort();await rejection;unblock();await first;await tick();assert.equal(ran,false);
+await assert.rejects(serial(async()=>{throw Error("expected");}),/expected/);assert.equal(await serial(async()=>42),42);
+const pre=new AbortController();pre.abort();await assert.rejects(serial(async()=>{throw Error("must not run");},pre.signal),{name:"AbortError"});
+console.log("Catalog queue: concurrency, order, queued cancellation, failure recovery and pre-abort passed.");

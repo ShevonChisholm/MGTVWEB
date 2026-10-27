@@ -1,3 +1,4 @@
+import { DeferredEditorial } from "@/components/home/DeferredEditorial";
 import { RailViewport } from "@/components/home/RailViewport";
 import LifecycleRails from "@/components/home/LifecycleRails";
 import { ApiEventCard } from "@/components/home/ApiEventCard";
@@ -277,7 +278,7 @@ export default function ConnectedHome() {
               />
             ) : null
           ) : (
-            <EditorialSection key={s.id} section={s} />
+            s.deferred?<DeferredEditorial key={s.id} surface="home" section={s} renderSection={section=><EditorialSection section={section}/>}/>:<EditorialSection key={s.id} section={s} />
           ),
         )}
       </div>
