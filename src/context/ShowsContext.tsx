@@ -1,3 +1,4 @@
+import { musicDuration as episodeDuration } from "@/lib/musicPresentation";
 import { useHomeStartupReady } from "@/lib/homeStartup";
 import {
   createContext,
@@ -62,6 +63,7 @@ export const seriesItem = (movie: ApiSeries): CatalogItem => ({
   id: movie.id,
   type: movie.kind,
   source: "api",
+  previewAvailable: movie.previewAvailable,
   featureUrl:movie.featureUrl,
   showId: movie.showId,
   seasonNumber: movie.seasonNumber ?? undefined,
@@ -82,7 +84,7 @@ export const seriesItem = (movie: ApiSeries): CatalogItem => ({
   duration:
     movie.kind === "show"
       ? "Series"
-      : Math.max(1, Math.ceil(movie.durationSeconds / 60)) + " min",
+      : episodeDuration(movie.durationSeconds),
 });
 function useShowsValue() {
   const startupReady = useHomeStartupReady();

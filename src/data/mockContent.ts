@@ -12,6 +12,7 @@ export interface Playlist {
 }
 
 export interface ContentItem {
+  previewAvailable?: boolean
   featureUrl?: string | null
   source?: "api"
   landscapeThumbnail?:string

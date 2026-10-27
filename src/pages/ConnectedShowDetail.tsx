@@ -1,4 +1,8 @@
-import {OriginalLabel} from "@/components/shared/OriginalLabel";
+import {
+  ShowArtwork,
+  ShowDetailSkeleton,
+} from "@/components/shows/ShowArtwork";
+import { OriginalLabel } from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { ReportContent } from "@/components/moderation/ReportContent";
 import { SponsoredCards } from "@/components/shared/SponsoredCards";
@@ -13,7 +17,7 @@ import {
 } from "@/context/ShowsContext";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
-import { MediaCard } from "@/components/home/MediaCard";
+import { ApiShowCard } from "@/components/home/ApiShowCard";
 import { ContentRail } from "@/components/home/ContentRail";
 import { ShareBar } from "@/components/shared/ShareBar";
 import { LikeButton } from "@/components/shared/LikeButton";
@@ -62,12 +66,7 @@ export default function ConnectedShowDetail() {
         </ButtonLink>
       </main>
     );
-  if (!remote)
-    return (
-      <main className="min-h-screen px-6 py-28">
-        <LoadingSkeleton label={<>Loading series…</>} variant="detail" />
-      </main>
-    );
+  if (!remote) return <ShowDetailSkeleton />;
   return <ShowView key={shows.audience + remote.id} remote={remote} />;
 }
 function ShowView({ remote }: { remote: ApiSeries }) {
@@ -119,14 +118,10 @@ function ShowView({ remote }: { remote: ApiSeries }) {
       .finally(() => setSaving(false));
   }
   return (
-    <div className="min-h-screen bg-[#0A0A0A]">
+    <main className="min-h-screen bg-[#0A0A0A] pt-24">
       {/* Banner */}
-      <div className="relative w-full h-[55vh] min-h-[400px] overflow-hidden">
-        <img
-          src={show.banner}
-          alt={show.title}
-          className="w-full h-full object-cover object-top"
-        />
+      <div className="show-detail-hero">
+        <ShowArtwork key={show.banner} src={show.banner} landscape priority />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0A] via-[#0A0A0A]/40 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0A]/80 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 px-6 md:px-8 pb-10 max-w-[1760px] mx-auto">
@@ -142,7 +137,7 @@ function ShowView({ remote }: { remote: ApiSeries }) {
           >
             {show.title}
           </h1>
-          <OriginalLabel label={remote?.originalLabel}/>
+          <OriginalLabel label={remote?.originalLabel} />
           <div className="flex flex-wrap gap-3">
             {nextEpisode && (
               <ButtonLink
@@ -176,7 +171,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
           </div>
         </div>
       </div>
-
       {/* Content */}
       <div className="max-w-[1760px] mx-auto px-6 md:px-8 py-10">
         <div className="grid md:grid-cols-3 gap-12">
@@ -217,7 +211,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
                 }}
               />
             </div>
-
             {/* Season tabs */}
             {show.seasons.length > 1 && (
               <div className="flex flex-wrap gap-2 mb-6">
@@ -241,7 +234,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
                 ))}
               </div>
             )}
-
             <h2 className="mb-3 font-display text-2xl">
               {season
                 ? `Season ${season.number} · ${season.title}`
@@ -258,28 +250,17 @@ function ShowView({ remote }: { remote: ApiSeries }) {
               </p>
             )}
             {/* Episode list */}
-            <div className="grid gap-6 sm:grid-cols-2">
+            <div className="show-episode-list">
               {episodes
                 .filter(
                   (ep) =>
                     ep.showId === show.id && ep.seasonNumber === season?.number,
                 )
                 .map((ep) => (
-                  <div key={ep.id}>
-                    <MediaCard item={seriesItem(ep)} fluid />
-                    {ep.previewAvailable && (
-                      <Link
-                        to={`/watch/episodes/${ep.id}?preview=1`}
-                        className="mt-2 inline-flex min-h-11 items-center text-sm text-gold"
-                      >
-                        Watch free preview
-                      </Link>
-                    )}
-                  </div>
+                  <ApiShowCard key={ep.id} item={seriesItem(ep)} fluid />
                 ))}
             </div>
           </div>
-
           {/* Sidebar */}
           <div>
             <div className="bg-[#141414] rounded-xl p-6 border border-white/8">
@@ -304,7 +285,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
             </div>
           </div>
         </div>
-
         <ReportContent kind="show" contentId={show.id} />
         <SponsoredCards kind="show" targetId={show.id} />
         <SponsorStrip kind="shows" id={show.id} />
@@ -312,7 +292,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
         <div className="mt-8">
           <ShareBar title={show.title} />
         </div>
-
         {/* Related */}
         <div className="mt-10">
           <ContentRail
@@ -325,6 +304,6 @@ function ShowView({ remote }: { remote: ApiSeries }) {
           />
         </div>
       </div>
-    </div>
+    </main>
   );
 }

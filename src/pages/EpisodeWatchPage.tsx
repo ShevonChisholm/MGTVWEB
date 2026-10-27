@@ -1,3 +1,4 @@
+import { musicDuration as episodeDuration } from "@/lib/musicPresentation";
 import { PlaybackAccess } from "@/components/player/PlaybackAccess";
 import { PlayerRecommendations } from "@/components/player/PlayerRecommendations";
 import { SponsorStrip } from "@/components/shared/SponsorStrip";
@@ -282,7 +283,7 @@ export function EpisodeWatchPage() {
             </Text>
             <Text className="mt-3 text-sm text-text-secondary">
               {movie
-                ? `${movie.classification} · ${preview ? "Free preview" : Math.max(1, Math.ceil(movie.durationSeconds / 60)) + " min"}`
+                ? `${movie.classification} · ${preview ? "Free preview" : episodeDuration(movie.durationSeconds)}`
                 : ""}
             </Text>
             <Text className="mt-4 text-sm leading-relaxed text-text-secondary">
