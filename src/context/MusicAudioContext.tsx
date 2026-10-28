@@ -1,11 +1,7 @@
-const AdaptiveAudio = lazy(() =>
-  import("@/components/player/AdaptiveVideo").then((m) => ({
-    default: m.AdaptiveAudio,
-  })),
-);
 import {
   lazy,
   Suspense,
+  useCallback,
   createContext,
   useContext,
   useEffect,
@@ -17,6 +13,13 @@ import { Link, useLocation } from "react-router";
 import { useMusic, type ApiMusic } from "./MusicContext";
 import { customerApi } from "@/lib/customerAuth";
 import { Button } from "@/components/ui/Button";
+import { MusicPlayerBar } from "@/components/player/MusicPlayerBar";
+
+const AdaptiveAudio = lazy(() =>
+  import("@/components/player/AdaptiveVideo").then((m) => ({
+    default: m.AdaptiveAudio,
+  })),
+);
 export type ListeningSource = {
   kind: "manual" | "album" | "playlist" | "personal-playlist";
   id?: string;
@@ -46,13 +49,14 @@ const AudioContext = createContext<{
   skipListening: () => Promise<void>;
   handoff: boolean;
   isPlaying: boolean;
-  activeTrackId:string|null;
+  activeTrackId: string | null;
   restorationError: string;
 } | null>(null);
 export function MusicAudioProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
   const library = useMusic(),
     element = useRef<HTMLAudioElement>(null),
+    audioSettings = useRef({ volume: 1, muted: false }),
     cursor = useRef<any>(null),
     requestSerial = useRef(0),
     queue = useRef<{
@@ -73,6 +77,21 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
       audience: string;
     } | null>(null),
     [notice, setNotice] = useState("");
+  const [audioNode, setAudioNode] = useState<HTMLAudioElement | null>(null);
+  const attachAudio = useCallback((node: HTMLAudioElement | null) => {
+    if (element.current && element.current !== node) {
+      audioSettings.current = {
+        volume: element.current.volume,
+        muted: element.current.muted,
+      };
+    }
+    if (node) {
+      node.volume = audioSettings.current.volume;
+      node.muted = audioSettings.current.muted;
+    }
+    element.current = node;
+    setAudioNode(node);
+  }, []);
   const [restorationError, setRestorationError] = useState("");
   const [isPlaying, setIsPlaying] = useState(false);
   const [savedAudience, setSavedAudience] = useState("");
@@ -440,7 +459,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
         skipListening,
         handoff,
         isPlaying,
-        activeTrackId:playing&&!playing.preview?playing.item.id:null,
+        activeTrackId: playing && !playing.preview ? playing.item.id : null,
         restorationError,
       }}
     >
@@ -476,34 +495,40 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
           ref={bar}
           role="region"
           aria-label="Audio mini-player"
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-gold/40 bg-bg-surface px-4 py-3 shadow-xl"
+          className="mgtv-audio-dock"
         >
-          <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-3">
-            <img
-              src={playing.item.artwork.portraitUrl}
-              alt=""
-              className="h-12 w-12 rounded-md object-cover"
-            />
-            <Link
-              className="min-w-0 flex-1 text-sm text-gold"
-              to={"/music/track/" + playing.item.id}
-            >
-              {playing.item.title}
-              {playing.preview ? " · Preview" : ""}
-              <span className="block text-xs text-text-secondary">
-                {playing.item.artist}
-              </span>
-            </Link>
+          <MusicPlayerBar
+            item={playing.item}
+            audio={audioNode}
+            isPlaying={isPlaying}
+            preview={playing.preview}
+            handoff={handoff}
+            notice={notice}
+            onNext={
+              !playing.preview &&
+              saved?.current?.id === playing.item.id &&
+              saved.index + 1 < saved.queueIds.length
+                ? advance
+                : undefined
+            }
+            onContinue={() => resumeListening(true)}
+            onClose={() => {
+              persist(true);
+              stop();
+            }}
+          >
             <Suspense fallback={null}>
               <AdaptiveAudio
                 key={playing.url + playing.audience}
-                ref={element}
+                ref={attachAudio}
                 src={playing.url}
-                controls
+                controls={false}
+                aria-hidden="true"
+                tabIndex={-1}
                 autoPlay
                 preload="metadata"
                 aria-label={playing.item.title}
-                className="max-w-full"
+                className="hidden"
                 onLoadedMetadata={() => {
                   if (element.current && cursor.current)
                     element.current.currentTime = cursor.current.last;
@@ -547,33 +572,7 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
                 }
               />
             </Suspense>
-            {handoff && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  void resumeListening(true).catch((e) => setNotice(e.message))
-                }
-              >
-                Continue here
-              </Button>
-            )}
-            <Link className="text-sm text-gold" to="/music/player">
-              Queue
-            </Link>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                persist(true);
-                stop();
-              }}
-            >
-              Close player
-            </Button>
-            <p role="status" className="w-full text-xs text-text-secondary">
-              {notice}
-            </p>
-          </div>
+          </MusicPlayerBar>
         </div>
       )}
     </AudioContext.Provider>

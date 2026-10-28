@@ -1,0 +1,10 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import ts from 'typescript';
+const source=await readFile(new URL('../src/lib/audioPlayer.ts',import.meta.url),'utf8');
+const output=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText;
+const {audioClock,ringPosition,seekKey}=await import('data:text/javascript;base64,'+Buffer.from(output).toString('base64'));
+assert.equal(audioClock(NaN),'0:00');assert.equal(audioClock(Infinity),'0:00');assert.equal(audioClock(-10),'0:00');assert.equal(audioClock(224.365),'3:44');assert.equal(audioClock(3605),'1:00:05');
+for(const [x,y,value]of [[0,-1,0],[1,0,.25],[0,1,.5],[-1,0,.75]])assert.ok(Math.abs(ringPosition(100+x*50,100+y*50,100,100)-value)<1e-8);
+assert.equal(seekKey('ArrowLeft',2,224),0);assert.equal(seekKey('ArrowRight',222,224),224);assert.equal(seekKey('Home',200,224),0);assert.equal(seekKey('End',10,224),224);assert.equal(seekKey('PageDown',30,224),20);assert.equal(seekKey('PageUp',30,224),40);assert.equal(seekKey('Escape',30,224),null);assert.equal(seekKey('End',0,NaN),null);assert.equal(seekKey('ArrowRight',0,0),null);
+console.log('Audio seeking checks passed: circular quadrants, keyboard bounds, loading and long durations.');

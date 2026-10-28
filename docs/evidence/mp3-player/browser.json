@@ -1,0 +1,52 @@
+{
+  "checkedAt": "2026-10-28T04:28:48.890Z",
+  "realAudio": true,
+  "guestPreviewDuration": 20,
+  "fullTrackDuration": 224.352653,
+  "playPause": true,
+  "keyboardSeekSeconds": 10,
+  "pointerQuarterSeekSeconds": 4.987317,
+  "pointerDragHalfSeekSeconds": 9.987217,
+  "volumeAndMute": true,
+  "queueAdvance": {
+    "from": "Sunday Riddim",
+    "to": "Sea and Soul",
+    "then": "Coastline Drive",
+    "serverAccessChecksPreserved": true
+  },
+  "volumeRetainedAcrossTrackChange": "0.2",
+  "volumeRetainedAfterCloseAndResume": "0.2",
+  "savedQueue": "Track 5 of 12 · 1:30 saved",
+  "resumeWithoutAutoplay": true,
+  "authenticatedResume": true,
+  "responsive": [
+    {
+      "clock": "0:09 / 0:20",
+      "playerWithinViewport": true,
+      "raised": true,
+      "scrollWidth": 380,
+      "width": 390
+    },
+    {
+      "playerWithinViewport": true,
+      "raised": true,
+      "scrollWidth": 310,
+      "width": 320
+    },
+    {
+      "playerWithinViewport": true,
+      "raised": true,
+      "scrollWidth": 758,
+      "width": 768
+    },
+    {
+      "playerWithinViewport": true,
+      "raised": true,
+      "scrollWidth": 1270,
+      "width": 1280
+    }
+  ],
+  "productionBrowserErrors": [],
+  "isolatedDatabase": "mgtv_test_media_reset_restore_v1",
+  "hostedPreviewChanged": false
+}

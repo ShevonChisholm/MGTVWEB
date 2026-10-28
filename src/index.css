@@ -431,3 +431,356 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
 @media(min-width:1280px){.lifestyle-results-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:639px){.lifestyle-feature__shade{background:linear-gradient(0deg,#080a09f5 0%,#080a09cc 45%,#080a0926 100%)}.lifestyle-feature__copy{padding-top:260px}}
 @media(prefers-reduced-motion:reduce){.lifestyle-artwork img{transition:none}.lifestyle-card:hover .lifestyle-artwork img{transform:none}}
+
+/* MGTV audio dock: a raised gold transport orbit, real media controls. */
+.mgtv-audio-dock {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: 50;
+  padding: 46px 24px max(12px, env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.mgtv-audio-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 160px minmax(0, 1fr);
+  align-items: center;
+  gap: 0 24px;
+  max-width: 1440px;
+  margin: auto;
+  padding: 18px 26px 10px;
+  border: 1px solid rgb(201 168 76/0.25);
+  border-radius: 22px 0 22px 0;
+  background: linear-gradient(110deg, #191a18, #121310 55%, #1c1a14);
+  box-shadow:
+    0 -6px 44px #0006,
+    0 16px 48px #000b;
+  pointer-events: auto;
+}
+.mgtv-audio-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.mgtv-audio-avatar {
+  width: 60px;
+  height: 60px;
+  flex: none;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 1px solid rgb(201 168 76/0.35);
+  box-shadow: 0 4px 18px #0005;
+  background: #26251e;
+}
+.mgtv-audio-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.mgtv-audio-meta {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+.mgtv-audio-eyebrow {
+  font-size: 9px;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.17em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+}
+.mgtv-audio-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f5f5f5;
+}
+.mgtv-audio-title:hover {
+  color: var(--color-gold-light);
+}
+.mgtv-audio-artist {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  color: #b8b5ac;
+}
+.mgtv-audio-centre {
+  align-self: start;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  margin-top: -59px;
+  pointer-events: auto;
+}
+.mgtv-audio-orbit {
+  position: relative;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: #11130f;
+  box-shadow:
+    0 0 0 9px #121310,
+    0 -8px 30px #0005;
+  color: var(--color-gold-light);
+}
+.mgtv-audio-play {
+  position: absolute;
+  z-index: 2;
+  inset: 17px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #ead288;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #eed88c, #c9a84c 65%, #9f7a29);
+  color: #14130b;
+  box-shadow:
+    inset 0 2px 2px #fff6,
+    0 5px 18px #0008;
+  cursor: pointer;
+  transition:
+    filter 0.15s,
+    transform 0.15s;
+}
+.mgtv-audio-play svg {
+  width: 27px;
+  height: 27px;
+}
+.mgtv-audio-play:hover {
+  filter: brightness(1.12);
+  transform: scale(1.035);
+}
+.mgtv-audio-play:active {
+  transform: scale(0.97);
+}
+.mgtv-audio-seek {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: 50%;
+  touch-action: none;
+  cursor: crosshair;
+}
+.mgtv-audio-seek svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.mgtv-audio-orbit-track {
+  stroke: #494330;
+  stroke-width: 3;
+}
+.mgtv-audio-orbit-progress {
+  stroke: var(--color-gold-light);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+.mgtv-audio-time {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+  color: #ede5d0;
+}
+.mgtv-audio-time > span {
+  color: #a6a298;
+  font-weight: 400;
+}
+.mgtv-audio-tools {
+  display: flex;
+  justify-self: end;
+  align-items: center;
+  gap: 15px;
+  min-width: 0;
+}
+.mgtv-audio-transport,
+.mgtv-audio-volume {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.mgtv-audio-control {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: #c8c4b9;
+  cursor: pointer;
+}
+.mgtv-audio-control:hover {
+  color: var(--color-gold-light);
+  background: #c9a84c12;
+}
+.mgtv-audio-volume input {
+  width: 76px;
+  max-width: 100%;
+  accent-color: var(--color-gold);
+  cursor: pointer;
+}
+.mgtv-audio-feedback {
+  grid-column: 1/-1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  min-height: 22px;
+  margin-top: 4px;
+}
+.mgtv-audio-feedback p {
+  max-width: 100%;
+  margin: 0;
+  text-align: center;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #b8b5ac;
+  overflow-wrap: anywhere;
+}
+.mgtv-audio-feedback p[role="alert"] {
+  color: #ffb9ad;
+}
+.mgtv-audio-feedback > button {
+  padding: 6px 10px;
+  color: var(--color-gold-light);
+  font-size: 12px;
+  white-space: nowrap;
+  min-height: 36px;
+}
+.mgtv-audio-panel button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+.mgtv-audio-seek[aria-disabled="true"] {
+  opacity: 0.6;
+  cursor: default;
+}
+.mgtv-audio-panel :is(button, a, input, [role="slider"]):focus-visible {
+  outline: 2px solid var(--color-gold-light);
+  outline-offset: 4px;
+}
+.mgtv-audio-panel audio {
+  display: none;
+}
+@media (max-width: 1000px) and (min-width: 641px) {
+  .mgtv-audio-tools {
+    flex-direction: column;
+    gap: 0;
+  }
+  .mgtv-audio-panel {
+    gap: 0 12px;
+    padding-inline: 18px;
+    grid-template-columns: minmax(0, 1fr) 136px minmax(0, 1fr);
+  }
+}
+@media (max-width: 640px) {
+  .mgtv-audio-dock {
+    padding: 46px 10px max(8px, env(safe-area-inset-bottom));
+  }
+  .mgtv-audio-panel {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0 8px;
+    padding: 88px 12px 8px;
+    border-radius: 18px 0 18px 0;
+  }
+  .mgtv-audio-centre {
+    position: absolute;
+    top: -42px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    gap: 6px;
+  }
+  .mgtv-audio-orbit {
+    width: 104px;
+    height: 104px;
+  }
+  .mgtv-audio-play {
+    inset: 16px;
+  }
+  .mgtv-audio-avatar {
+    width: 42px;
+    height: 42px;
+  }
+  .mgtv-audio-identity {
+    gap: 8px;
+  }
+  .mgtv-audio-meta {
+    gap: 4px;
+  }
+  .mgtv-audio-eyebrow {
+    display: none;
+  }
+  .mgtv-audio-title {
+    font-size: 12px;
+  }
+  .mgtv-audio-artist {
+    font-size: 10px;
+  }
+  .mgtv-audio-tools {
+    flex-direction: column;
+    gap: 0;
+  }
+  .mgtv-audio-transport {
+    gap: 1px;
+  }
+  .mgtv-audio-control {
+    width: 32px;
+    height: 32px;
+  }
+  .mgtv-audio-control svg {
+    width: 18px;
+    height: 18px;
+  }
+  .mgtv-audio-volume input {
+    width: 76px;
+  }
+  .mgtv-audio-feedback {
+    margin-top: 8px;
+    min-height: 20px;
+  }
+  .mgtv-audio-feedback p {
+    font-size: 9px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mgtv-audio-play {
+    transition: none;
+  }
+}
+@media (forced-colors: active) {
+  .mgtv-audio-panel,
+  .mgtv-audio-orbit,
+  .mgtv-audio-play {
+    background: Canvas;
+    color: CanvasText;
+    border: 1px solid CanvasText;
+    box-shadow: none;
+  }
+  .mgtv-audio-orbit-track {
+    stroke: GrayText;
+  }
+  .mgtv-audio-orbit-progress {
+    stroke: Highlight;
+  }
+  .mgtv-audio-control {
+    color: ButtonText;
+  }
+}
+
+.mgtv-audio-orbit-progress {
+  transition: stroke-dashoffset 0.18s linear;
+}
+@media (prefers-reduced-motion: reduce) {
+  .mgtv-audio-orbit-progress {
+    transition: none;
+  }
+}
