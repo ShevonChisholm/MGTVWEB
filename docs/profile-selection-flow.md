@@ -1,6 +1,6 @@
 # Customer profile selection flow
 
-28 October 2026. Implemented and checked locally; not deployed to the stable customer preview.
+28 October 2026. Implemented, checked locally and deployed to the stable disposable customer preview.
 
 ## Experience
 
@@ -24,4 +24,11 @@ Add appears only below the server allowance: Free/Roots 1, Rhythm 3, Gold 5, abs
 
 ## Boundaries
 
-This browser pass did not reset a parental credential, execute final deletion, wait for a real five-minute proof timeout, or perform exhaustive assistive-technology testing. Existing API tests cover authorization and profile invariants; client expiry hides the editor behind re-verification. Do not describe these as newly browser-verified paths. No production email, DRM, subscription purchase or provider upload was enabled. Customer deployment remains a separate next step; no other admin area started.
+This browser pass did not reset a parental credential, execute final deletion, wait for a real five-minute proof timeout, or perform exhaustive assistive-technology testing. Existing API tests cover authorization and profile invariants; client expiry hides the editor behind re-verification. Do not describe these as newly browser-verified paths. No production email, DRM, subscription purchase or provider upload was enabled. Customer deployment is now complete; no other admin area started.
+
+
+## Preview rollout
+
+Customer commit 2c01b60d04b62597bf8fd5ebd8e340d0f1e66494 deployed READY as dpl_58B5XEWodqvmZ3LDU22fw4fLCtHF at https://mgtv-web.vercel.app. Previous rollback: a73e991 / dpl_3reGV9bTMd2c2gxK3pnc1UK9UaYh. Vercel calls this stable disposable-preview address its Production target; business production remains pending. No API, database schema, provider configuration or admin deployment changed.
+
+Hosted acceptance: guest chooser sign-in gate; existing Gold customer login to standalone five-profile chooser; capacity label and Add omission; protected Jordan profile challenge, method switch to account password and successful selection to homepage; return to chooser, management mode and settings hub; identity editor and direct deep-link refresh. Settings contained at 390/768/1280px (document widths 380/758/1270px). Browser error log was empty. No hosted profile fields, PINs, policies, subscriptions or permissions were changed; session sign-in, parental verification and active-profile selection were the only authentication mutations. The PIN-specific, create and identity-save paths were verified locally in the earlier isolated database, not repeated against hosted records. DRM and production email remain pending.
