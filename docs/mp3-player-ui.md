@@ -1,6 +1,6 @@
 # MGTV MP3 player — raised transport and progress ring
 
-Built and checked locally on 27 October 2026 (Jamaica). Not deployed to the hosted preview. DRM and production email remain pending. Stop before the next enhancement.
+Built, checked and deployed to the hosted preview on 27 October 2026 (Jamaica). DRM and production email remain pending. Stop before the next enhancement.
 
 ## Presentation
 
@@ -29,8 +29,16 @@ The local Vite dev-server path exposed pre-existing lazy-initialization ordering
 
 ## Local review
 
-While the task review server is running: http://127.0.0.1:5493/music/player. It uses an isolated restored database and existing private R2 delivery. The player is paused for review. Production preview stays unchanged until deployment is requested.
+While the task review server is running: http://127.0.0.1:5493/music/player. It uses an isolated restored database and existing private R2 delivery. The player is paused for review. The hosted preview now has the reviewed player and spacing refinement.
 
 ## Preview release refinement — 27 October 2026
 
 Owner requested preview deployment and less empty space immediately beside the centre transport. Desktop dock maximum width is now 1040px, its centre column is 128px, and the identity/control groups align inward. At 1280px the measured gap from each adjacent group to the orbit is 24px. Tablet uses a 120px centre column. The phone identity/control alignment is explicitly retained. Actual 320/390/768/1280 checks passed with no horizontal page overflow; [spacing evidence](evidence/mp3-player/spacing.json). TypeScript, circular seeking checks and production build passed. This release includes the previously verified player implementation, with no API/admin change.
+
+## Hosted release verification — 27 October 2026
+
+Vercel deployment `dpl_GCFhKXi3k3TttmdvwqyExKSLUoeX` is READY at https://mgtv-web.vercel.app, serving reviewed commit `551fad5f8d1d22442175ce990156db04097a33a7`. Vercel names the stable-address target Production; it remains the existing disposable preview. API/admin, sandbox configuration and provider assets were unchanged.
+
+On the stable address, the real twenty-second R2 MP3 preview reached readyState 4 and played with progressing time. Pause and keyboard seeking reached exactly 10 seconds; mute updated the actual audio element. Desktop dock measured 1040px wide at 1280px, with approximately 24px between the ring and each neighbouring group. At 390px the panel was 360px wide and within the viewport; at 768px it was 709.6px wide. Document widths were 1270/380/758 respectively, with no horizontal page overflow. Captured hosted console errors: none. Full signed-in playback, queue transitions and resume were checked locally as described above; hosted acceptance here covered guest delivery and the deployed layout/controls.
+
+Evidence: [hosted desktop](evidence/mp3-player/hosted-desktop.png), [hosted phone](evidence/mp3-player/hosted-phone.png). DRM and production email remain pending. No next enhancement started.
