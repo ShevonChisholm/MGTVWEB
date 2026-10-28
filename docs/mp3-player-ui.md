@@ -30,3 +30,7 @@ The local Vite dev-server path exposed pre-existing lazy-initialization ordering
 ## Local review
 
 While the task review server is running: http://127.0.0.1:5493/music/player. It uses an isolated restored database and existing private R2 delivery. The player is paused for review. Production preview stays unchanged until deployment is requested.
+
+## Preview release refinement — 27 October 2026
+
+Owner requested preview deployment and less empty space immediately beside the centre transport. Desktop dock maximum width is now 1040px, its centre column is 128px, and the identity/control groups align inward. At 1280px the measured gap from each adjacent group to the orbit is 24px. Tablet uses a 120px centre column. The phone identity/control alignment is explicitly retained. Actual 320/390/768/1280 checks passed with no horizontal page overflow; [spacing evidence](evidence/mp3-player/spacing.json). TypeScript, circular seeking checks and production build passed. This release includes the previously verified player implementation, with no API/admin change.

@@ -443,10 +443,10 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
 .mgtv-audio-panel {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 160px minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 128px minmax(0, 1fr);
   align-items: center;
-  gap: 0 24px;
-  max-width: 1440px;
+  gap: 0 16px;
+  max-width: 1040px;
   margin: auto;
   padding: 18px 26px 10px;
   border: 1px solid rgb(201 168 76/0.25);
@@ -458,6 +458,8 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
   pointer-events: auto;
 }
 .mgtv-audio-identity {
+  justify-self: end;
+  max-width: 100%;
   display: flex;
   align-items: center;
   gap: 14px;
@@ -593,7 +595,7 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
 }
 .mgtv-audio-tools {
   display: flex;
-  justify-self: end;
+  justify-self: start;
   align-items: center;
   gap: 15px;
   min-width: 0;
@@ -678,7 +680,7 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
   .mgtv-audio-panel {
     gap: 0 12px;
     padding-inline: 18px;
-    grid-template-columns: minmax(0, 1fr) 136px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 120px minmax(0, 1fr);
   }
 }
 @media (max-width: 640px) {
@@ -711,6 +713,7 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
     height: 42px;
   }
   .mgtv-audio-identity {
+    justify-self: start;
     gap: 8px;
   }
   .mgtv-audio-meta {
@@ -726,6 +729,7 @@ html{scrollbar-gutter:stable}.discovery-filter-trigger{display:flex;align-items:
     font-size: 10px;
   }
   .mgtv-audio-tools {
+    justify-self: end;
     flex-direction: column;
     gap: 0;
   }
