@@ -65,7 +65,7 @@ export function MusicPage() {
     <main className="min-h-screen bg-bg-base"><FeaturedStatus page={featuredPage}/>
       {title ? (
         <section className="relative isolate overflow-hidden">
-          <HeroBackdrop poster={feature?.landscapeThumbnail??image??""} featureUrl={playlistView?null:feature?.featureUrl}/>
+          <HeroBackdrop soundControlTop={84} poster={feature?.landscapeThumbnail??image??""} featureUrl={playlistView?null:feature?.featureUrl}/>
           <div className="relative mx-auto grid max-w-[1760px] items-center gap-10 px-6 py-16 md:grid-cols-[3fr_2fr] md:px-8 md:py-20">
             <div>
               <Text className="mb-5 text-xs font-semibold uppercase tracking-widest text-gold">

@@ -3,6 +3,7 @@ import { usePlaybackAnalytics } from "@/lib/playbackAnalytics";
 import AdvertisingVideo, { advertisingSource } from "./AdvertisingVideo";
 import {
   forwardRef,
+  useCallback,
   useEffect,
   useRef,
   type VideoHTMLAttributes,
@@ -354,6 +355,14 @@ const NativeAdaptiveVideo = forwardRef<
     !!props.autoPlay,
   );
   usePlaybackAnalytics(node, src);
+  const attach = useCallback(
+    (element: HTMLVideoElement | null) => {
+      node.current = element;
+      if (typeof forwardedRef === "function") forwardedRef(element);
+      else if (forwardedRef) forwardedRef.current = element;
+    },
+    [forwardedRef],
+  );
   return (
     <video
       {...props}
@@ -364,11 +373,7 @@ const NativeAdaptiveVideo = forwardRef<
         );
         props.onError?.(event);
       }}
-      ref={(element) => {
-        node.current = element;
-        if (typeof forwardedRef === "function") forwardedRef(element);
-        else if (forwardedRef) forwardedRef.current = element;
-      }}
+      ref={attach}
     >
       {children}
     </video>

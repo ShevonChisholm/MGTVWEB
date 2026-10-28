@@ -122,7 +122,7 @@ html {
   padding-top: 88px;
   overflow-wrap: anywhere;
 }
-.hero-card .hero-backdrop > button { bottom: 20px; right: 20px; }
+.hero-card .hero-backdrop > button:not(.mgtv-featured-sound) { bottom: 20px; right: 20px; }
 @media (min-width: 768px) {
   .hero-card { width: min(1760px, calc(100% - 64px)); }
 }
