@@ -1,0 +1,14 @@
+import assert from "node:assert/strict";
+import {readFile} from "node:fs/promises";
+import ts from "typescript";
+const path=new URL("../src/components/shared/screenMotion.ts",import.meta.url);
+const source=await readFile(path,"utf8");
+assert.equal(source.replaceAll("\r\n","\n"),(await readFile(new URL("../../admin/src/admin/components/screenMotion.ts",import.meta.url),"utf8")).replaceAll("\r\n","\n"));
+const {fadeScreen}=await import("data:text/javascript;base64,"+Buffer.from(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.ESNext}}).outputText).toString("base64"));
+let count=0,cancelled=0,listener;
+const node={animate(frames,options){count++;assert.equal(options.duration,160);assert.deepEqual(frames,[{opacity:.94},{opacity:1}]);return{cancel(){cancelled++}}}};
+const motion={matches:true,addEventListener(t,f){listener=f},removeEventListener(t,f){assert.equal(f,listener);listener=undefined}};
+fadeScreen(node,motion)();assert.equal(count,0);
+motion.matches=false;const cleanup=fadeScreen(node,motion);assert.equal(count,1);motion.matches=true;listener();assert.equal(cancelled,1);cleanup();assert.equal(listener,undefined);assert.equal(cancelled,2);
+fadeScreen({},motion)();motion.matches=false;fadeScreen({},motion)();assert.equal(count,1);
+console.log("Screen motion checks passed for both apps: reduced-motion suppression, live cancellation, cleanup and unsupported-browser fallback.");

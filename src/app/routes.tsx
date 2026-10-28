@@ -1,3 +1,4 @@
+import ScreenTransition from "@/components/shared/ScreenTransition";
 import { lazy, Suspense, type ComponentType } from "react";
 
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -18,7 +19,7 @@ import { MovieProvider } from "@/context/MovieContext";
 
 import { connectedAuth } from "@/lib/customerAuth";
 
-import { createBrowserRouter, Outlet } from "react-router";
+import { createBrowserRouter, Outlet, useLocation } from "react-router";
 
 import { Navbar } from "@/components/layout/Navbar";
 
@@ -290,12 +291,13 @@ const CreateProfilePage = deferredPage(() =>
 // Profile creation
 
 function MainLayout() {
+  const { pathname } = useLocation();
   return (
     <div className="min-h-full bg-[#0A0A0A]">
       <Navbar />
       <PersonalActionNotice />
       <ContentBoundary>
-        <Outlet />
+        <ScreenTransition screenKey={pathname}><Outlet /></ScreenTransition>
       </ContentBoundary>
       <Footer />
     </div>

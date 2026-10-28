@@ -1,5 +1,6 @@
+import ScreenTransition from "@/components/shared/ScreenTransition";
 import { BrandLogo } from "@/components/shared/BrandLogo";
-import { Link, Outlet } from "react-router"
+import { Link, Outlet, useLocation } from "react-router"
 
 const panels = [
   {
@@ -22,6 +23,7 @@ const panels = [
 const panel = panels[Math.floor(Math.random() * panels.length)]
 
 export function AuthLayout() {
+  const { pathname } = useLocation();
   return (
     <div className="min-h-screen bg-[#0A0A0A] flex">
       {/* Left cinematic panel — hidden on mobile */}
@@ -89,7 +91,7 @@ export function AuthLayout() {
         {/* Form area */}
         <div className="flex-1 flex items-center justify-center px-6 py-10">
           <div className="w-full max-w-[400px]">
-            <Outlet />
+            <ScreenTransition screenKey={pathname}><Outlet /></ScreenTransition>
           </div>
         </div>
 
