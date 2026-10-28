@@ -54,6 +54,12 @@ const AudioContext = createContext<{
 } | null>(null);
 export function MusicAudioProvider({ children }: { children: ReactNode }) {
   const location = useLocation();
+  const profileFlow =
+    location.pathname.startsWith("/profiles") ||
+    location.pathname === "/parental-controls";
+  useEffect(() => {
+    if (profileFlow) element.current?.pause();
+  }, [profileFlow]);
   const library = useMusic(),
     element = useRef<HTMLAudioElement>(null),
     audioSettings = useRef({ volume: 1, muted: false }),
@@ -464,35 +470,41 @@ export function MusicAudioProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {notice && !playing && location.pathname !== "/music/player" && (
-        <div
-          role="status"
-          className="fixed inset-x-0 bottom-0 z-50 border-t border-gold/40 bg-bg-surface p-4 text-sm"
-        >
-          <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-4">
-            <span>{notice}</span>
-            {handoff && (
-              <Button
-                size="sm"
-                onClick={() =>
-                  void resumeListening(true).catch((e) => setNotice(e.message))
-                }
-              >
-                Continue here
+      {notice &&
+        !playing &&
+        !profileFlow &&
+        location.pathname !== "/music/player" && (
+          <div
+            role="status"
+            className="fixed inset-x-0 bottom-0 z-50 border-t border-gold/40 bg-bg-surface p-4 text-sm"
+          >
+            <div className="mx-auto flex max-w-[1760px] flex-wrap items-center gap-4">
+              <span>{notice}</span>
+              {handoff && (
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    void resumeListening(true).catch((e) =>
+                      setNotice(e.message),
+                    )
+                  }
+                >
+                  Continue here
+                </Button>
+              )}
+              <Link className="text-gold" to="/music/player">
+                Open music player
+              </Link>
+              <Button size="sm" variant="ghost" onClick={() => setNotice("")}>
+                Dismiss
               </Button>
-            )}
-            <Link className="text-gold" to="/music/player">
-              Open music player
-            </Link>
-            <Button size="sm" variant="ghost" onClick={() => setNotice("")}>
-              Dismiss
-            </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
       {playing && playing.audience === library.audience && (
         <div
           ref={bar}
+          style={{ display: profileFlow ? "none" : undefined }}
           role="region"
           aria-label="Audio mini-player"
           className="mgtv-audio-dock"

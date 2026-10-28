@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/Input";
 
 import { SessionDialog } from "@/components/shared/SessionDialog";
 
-import { customerApi } from "@/lib/customerAuth";
+import { ProfileAvatar } from "./ProfileVisual";
+import { customerApi, CustomerAuthError } from "@/lib/customerAuth";
 
 export type CustomerProfile = {
   id: string;
@@ -30,10 +31,16 @@ export function CustomerProfileEditor({
   profile,
   onClose,
   onSaved,
+  embedded = false,
+  section = "all",
+  onVerificationRequired,
 }: {
   profile: CustomerProfile | null;
   onClose: () => void;
   onSaved: () => Promise<void>;
+  embedded?: boolean;
+  section?: "all" | "identity" | "preferences" | "policy" | "delete";
+  onVerificationRequired?: () => void;
 }) {
   const [name, setName] = useState(profile?.name ?? ""),
     [type, setType] = useState(profile?.type ?? "adult"),
@@ -90,24 +97,25 @@ export function CustomerProfileEditor({
       await onSaved();
       onClose();
     } catch (e) {
+      if (
+        e instanceof CustomerAuthError &&
+        e.code === "PARENT_VERIFICATION_REQUIRED"
+      )
+        onVerificationRequired?.();
       setError(e instanceof Error ? e.message : "Could not save this profile.");
     } finally {
       setBusy(false);
     }
   }
 
-  return (
-    <SessionDialog
-      title={profile ? `Manage ${profile.name}` : "Make room for someone"}
-      onClose={() => {
-        if (!busy) onClose();
-      }}
-    >
-      <p className="mb-5 text-sm text-text-secondary">
-        Account password or parental PIN verification is required. Your
-        account’s current profile allowance applies.
-      </p>
-
+  const content = (
+    <>
+      {!embedded && (
+        <p className="mb-5 text-sm text-text-secondary">
+          Account password or parental PIN verification is required. Your
+          account’s profile allowance applies.
+        </p>
+      )}
       {error && (
         <p
           role="alert"
@@ -118,96 +126,113 @@ export function CustomerProfileEditor({
         </p>
       )}
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          void save();
-        }}
-      >
-        <fieldset disabled={busy} className="space-y-5">
-          <label className="block text-sm">
-            Profile name
-            <Input
-              className="mt-2 w-full"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              maxLength={20}
-            />
-          </label>
-
-          <label className="block text-sm">
-            Age group
-            <select
-              className={field}
-              value={type}
-              disabled={profile?.isMain}
-              onChange={(e) => {
-                setType(e.target.value as CustomerProfile["type"]);
-              }}
-            >
-              {["adult", "teen", "child"].map((value) => (
-                <option key={value}>{value}</option>
-              ))}
-            </select>
-            {profile?.isMain && (
-              <span className="mt-2 block text-xs text-text-secondary">
-                Your main profile stays adult and cannot be deleted.
-              </span>
-            )}
-          </label>
-
-          <label className="block text-sm">
-            Avatar colour
-            <select
-              className={field}
-              value={avatar}
-              onChange={(e) => setAvatar(e.target.value)}
-            >
-              {["gold", "blue", "coral", "jade", "purple"].map((value) => (
-                <option key={value}>{value}</option>
-              ))}
-            </select>
-          </label>
-
-          {profile && (
-            <>
+      {["all", "identity", "preferences"].includes(section) && (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            void save();
+          }}
+        >
+          <fieldset disabled={busy} className="space-y-5">
+            <div hidden={section === "preferences"} className="space-y-5">
               <label className="block text-sm">
-                Preferred language
+                Profile name
+                <Input
+                  className="mt-2 w-full"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  maxLength={20}
+                />
+              </label>
+
+              <label className="block text-sm">
+                Age group
                 <select
                   className={field}
-                  value={language}
-                  onChange={(e) => setLanguage(e.target.value)}
+                  value={type}
+                  disabled={profile?.isMain}
+                  onChange={(e) => {
+                    setType(e.target.value as CustomerProfile["type"]);
+                  }}
                 >
-                  <option value="en">English</option>
-                  <option value="es">Spanish</option>
-                  <option value="fr">French</option>
-                  {!["en", "es", "fr"].includes(language) && (
-                    <option value={language}>{language}</option>
-                  )}
+                  {["adult", "teen", "child"].map((value) => (
+                    <option key={value}>{value}</option>
+                  ))}
                 </select>
-                <span className="mt-2 block text-xs text-text-secondary">
-                  Preference only; available languages depend on each title.
-                </span>
+                {profile?.isMain && (
+                  <span className="mt-2 block text-xs text-text-secondary">
+                    Your main profile stays adult and cannot be deleted.
+                  </span>
+                )}
               </label>
-              <label className="flex items-center gap-3 text-sm">
-                <input
-                  type="checkbox"
-                  checked={autoplay}
-                  onChange={(e) => setAutoplay(e.target.checked)}
-                />
-                Autoplay preference
-              </label>
-            </>
-          )}
 
-          <Button type="submit">
-            {busy ? "Saving…" : profile ? "Save profile" : "Create profile"}
-          </Button>
-        </fieldset>
-      </form>
+              <fieldset>
+                <legend className="text-sm">Avatar colour</legend>
+                <div className="pf-avatar-choices">
+                  {["gold", "blue", "coral", "jade", "purple"].map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-label={"Use " + value + " avatar"}
+                      aria-pressed={avatar === value}
+                      onClick={() => setAvatar(value)}
+                    >
+                      <ProfileAvatar
+                        small
+                        name={name || profile?.name || "M"}
+                        avatar={value}
+                      />
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            </div>
+            {profile && (
+              <div hidden={section === "identity"} className="space-y-5">
+                <label className="block text-sm">
+                  Preferred language
+                  <select
+                    className={field}
+                    value={language}
+                    onChange={(e) => setLanguage(e.target.value)}
+                  >
+                    <option value="en">English</option>
+                    <option value="es">Spanish</option>
+                    <option value="fr">French</option>
+                    {!["en", "es", "fr"].includes(language) && (
+                      <option value={language}>{language}</option>
+                    )}
+                  </select>
+                  <span className="mt-2 block text-xs text-text-secondary">
+                    Preference only; available languages depend on each title.
+                  </span>
+                </label>
+                <label className="flex items-center gap-3 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={autoplay}
+                    onChange={(e) => setAutoplay(e.target.checked)}
+                  />
+                  Autoplay preference
+                </label>
+              </div>
+            )}
 
-      {profile && (
+            <Button type="submit">
+              {busy
+                ? "Saving…"
+                : profile
+                  ? section === "preferences"
+                    ? "Save preferences"
+                    : "Save profile"
+                  : "Create profile"}
+            </Button>
+          </fieldset>
+        </form>
+      )}
+
+      {profile && ["all", "policy"].includes(section) && (
         <form
           className="mt-8 border-t border-text-muted/25 pt-6"
           onSubmit={(e) => {
@@ -259,14 +284,15 @@ export function CustomerProfileEditor({
                 onChange={(e) => setDailyLimit(e.target.value)}
               />
               <span className="mt-2 block text-xs text-text-secondary">
-                Leave blank for no daily limit. Setting a limit currently blocks
-                full video; reliable daily budget tracking is pending.
+                Leave blank for no daily limit. Full-video allowance is shared
+                across devices and resets at midnight in Jamaica. Audio, ads,
+                previews and hero clips are excluded.
               </span>
             </label>
             {profile.dailyLimitMinutes !== null && (
               <p className="text-sm text-gold">
-                A daily viewing limit is configured. Full video remains
-                unavailable while reliable daily budget tracking is pending.
+                This profile has a daily video allowance. The server checks
+                available time during playback.
               </p>
             )}
 
@@ -277,7 +303,7 @@ export function CustomerProfileEditor({
         </form>
       )}
 
-      {profile && !profile.isMain && (
+      {profile && !profile.isMain && ["all", "delete"].includes(section) && (
         <div className="mt-8 border-t border-text-muted/25 pt-6">
           {confirmDelete ? (
             <>
@@ -310,6 +336,21 @@ export function CustomerProfileEditor({
           )}
         </div>
       )}
+      {profile?.isMain && section === "delete" && (
+        <p>Your main adult profile cannot be deleted.</p>
+      )}
+    </>
+  );
+  return embedded ? (
+    content
+  ) : (
+    <SessionDialog
+      title={profile ? `Manage ${profile.name}` : "Make room for someone"}
+      onClose={() => {
+        if (!busy) onClose();
+      }}
+    >
+      {content}
     </SessionDialog>
   );
 }

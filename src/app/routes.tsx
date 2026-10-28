@@ -97,6 +97,10 @@ const EpisodeWatchPage = deferredPage(() =>
 
 const ConnectedAuth = deferredPage(() => import("@/pages/auth/ConnectedAuth"));
 
+const ConnectedProfiles = deferredPage(
+  () => import("@/pages/auth/ConnectedProfiles"),
+);
+
 const ConnectedAccount = deferredPage(
   () => import("@/pages/auth/ConnectedAccount"),
 );
@@ -129,7 +133,9 @@ const MovieDetailPage = deferredPage(() =>
   })),
 );
 
-const MusicListeningPage=deferredPage(()=>import("@/pages/MusicListeningPage"));
+const MusicListeningPage = deferredPage(
+  () => import("@/pages/MusicListeningPage"),
+);
 const MusicPage = deferredPage(() =>
   import("@/pages/MusicPage").then((m) => ({ default: m.MusicPage })),
 );
@@ -297,7 +303,9 @@ function MainLayout() {
       <Navbar />
       <PersonalActionNotice />
       <ContentBoundary>
-        <ScreenTransition screenKey={pathname}><Outlet /></ScreenTransition>
+        <ScreenTransition screenKey={pathname}>
+          <Outlet />
+        </ScreenTransition>
       </ContentBoundary>
       <Footer />
     </div>
@@ -371,7 +379,17 @@ export const router = createBrowserRouter([
       // Profile creation — standalone (no footer, minimal chrome)
       {
         path: "/profiles/create",
-        Component: connectedAuth ? ConnectedAccount : CreateProfilePage,
+        Component: connectedAuth ? ConnectedProfiles : CreateProfilePage,
+      },
+
+      {
+        path: "/profiles/*",
+        Component: connectedAuth ? ConnectedProfiles : ProfilesPage,
+      },
+
+      {
+        path: "/parental-controls",
+        Component: connectedAuth ? ConnectedProfiles : ParentalControlsPage,
       },
 
       // Main app — Navbar + Footer wrapper
@@ -387,7 +405,7 @@ export const router = createBrowserRouter([
           { path: "movies", Component: MoviesPage },
           { path: "movies/:id", Component: MovieDetailPage },
           { path: "music", Component: MusicPage },
-          {path:"music/player",Component:MusicListeningPage},
+          { path: "music/player", Component: MusicListeningPage },
           { path: "music/artist/:id", Component: ArtistProfilePage },
           {
             path: "music/album/:id",
@@ -415,14 +433,7 @@ export const router = createBrowserRouter([
             path: "account",
             Component: connectedAuth ? ConnectedAccount : AccountPage,
           },
-          {
-            path: "profiles",
-            Component: connectedAuth ? ConnectedAccount : ProfilesPage,
-          },
-          {
-            path: "parental-controls",
-            Component: connectedAuth ? ConnectedAccount : ParentalControlsPage,
-          },
+
           { path: "notifications", Component: NotificationsPage },
           { path: "shop", Component: ShopPage },
           { path: "shop/orders", element: <CommerceOrders /> },
