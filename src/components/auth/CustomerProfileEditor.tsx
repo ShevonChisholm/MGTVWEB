@@ -14,6 +14,7 @@ export type CustomerProfile = {
   name: string;
   type: "adult" | "teen" | "child";
   avatar: string;
+  avatarUrl?: string | null;
   isMain: boolean;
   language: string;
   autoplay: boolean;
@@ -45,6 +46,9 @@ export function CustomerProfileEditor({
   const [name, setName] = useState(profile?.name ?? ""),
     [type, setType] = useState(profile?.type ?? "adult"),
     [avatar, setAvatar] = useState(profile?.avatar ?? "gold"),
+    [avatarImage, setAvatarImage] = useState<string | null | undefined>(
+      undefined,
+    ),
     [language, setLanguage] = useState(profile?.language ?? "en"),
     [autoplay, setAutoplay] = useState(profile?.autoplay ?? true),
     [classification, setClassification] = useState(
@@ -89,7 +93,14 @@ export function CustomerProfileEditor({
                   dailyLimit === "" ? null : Number(dailyLimit),
               }
             : profile
-              ? { name, type, avatar, language, autoplay }
+              ? {
+                  name,
+                  type,
+                  avatar,
+                  language,
+                  autoplay,
+                  ...(avatarImage !== undefined ? { avatarImage } : {}),
+                }
               : { name, type, avatar },
         headers,
       );
@@ -167,6 +178,93 @@ export function CustomerProfileEditor({
                 )}
               </label>
 
+              <div className="rounded-xl border border-text-muted/20 p-4">
+                <div className="flex flex-wrap items-center gap-4">
+                  <ProfileAvatar
+                    small
+                    name={name || "M"}
+                    avatar={avatar}
+                    src={
+                      avatarImage === undefined
+                        ? profile?.avatarUrl
+                        : avatarImage
+                    }
+                  />
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">Make it yours</p>
+                    <p className="mt-1 text-xs text-text-secondary">
+                      JPEG, PNG or WebP · up to 2 MB. We crop it to a square and
+                      remove photo metadata.
+                    </p>
+                  </div>
+                </div>
+                {profile ? (
+                  <>
+                    <label className="mt-4 block text-sm">
+                      Upload avatar
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp"
+                        className="mt-2 block w-full min-w-0 max-w-full text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-gold file:px-3 file:py-2 file:font-medium file:text-black"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0];
+                          e.target.value = "";
+                          if (!file) return;
+                          if (
+                            !["image/jpeg", "image/png", "image/webp"].includes(
+                              file.type,
+                            ) ||
+                            file.size > 2 * 1024 * 1024
+                          ) {
+                            setError(
+                              "Choose a JPEG, PNG or WebP image no larger than 2 MB.",
+                            );
+                            return;
+                          }
+                          setError("");
+                          setBusy(true);
+                          try {
+                            const data = await new Promise<string>(
+                              (resolve, reject) => {
+                                const reader = new FileReader();
+                                reader.onload = () =>
+                                  resolve(String(reader.result));
+                                reader.onerror = () =>
+                                  reject(Error("This file could not be read."));
+                                reader.readAsDataURL(file);
+                              },
+                            );
+                            setAvatarImage(data);
+                          } catch {
+                            setError(
+                              "This file could not be read. Try another image.",
+                            );
+                          } finally {
+                            setBusy(false);
+                          }
+                        }}
+                      />
+                    </label>
+                    {(avatarImage ||
+                      (avatarImage === undefined && profile.avatarUrl)) && (
+                      <button
+                        type="button"
+                        className="mt-3 text-sm text-gold"
+                        onClick={() => setAvatarImage(null)}
+                      >
+                        Use colour avatar instead
+                      </button>
+                    )}
+                    <p className="mt-3 text-xs text-text-secondary">
+                      Your photo changes when you save this profile.
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-3 text-xs text-text-secondary">
+                    Create your profile first, then upload its avatar here.
+                  </p>
+                )}
+              </div>
               <fieldset>
                 <legend className="text-sm">Avatar colour</legend>
                 <div className="pf-avatar-choices">
@@ -176,7 +274,10 @@ export function CustomerProfileEditor({
                       type="button"
                       aria-label={"Use " + value + " avatar"}
                       aria-pressed={avatar === value}
-                      onClick={() => setAvatar(value)}
+                      onClick={() => {
+                        setAvatar(value);
+                        setAvatarImage(null);
+                      }}
                     >
                       <ProfileAvatar
                         small

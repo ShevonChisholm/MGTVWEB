@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Link } from "react-router";
 export const avatarPalette: Record<string, string> = {
   gold: "#C9A84C",
@@ -51,13 +51,16 @@ export function ProfileAvatar({
   avatar,
   type,
   small = false,
+  src,
 }: {
   name: string;
   avatar: string;
   type?: string;
   small?: boolean;
+  src?: string | null;
 }) {
   const color = avatarPalette[avatar] ?? avatarPalette.gold;
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
   return (
     <span
       aria-hidden="true"
@@ -67,19 +70,31 @@ export function ProfileAvatar({
         background: `radial-gradient(ellipse at 80% 0, ${color}40, transparent 85%), #17191b`,
       }}
     >
-      <svg
-        className="pf-avatar-lines"
-        viewBox="0 0 150 150"
-        fill="none"
-        stroke="currentColor"
-      >
-        <path d="M-10 125Q65 40 160 110M-10 145Q65 60 160 130" />
-        <path d="m102 13 11 15 19-4" />
-      </svg>
-      <span className="pf-avatar-initial">
-        {name.slice(0, 1).toLocaleUpperCase() || "M"}
-      </span>
-      {type === "child" && <span className="pf-avatar-star">✦</span>}
+      {src && src !== failedSrc ? (
+        <img
+          src={src}
+          alt=""
+          referrerPolicy="same-origin"
+          className="h-full w-full rounded-[inherit] object-cover"
+          onError={() => setFailedSrc(src)}
+        />
+      ) : (
+        <>
+          <svg
+            className="pf-avatar-lines"
+            viewBox="0 0 150 150"
+            fill="none"
+            stroke="currentColor"
+          >
+            <path d="M-10 125Q65 40 160 110M-10 145Q65 60 160 130" />
+            <path d="m102 13 11 15 19-4" />
+          </svg>
+          <span className="pf-avatar-initial">
+            {name.slice(0, 1).toLocaleUpperCase() || "M"}
+          </span>
+          {type === "child" && <span className="pf-avatar-star">✦</span>}
+        </>
+      )}
     </span>
   );
 }

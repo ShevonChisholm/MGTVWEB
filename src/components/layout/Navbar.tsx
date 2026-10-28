@@ -1,7 +1,7 @@
 import { BrandLogo } from "@/components/shared/BrandLogo";
-import {ConnectedCommerceCart} from "@/components/shared/ConnectedCommerceCart";
-import {openCart} from "@/lib/commerce";
-import {useNotifications} from "@/components/notifications/ConnectedNotifications";
+import { ConnectedCommerceCart } from "@/components/shared/ConnectedCommerceCart";
+import { openCart } from "@/lib/commerce";
+import { useNotifications } from "@/components/notifications/ConnectedNotifications";
 import {
   connectedAuth,
   customerApi,
@@ -69,7 +69,7 @@ export function Navbar() {
       : "guest"
     : app.state.session;
   const profileName = connectedAuth
-    ? customerSession?.account.displayName
+    ? customerSession?.activeProfile?.name
     : app.profile?.name;
   const signOut = () => {
     if (connectedAuth)
@@ -238,9 +238,7 @@ export function Navbar() {
               <Button
                 variant="ghost"
                 size="sm"
-                aria-label={
-                  `Notifications, ${unreadCount} unread`
-                }
+                aria-label={`Notifications, ${unreadCount} unread`}
                 disabled={connectedAuth && !customerSession}
                 aria-expanded={notifOpen}
                 onClick={() => setNotifOpen((value) => !value)}
@@ -277,7 +275,7 @@ export function Navbar() {
                     : `Open cart, ${cartCount} items`
                 }
 
-                onClick={() => connectedAuth?openCart():setCartOpen(true)}
+                onClick={() => (connectedAuth ? openCart() : setCartOpen(true))}
               >
                 <svg
                   aria-hidden="true"
@@ -313,8 +311,22 @@ export function Navbar() {
                 aria-controls="account-links"
                 onClick={() => setAccountOpen((value) => !value)}
               >
-                {profileName ??
-                  (sessionStatus === "expired" ? "Expired" : "Account")}
+                {customerSession?.activeProfile?.avatarUrl && (
+                  <img
+                    src={customerSession.activeProfile.avatarUrl}
+                    alt=""
+                    className="h-8 w-8 rounded-lg object-cover"
+                    referrerPolicy="same-origin"
+                  />
+                )}
+                <span className="max-w-40 truncate">
+                  {profileName ??
+                    (sessionStatus === "expired"
+                      ? "Expired"
+                      : customerSession
+                        ? "Choose profile"
+                        : "Account")}
+                </span>
               </Button>
               {accountOpen && (
                 <div
@@ -345,23 +357,34 @@ export function Navbar() {
                 profileName
                   ? `Switch profile, current ${profileName}`
                   : connectedAuth
-                    ? "Customer sign in"
+                    ? customerSession
+                      ? "Choose profile"
+                      : "Customer sign in"
                     : "Demo sign in"
               }
               className="p-3 text-text-secondary xl:hidden"
             >
-              <svg
-                aria-hidden="true"
-                className="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeWidth={2}
-                  d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM5 21a7 7 0 0 1 14 0H5Z"
+              {customerSession?.activeProfile?.avatarUrl ? (
+                <img
+                  src={customerSession.activeProfile.avatarUrl}
+                  alt=""
+                  className="h-7 w-7 rounded-lg object-cover"
+                  referrerPolicy="same-origin"
                 />
-              </svg>
+              ) : (
+                <svg
+                  aria-hidden="true"
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeWidth={2}
+                    d="M16 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0ZM5 21a7 7 0 0 1 14 0H5Z"
+                  />
+                </svg>
+              )}
             </Link>
             <Button
               variant="ghost"
@@ -428,7 +451,7 @@ export function Navbar() {
               variant="ghost"
 
               onClick={() => {
-                connectedAuth?openCart():setCartOpen(true);
+                connectedAuth ? openCart() : setCartOpen(true);
                 setMobileOpen(false);
               }}
             >
@@ -439,7 +462,7 @@ export function Navbar() {
         )}
       </header>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} />}
-      {connectedAuth ? <ConnectedCommerceCart/> : <CartDrawer />}
+      {connectedAuth ? <ConnectedCommerceCart /> : <CartDrawer />}
     </>
   );
 }

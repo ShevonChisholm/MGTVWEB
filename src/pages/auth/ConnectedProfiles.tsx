@@ -343,6 +343,7 @@ export default function ConnectedProfiles() {
                             <ProfileAvatar
                               name={p.name}
                               avatar={p.avatar}
+                              src={p.avatarUrl}
                               type={p.type}
                             />
                             {view === "manage" && (
@@ -436,6 +437,7 @@ export default function ConnectedProfiles() {
                         small
                         name={profile.name}
                         avatar={profile.avatar}
+                        src={profile.avatarUrl}
                       />
                       <strong>{profile.name}</strong>
                     </div>
@@ -473,6 +475,7 @@ export default function ConnectedProfiles() {
                       small
                       name={profile.name}
                       avatar={profile.avatar}
+                      src={profile.avatarUrl}
                       type={profile.type}
                     />
                     <div>
@@ -565,6 +568,7 @@ export default function ConnectedProfiles() {
                         small
                         name={profile.name}
                         avatar={profile.avatar}
+                        src={profile.avatarUrl}
                       />
                       <strong>{profile.name}</strong>
                     </div>
