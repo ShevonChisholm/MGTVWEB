@@ -1,6 +1,6 @@
 # Featured clip sound — 28 October 2026
 
-Implemented and verified locally; not deployed. DRM and production email remain pending. Stop before the next enhancement.
+Implemented, verified and deployed to the disposable preview. DRM and production email remain pending. Stop before the next enhancement.
 
 ## Behaviour
 
@@ -19,4 +19,12 @@ Poster-first mouse-hover playback remains. Touch-only and reduced-motion devices
 - 1280/768/390 viewport checks had document widths 1270/758/380 without horizontal page overflow. The 390px mouse-driven review placed the 44px control within the hero. This does not substitute for physical touch/Safari testing. On Music the control was initially covered by navigation; after correction its top was 84px and hit testing plus a real click verified reachability. Browser error capture was empty.
 - Browser policy denial paths are covered deterministically by the controller checks; the review browser permitted audible playback after interaction. No claim that every first-time browser permits sound, or that actual blocked autoplay was reproduced in the review browser.
 
-Evidence: [Home](evidence/featured-sound/home.png), [narrow Movies](evidence/featured-sound/phone.png), [Music](evidence/featured-sound/music.png). Preview deployment remains separate.
+Evidence: [Home](evidence/featured-sound/home.png), [narrow Movies](evidence/featured-sound/phone.png), [Music](evidence/featured-sound/music.png). Hosted deployment verification follows below.
+
+## Hosted release — 28 October 2026
+
+Vercel `dpl_2NPYy7cC2fENrh7Kt9wXcKAwXs42` is READY at https://mgtv-web.vercel.app, serving reviewed commit `771f548d2757b113e34da98c95068bf9037e8f9e`. Only the customer app was deployed. Vercel calls this stable-address target Production; it remains the disposable preview with sandbox providers and no production email.
+
+Home showed its poster with no video before interaction. The real hosted clip reached readyState 4, progressed and had muted=false. Explicit mute changed the icon/state and survived reload. Music retained the mute choice; its control was reachable at top=84px below navigation, and clicking unmute restored real sound-enabled playback. At 390px, document width was 380px and the 44px control stayed within the viewport (x=316 to 360). Pointer leave removed the video. Captured browser errors: none. Browser-denial branches remain covered by the deterministic checks documented above, rather than claimed as a forced hosted browser restriction.
+
+[Hosted screenshot](evidence/featured-sound/hosted.png). DRM and production email remain pending. No next enhancement started.
