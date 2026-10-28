@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import {
   ShowArtwork,
   ShowDetailSkeleton,
@@ -164,9 +165,12 @@ function ShowView({ remote }: { remote: ApiSeries }) {
               variant="outline"
               size="lg"
               disabled={saving}
+              aria-label={preference.saved?"Remove from My List":"Save to My List"}
+              title={preference.saved?"Remove from My List":"Save to My List"}
+              aria-pressed={preference.saved}
               onClick={() => save({ saved: !preference.saved })}
             >
-              {preference.saved ? "✓ Saved" : "+ My List"}
+              <EngagementIcon name="save" active={preference.saved}/>
             </Button>
           </div>
         </div>

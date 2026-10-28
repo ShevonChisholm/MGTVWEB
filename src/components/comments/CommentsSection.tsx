@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import { useEffect, useId, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import {
@@ -555,6 +556,9 @@ function CommentItem({
               <Button
                 variant="ghost"
                 size="sm"
+                aria-label={`${row.liked?"Unlike":"Like"} comment · ${row.likes} likes`}
+                title={row.liked?"Unlike comment":"Like comment"}
+                className="min-h-11 min-w-11 flex-col gap-1"
                 aria-pressed={row.liked}
                 disabled={busy || locked}
                 onClick={() =>
@@ -570,16 +574,19 @@ function CommentItem({
                   )
                 }
               >
-                {row.liked ? "Liked" : "Like"}
-                {row.likes ? ` · ${row.likes}` : ""}
+                <EngagementIcon name="like" active={row.liked}/><span className="text-xs">{row.likes}</span>
               </Button>
               {!reply && !hidden && !locked && (
                 <Button
                   variant="ghost"
                   size="sm"
+                  aria-label={`${replying?"Cancel reply":"Reply to comment"} · ${row.replyCount} replies`}
+                  title={replying?"Cancel reply":"Reply to comment"}
+                  className="min-h-11 min-w-11 flex-col gap-1"
+                  aria-expanded={replying}
                   onClick={() => setReplying(!replying)}
                 >
-                  Reply
+                  <EngagementIcon name="comment"/><span className="text-xs">{row.replyCount}</span>
                 </Button>
               )}
               {row.author.own && (

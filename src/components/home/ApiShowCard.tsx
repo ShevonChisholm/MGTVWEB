@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import { useState } from "react";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/Button";
@@ -127,7 +128,7 @@ export function ApiShowCard({
                     .finally(() => setBusy(false));
                 }}
               >
-                {saved ? "✓ Saved" : "+ Save"}
+                <EngagementIcon name="save" active={saved}/>
               </Button>
             ) : (
               <Link
@@ -135,7 +136,7 @@ export function ApiShowCard({
                 className="inline-flex min-h-11 items-center px-2 text-xs text-text-secondary"
                 aria-label={`Sign in to save ${item.title}`}
               >
-                + Save
+                <EngagementIcon name="save"/>
               </Link>
             ))}
         </div>

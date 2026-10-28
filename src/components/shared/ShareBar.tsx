@@ -1,59 +1,52 @@
-import { useState } from "react"
+import { EngagementIcon } from "./EngagementIcon";
+import { useState } from "react";
 
 interface ShareBarProps {
-  title: string
-  url?: string
-  compact?: boolean
+  title: string;
+  url?: string;
+  compact?: boolean;
 }
 
 export function ShareBar({ title, url, compact }: ShareBarProps) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
   const shareUrl =
-    url ?? (typeof window !== "undefined" ? window.location.href : "")
+    url ?? (typeof window !== "undefined" ? window.location.href : "");
 
   const copyLink = async () => {
     try {
-      await navigator.clipboard.writeText(shareUrl)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     } catch {
-      setCopied(false)
+      setCopied(false);
     }
-  }
+  };
 
   const shareOn = (platform: string) => {
-    const text = encodeURIComponent(`Check out "${title}" on MGTV`)
+    const text = encodeURIComponent(`Check out "${title}" on MGTV`);
     const urls: Record<string, string> = {
       twitter: `https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(shareUrl)}`,
       whatsapp: `https://wa.me/?text=${text}%20${encodeURIComponent(shareUrl)}`,
       facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`,
-    }
+    };
     if (urls[platform])
-      window.open(urls[platform], "_blank", "noopener,noreferrer")
-  }
+      window.open(urls[platform], "_blank", "noopener,noreferrer");
+  };
 
   if (compact) {
     return (
       <button
         onClick={copyLink}
-        className="flex items-center gap-1.5 px-3 py-2 border border-white/12 text-text-secondary hover:border-white/20 hover:text-[#A3A3A3] transition-all cursor-pointer text-xs font-semibold"
+        aria-label={copied ? "Link copied" : "Copy share link"}
+        title={copied ? "Link copied" : "Share — copy link"}
+        className="min-h-11 min-w-11 flex items-center gap-1.5 px-3 py-2 border border-white/12 text-text-secondary hover:border-white/20 hover:text-[#A3A3A3] transition-all cursor-pointer text-xs font-semibold"
       >
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
-          />
-        </svg>
-        {copied ? "Copied!" : "Share"}
+        <EngagementIcon name={copied ? "check" : "share"} />
+        <span className="sr-only" role="status">
+          {copied ? "Link copied" : ""}
+        </span>
       </button>
-    )
+    );
   }
 
   return (
@@ -130,5 +123,5 @@ export function ShareBar({ title, url, compact }: ShareBarProps) {
         </button>
       ))}
     </div>
-  )
+  );
 }

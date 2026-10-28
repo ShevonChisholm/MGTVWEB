@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import {CommentsSection} from "@/components/comments/CommentsSection";
 import {
   MusicArtwork,
@@ -408,17 +409,23 @@ function MusicActions({ item }: { item: ApiMusic }) {
   return (
     <div className="mt-5 flex flex-wrap items-center gap-3">
       <Button
+        aria-label={pref.saved?"Remove from My List":"Save to My List"}
+        title={pref.saved?"Remove from My List":"Save to My List"}
+        className="min-h-11 min-w-11"
         aria-pressed={pref.saved}
         onClick={() => void save({ saved: !pref.saved })}
       >
-        {pref.saved ? "Saved" : "Save"}
+        <EngagementIcon name="save" active={pref.saved}/>
       </Button>
       <Button
         variant="outline"
+        aria-label={pref.liked?"Unlike this release":"Like this release"}
+        title={pref.liked?"Unlike this release":"Like this release"}
+        className="min-h-11 min-w-11"
         aria-pressed={pref.liked}
         onClick={() => void save({ liked: !pref.liked })}
       >
-        {pref.liked ? "Liked" : "Like"}
+        <EngagementIcon name="like" active={pref.liked}/>
       </Button>
       {item.previewAvailable && (
         <ButtonLink

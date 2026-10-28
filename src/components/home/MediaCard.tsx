@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import LifestyleCard from "@/components/lifestyle/LifestyleCard";
 import ArticleCard from "@/components/news/ArticleCard";
 import { ApiSportsCard } from "./ApiSportsCard";
@@ -364,23 +365,7 @@ function PrototypeMediaCard({
             } My List`}
             onClick={() => toggle(item.id)}
           >
-            <svg
-              aria-hidden="true"
-              className="h-4 w-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d={saved ? "m5 12 4 4L19 6" : "M12 4v16m8-8H4"}
-              />
-            </svg>
-            <Text as="span" className="text-xs">
-              {saved ? "Saved" : "Save"}
-            </Text>
+            <EngagementIcon name="save" active={saved}/>
           </Button>
         </div>
       </div>

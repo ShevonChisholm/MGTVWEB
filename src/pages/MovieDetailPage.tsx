@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import {CommentsSection} from "@/components/comments/CommentsSection";
 import { MovieArtwork, MovieDetailSkeleton } from "@/components/movies/MovieArtwork";
 import {OriginalLabel} from "@/components/shared/OriginalLabel";
@@ -190,15 +191,16 @@ function MovieDetailView({
               variant="outline"
               size="lg"
               disabled={busy}
+              aria-label={(remote?preference?.saved:id&&isSaved(id))?"Remove from My List":"Save to My List"}
+              title={(remote?preference?.saved:id&&isSaved(id))?"Remove from My List":"Save to My List"}
+              aria-pressed={!!(remote?preference?.saved:id&&isSaved(id))}
               onClick={() =>
                 remote
                   ? update({ saved: !preference?.saved })
                   : id && toggle(id)
               }
             >
-              {(remote ? preference?.saved : id && isSaved(id))
-                ? "✓ Saved"
-                : "+ My List"}
+              <EngagementIcon name="save" active={!!(remote?preference?.saved:id&&isSaved(id))}/>
             </Button>
             {remote?.previewAvailable && (
               <ButtonLink

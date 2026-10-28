@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import { Link } from "react-router";
 import { Button } from "@/components/ui/Button";
 import { useState } from "react";
@@ -95,7 +96,7 @@ function AlbumTrack({
                 .finally(() => setSaving(false));
             }}
           >
-            {saved ? "Saved" : "Save"}
+            <EngagementIcon name="save" active={saved}/>
           </Button>
         ) : (
           <Link
@@ -103,7 +104,7 @@ function AlbumTrack({
             to="/auth/sign-in"
             aria-label={"Sign in to save " + item.title}
           >
-            Save
+            <EngagementIcon name="save"/>
           </Link>
         )}
         <ConnectedPlaylistMenu musicId={item.id} format="audio" compact />

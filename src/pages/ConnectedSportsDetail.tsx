@@ -1,3 +1,4 @@
+import { EngagementIcon } from "@/components/shared/EngagementIcon";
 import SportsArtwork from "@/components/sports/SportsArtwork";
 import { OriginalLabel } from "@/components/shared/OriginalLabel";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
@@ -114,6 +115,8 @@ export function ConnectedSportsDetail() {
             {sports.session && !sports.profileRequired ? (
               <Button
                 variant="outline"
+                aria-label={pref.saved?"Remove from My List":"Save to My List"}
+                title={pref.saved?"Remove from My List":"Save to My List"}
                 aria-pressed={pref.saved}
                 disabled={busy}
                 onClick={() => {
@@ -126,7 +129,7 @@ export function ConnectedSportsDetail() {
                     .finally(() => setBusy(false));
                 }}
               >
-                {pref.saved ? "Saved to My List" : "Save to My List"}
+                <EngagementIcon name="save" active={pref.saved}/>
               </Button>
             ) : (
               <ButtonLink variant="outline" to="/auth/sign-in">
