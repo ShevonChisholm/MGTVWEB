@@ -1,3 +1,4 @@
+import { getCustomerSession } from "@/lib/customerAuth";
 import { MGTVPlayer } from "./MGTVPlayer";
 import { usePlaybackAnalytics } from "@/lib/playbackAnalytics";
 import AdvertisingVideo, { advertisingSource } from "./AdvertisingVideo";
@@ -165,6 +166,10 @@ function useMediaDelivery(
           const headers: Record<string, string> = {
             "X-MGTV-Playback": "descriptor",
           };
+          if (api.pathname.startsWith("/api/v1/customer/podcast-episodes/")) {
+            const session = await getCustomerSession();
+            if (session?.activeProfileId) headers["X-Profile-Context"] = session.activeProfileId;
+          }
           if (wantsWindow) {
             if (
               !requestId ||

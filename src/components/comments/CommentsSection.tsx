@@ -35,7 +35,7 @@ export function CommentsSection({
   kind,
   contentId,
 }: {
-  kind: "movie" | "episode" | "music";
+  kind: "movie" | "episode" | "music" | "podcast";
   contentId: string;
 }) {
   const auth = useCustomerSession();

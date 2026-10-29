@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useCustomerSession, customerApi, connectedAuth } from "./customerAuth";
 export const discoveryKinds = [
+  "podcast",
   "movie",
   "show",
   "episode",

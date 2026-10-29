@@ -27,6 +27,7 @@ const navLinks = [
   { label: "Shop", to: "/shop" },
 ];
 const moreLinks = [
+  { label: "Podcasts", to: "/podcasts" },
   { label: "Awards", to: "/awards" },
   { label: "Lifestyle", to: "/lifestyle" },
   { label: "News", to: "/news" },

@@ -57,6 +57,8 @@ function deferredPage(load: () => Promise<{ default: ComponentType<any> }>) {
   };
 }
 
+const PodcastsPage = deferredPage(() => import("@/pages/PodcastsPage"));
+const PodcastEpisodePage = deferredPage(() => import("@/pages/PodcastEpisodePage"));
 const CareersPage = deferredPage(() => import("@/pages/CareersPage"));
 
 const ComingSoonPage = deferredPage(() => import("@/pages/ComingSoonPage"));
@@ -414,6 +416,9 @@ export const router = createBrowserRouter([
           { path: "music/video/:id", Component: MusicVideoPage },
           { path: "music/track/:id", Component: TrackDetailPage },
           { path: "music/playlist/:id", Component: PlaylistPage },
+          { path: "podcasts", Component: PodcastsPage },
+          { path: "podcasts/episodes/:id", Component: PodcastEpisodePage },
+          { path: "podcasts/:id", Component: PodcastsPage },
           { path: "sports", Component: SportsPage },
           { path: "sports/:id/watch", Component: SportsWatchPage },
           { path: "sports/:id", Component: SportsDetailPage },

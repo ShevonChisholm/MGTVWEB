@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/Input";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import DiscoveryCard from "@/components/search/DiscoveryCard";
 const labels: Record<string, string> = {
+  podcast: "Podcasts",
   movie: "Movies",
   show: "Shows",
   episode: "Episodes",
@@ -142,10 +143,11 @@ export default function ConnectedSearch() {
             { key: "tag", label: "Tag", values: facets.data?.tag ?? [] },
             {
               key: "format",
-              label: "Music format",
+              label: "Media format",
               values: [
                 { id: "music-video", name: "Music videos" },
                 { id: "track", name: "Audio tracks" },
+                {id:"audio",name:"Audio podcasts"},{id:"video",name:"Video podcasts"},{id:"mixed",name:"Audio + video series"},
               ],
             },
           ].map((f) => (
