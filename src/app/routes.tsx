@@ -58,7 +58,9 @@ function deferredPage(load: () => Promise<{ default: ComponentType<any> }>) {
 }
 
 const PodcastsPage = deferredPage(() => import("@/pages/PodcastsPage"));
-const PodcastEpisodePage = deferredPage(() => import("@/pages/PodcastEpisodePage"));
+const PodcastEpisodePage = deferredPage(
+  () => import("@/pages/PodcastEpisodePage"),
+);
 const CareersPage = deferredPage(() => import("@/pages/CareersPage"));
 
 const ComingSoonPage = deferredPage(() => import("@/pages/ComingSoonPage"));
@@ -314,7 +316,16 @@ function MainLayout() {
   );
 }
 
+const PartnerActionPage = deferredPage(
+  () => import("@/pages/PartnerActionPage"),
+);
+
 export const router = createBrowserRouter([
+  {
+    path: "/partner/action",
+    Component: PartnerActionPage,
+    errorElement: <RouteErrorView />,
+  },
   {
     errorElement: <RouteErrorView />,
 
